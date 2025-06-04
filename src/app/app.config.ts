@@ -21,14 +21,22 @@ export const appConfig: ApplicationConfig = {     // der kommende part ist um da
     importProvidersFrom(MatNativeDateModule),
     provideFirebaseApp(() =>
       initializeApp({
-        apiKey: "AIzaSyDiLcAldhsOGjYsIbbQup2xNxIbFO5Hjy0",
-        authDomain: "simplecrm-80a5b.firebaseapp.com",
-        projectId: "simplecrm-80a5b",
-        storageBucket: "simplecrm-80a5b.appspot.com",
-        messagingSenderId: "805197682589",
-        appId: "1:805197682589:web:04d2c819a4b5b7588dc174"
+        apiKey: "AIzaSyDALtinxju3qAE1H5SY9BqsQKve9GBOn84",
+        authDomain: "dabubble-7e942.firebaseapp.com",
+        projectId: "dabubble-7e942",
+        storageBucket: "dabubble-7e942.firebasestorage.app",
+        messagingSenderId: "225459377281",
+        appId: "1:225459377281:web:5016a79ff01e1ba6e0a980"
       })
     ),
     provideFirestore(() => getFirestore())
   ]
 };
+
+
+// apiKey: "AIzaSyDiLcAldhsOGjYsIbbQup2xNxIbFO5Hjy0",
+// authDomain: "simplecrm-80a5b.firebaseapp.com",
+// projectId: "simplecrm-80a5b",
+// storageBucket: "simplecrm-80a5b.appspot.com",
+// messagingSenderId: "805197682589",
+// appId: "1:805197682589:web:04d2c819a4b5b7588dc174"
