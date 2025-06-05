@@ -1,4 +1,4 @@
-<mat-drawer-container class="mat-drawer-container" autosize>
+<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
   <mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
     <div class="logo-container">
       <img class="logo" src="/assets/img/logo.png" alt="">
@@ -6,7 +6,7 @@
     </div>
 
     <ul class="menu-items">
-      <li routerLink="/">
+      <li routerLink="/dashboard">
         <mat-icon>fact_check</mat-icon>
         Dashboard
       </li>
@@ -30,15 +30,15 @@
         <div class="actual_user dFlex_ac">
           <span>User Name</span>
           <img src="/assets/img/dummy_pic.png" alt="profile_pictrue">
-           
 
-    <button mat-icon-button [matMenuTriggerFor]="addressMenu" class="pin-right-upper-corner">
-        <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #addressMenu="matMenu">
-        <button mat-menu-item (click)="openProfileDialog()">Profile</button>
-        <button mat-menu-item (click)="LogOut()">Log out</button>
-    </mat-menu>
+          <!-- button + menu -->
+          <button mat-icon-button [matMenuTriggerFor]="addressMenu" class="pin-right-upper-corner">
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+          <mat-menu #addressMenu="matMenu">
+            <button mat-menu-item (click)="openProfileDialog()">Profile</button>
+            <button mat-menu-item (click)="LogOut()">Log out</button>
+          </mat-menu>
 
 
 
@@ -52,3 +52,9 @@
 
   </div>
 </mat-drawer-container>
+
+
+<!-- wird angezeigt wenn nicht eingelogt -->
+<div *ngIf="!isLoggedIn">
+  <router-outlet></router-outlet>
+</div>
