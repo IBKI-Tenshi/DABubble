@@ -56,13 +56,6 @@ export class UserDetailComponent {
     });
   }
 
-  // editUserDetail() {
-  //   (document.activeElement as HTMLElement)?.blur();  // Fokus vom aktuellen Element nehmen
-  //   this.dialog.open(DialogEditUserComponent, {
-  //     data: this.user   // benötigt um "user" in den dualog zu übergeben
-  //   });
-  // }
-
   editUserDetail() {
     (document.activeElement as HTMLElement)?.blur();  // Fokus vom aktuellen Element nehmen
     const dialog = this.dialog.open(DialogEditUserComponent);
@@ -79,13 +72,5 @@ export class UserDetailComponent {
     dialog.componentInstance.userId = this.userId;
   }
 
-
-
-  // editMenu() {
-  //   (document.activeElement as HTMLElement)?.blur();  // Fokus vom aktuellen Element nehmen
-  //   this.dialog.open(DialogEditAddressComponent, {
-  //     data: this.user   // benötigt um "user" in den dualog zu übergeben
-  //   });
-  // }
 }
 

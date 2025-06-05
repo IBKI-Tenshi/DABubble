@@ -7,7 +7,8 @@
             <th>Email</th>
             <th>City</th>
         </tr>
-        <tr *ngFor="let user of allUsers" [routerLink]="['/user/' + user.id]">
+        <!-- Auf user drücken um user-detail.component zu öffnen -->
+        <tr *ngFor="let user of allUsers" [routerLink]="['/user/' + user.id]">      
             <td>{{ user.firstName }} {{ user.lastName }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.city }}</td>

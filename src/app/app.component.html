@@ -30,7 +30,18 @@
         <div class="actual_user dFlex_ac">
           <span>User Name</span>
           <img src="/assets/img/dummy_pic.png" alt="profile_pictrue">
-           button_for_open_edit_user_dialog
+           
+
+    <button mat-icon-button [matMenuTriggerFor]="addressMenu" class="pin-right-upper-corner">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #addressMenu="matMenu">
+        <button mat-menu-item (click)="openProfileDialog()">Profile</button>
+        <button mat-menu-item (click)="LogOut()">Log out</button>
+    </mat-menu>
+
+
+
         </div>
       </mat-toolbar-row>
     </mat-toolbar>
