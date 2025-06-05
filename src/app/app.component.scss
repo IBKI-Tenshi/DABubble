@@ -54,5 +54,18 @@ mat-toolbar-row {
 }
 
 .logo {
-    height: 56px;
+    height: 40px;
+    padding: 8px;
+}
+
+.toolbar_top {
+    justify-content: space-between;
+}
+
+.actual_user {
+    
+    img {
+        height: 40px;
+        width: 40px;
+    }
 }
