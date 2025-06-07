@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {     // der kommende part ist um da
         appId: "1:225459377281:web:5016a79ff01e1ba6e0a980"
       })
     ),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()), provideAnimationsAsync()
   ]
 };
 
