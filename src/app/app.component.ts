@@ -57,6 +57,4 @@ export class AppComponent {
       console.log(`Dialog result: ${result}`);
     });
   }
-
-  LogOut() {}
 }

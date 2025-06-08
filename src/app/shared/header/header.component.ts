@@ -6,10 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProfileComponent } from '../../profile/profile.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-header',
@@ -26,11 +27,13 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    RouterModule,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
+  constructor(private loginService: LoginService, private router: Router) {}
   readonly dialog = inject(MatDialog);
 
   openProfileDialog() {
@@ -41,5 +44,8 @@ export class HeaderComponent {
     });
   }
 
-  LogOut() {}
+  LogOut() {
+    this.loginService.logout();
+    this.router.navigate(['/']);
+  }
 }

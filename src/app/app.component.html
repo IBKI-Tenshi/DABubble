@@ -1,11 +1,14 @@
-<div class="windowSetup">
+<div class="windowSetup" *ngIf="isLoggedIn$ | async">
   <app-header></app-header>
 
   <div class="main-layout" *ngIf="isLoggedIn$ | async">
     <app-sidebar></app-sidebar>
-
     <router-outlet></router-outlet>
   </div>
+</div>
+<!-- wird angezeigt wenn nicht eingelogt -->
+<div *ngIf="!(isLoggedIn$ | async)">
+  <router-outlet></router-outlet>
 </div>
 
 <!--<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
@@ -61,8 +64,3 @@
     </div>
   </div>
 </mat-drawer-container> -->
-
-<!-- wird angezeigt wenn nicht eingelogt -->
-<div *ngIf="!(isLoggedIn$ | async)">
-  <router-outlet></router-outlet>
-</div>
