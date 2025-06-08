@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { LoginService } from './services/login.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProfileComponent } from './profile/profile.component';
+import { HeaderComponent } from './shared/header/header.component';
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
 
 // import { Firestore } from '@angular/fire/firestore';
 
@@ -25,16 +27,17 @@ import { ProfileComponent } from './profile/profile.component';
     RouterModule,
     MatMenuModule,
     MatButtonModule,
-
     MatDialogModule,
     MatButtonModule,
     ProfileComponent,
+    HeaderComponent,
+    SidebarComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'sinmple-crm';
+  title = 'simple-crm';
   readonly dialog = inject(MatDialog);
 
   isLoggedIn: boolean = false;

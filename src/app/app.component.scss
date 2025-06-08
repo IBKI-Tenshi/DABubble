@@ -1,72 +1,80 @@
 .mat-drawer-container {
-    height: 100vh;
+  height: 100vh;
+}
+
+.windowSetup {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-layout {
+  display: flex;
+  justify-content: center;
 }
 
 .menu-icon {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .sidenav {
-    width: 300px;
+  width: 300px;
 }
 
 .logo-container {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-    padding: 0 16px;
-    min-height: 56px;
-    display: flex;
-    align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 0 16px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
 }
 
 mat-toolbar,
 mat-toolbar-row {
-    min-height: 56px;
-    height: 56px;
+  min-height: 56px;
+  height: 56px;
 }
 
 .menu-items {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 
-    li {
-        display: flex;
-        align-items: center;
-        padding: 0 16px;
-        height: 48px;
-        gap: 8px;
-        cursor: pointer;
+  li {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 48px;
+    gap: 8px;
+    cursor: pointer;
 
-        &:hover {
-            background-color: rgba(0, 0, 0, 0.04);
-        }
-
-        &:focus {
-            outline: none;
-        }
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
     }
+
+    &:focus {
+      outline: none;
+    }
+  }
 }
 
 .router-container {
-    padding-left: 56px;
-    padding-right: 56px;
-    padding-top: 16px;
+  padding-left: 56px;
+  padding-right: 56px;
+  padding-top: 16px;
 }
 
 .logo {
-    height: 40px;
-    padding: 8px;
+  height: 40px;
+  padding: 8px;
 }
 
 .toolbar_top {
-    justify-content: space-between;
+  justify-content: space-between;
 }
 
 .actual_user {
-    
-    img {
-        height: 40px;
-        width: 40px;
-    }
+  img {
+    height: 40px;
+    width: 40px;
+  }
 }
-

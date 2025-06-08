@@ -1,4 +1,14 @@
-<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
+<div class="windowSetup">
+  <app-header></app-header>
+
+  <div class="main-layout" *ngIf="isLoggedIn">
+    <app-sidebar></app-sidebar>
+
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<!--<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
   <mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
     <div class="logo-container">
       <img class="logo" src="/assets/img/logo.png" alt="" />
@@ -28,10 +38,10 @@
         <span>space_for_searchbar</span>
         <div class="actual_user dFlex_ac">
           <span>User Name</span>
-          <img src="/assets/img/dummy_pic.png" alt="profile_pictrue" />
+          <img src="/assets/img/dummy_pic.png" alt="profile_pictrue" /> -->
 
-          <!-- button + menu -->
-          <button
+<!-- button + menu -->
+<!-- <button
             mat-icon-button
             [matMenuTriggerFor]="addressMenu"
             class="pin-right-upper-corner"
@@ -50,7 +60,7 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-</mat-drawer-container>
+</mat-drawer-container> -->
 
 <!-- wird angezeigt wenn nicht eingelogt -->
 <div *ngIf="!isLoggedIn">

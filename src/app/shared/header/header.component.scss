@@ -1,0 +1,32 @@
+.profilePic {
+  height: 40px;
+  width: 40px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px 45px;
+  gap: 16px;
+  span {
+    font-weight: 700;
+    font-size: 32px;
+  }
+}
+
+.logo {
+  width: 70px;
+  height: 70px;
+}
+
+.searchInput {
+  border-radius: 42px;
+  background-color: white;
+}
+
+.mat-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
