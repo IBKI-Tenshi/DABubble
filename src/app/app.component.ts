@@ -39,11 +39,13 @@ import { SidebarComponent } from './shared/sidebar/sidebar.component';
 export class AppComponent {
   title = 'simple-crm';
   readonly dialog = inject(MatDialog);
-
-  isLoggedIn: boolean = false;
+  isLoggedIn = false;
+  isLoggedIn$ = this.loginService.isLoggedIn$;
   // isLoggedIn = true;
 
-  constructor(private loginService: LoginService) {
+  constructor(private loginService: LoginService) {}
+
+  ngOnInit() {
     this.loginService.isLoggedIn$.subscribe((status) => {
       this.isLoggedIn = status;
     });

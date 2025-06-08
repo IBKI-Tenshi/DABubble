@@ -1,7 +1,7 @@
 <div class="windowSetup">
   <app-header></app-header>
 
-  <div class="main-layout" *ngIf="isLoggedIn">
+  <div class="main-layout" *ngIf="isLoggedIn$ | async">
     <app-sidebar></app-sidebar>
 
     <router-outlet></router-outlet>
@@ -63,6 +63,6 @@
 </mat-drawer-container> -->
 
 <!-- wird angezeigt wenn nicht eingelogt -->
-<div *ngIf="!isLoggedIn">
+<div *ngIf="!(isLoggedIn$ | async)">
   <router-outlet></router-outlet>
 </div>
