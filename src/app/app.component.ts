@@ -29,7 +29,7 @@ import { SidebarComponent } from './shared/sidebar/sidebar.component';
     MatButtonModule,
     MatDialogModule,
     MatButtonModule,
-    ProfileComponent,
+
     HeaderComponent,
     SidebarComponent,
   ],

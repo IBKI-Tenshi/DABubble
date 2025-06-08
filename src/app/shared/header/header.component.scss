@@ -7,7 +7,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 25px 45px;
   gap: 16px;
   span {
     font-weight: 700;
@@ -15,18 +14,92 @@
   }
 }
 
-.logo {
-  width: 70px;
-  height: 70px;
+.searchContainer {
+  position: relative;
+  max-width: 989px;
+
+  button {
+    position: absolute;
+    right: 45px;
+    top: 0;
+  }
 }
 
 .searchInput {
   border-radius: 42px;
   background-color: white;
+  padding: 17.5px 45px;
+  border-style: none;
+  width: 100%;
 }
 
 .mat-toolbar-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.mat-drawer-container {
+  height: 100vh;
+}
+
+.windowSetup {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-icon {
+  cursor: pointer;
+}
+
+mat-toolbar,
+mat-toolbar-row {
+  min-height: 56px;
+}
+
+.menu-items {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 48px;
+    gap: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.router-container {
+  padding-left: 56px;
+  padding-right: 56px;
+  padding-top: 16px;
+}
+
+.logo {
+  height: 40px;
+  width: 40px;
+  padding: 8px;
+}
+
+.toolbar_top {
+  justify-content: space-between;
+}
+
+.actual_user {
+  gap: 20px;
+  img {
+    height: 40px;
+    width: 40px;
+  }
 }

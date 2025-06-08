@@ -1,16 +1,18 @@
-<mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
-  <ul class="menu-items">
-    <li routerLink="/dashboard">
-      <mat-icon>fact_check</mat-icon>
-      Dashboard
-    </li>
-    <li routerLink="/user">
-      <mat-icon>person</mat-icon>
-      User
-    </li>
-    <li routerLink="">
-      <img src="/assets/icons/channels.svg" alt="" />
-      Channels
-    </li>
-  </ul>
-</mat-drawer>
+<div class="mat-drawer-container">
+  <mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
+    <ul class="menu-items">
+      <li routerLink="/dashboard">
+        <mat-icon>fact_check</mat-icon>
+        Dashboard
+      </li>
+      <li routerLink="/user">
+        <mat-icon>person</mat-icon>
+        User
+      </li>
+      <li routerLink="">
+        <img src="/assets/icons/channels.svg" alt="" />
+        Channels
+      </li>
+    </ul>
+  </mat-drawer>
+</div>

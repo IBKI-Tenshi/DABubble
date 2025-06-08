@@ -24,7 +24,6 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatDialogModule,
     MatButtonModule,
-    ProfileComponent,
     MatFormFieldModule,
     MatInputModule,
   ],
