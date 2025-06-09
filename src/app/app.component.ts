@@ -1,13 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterOutlet } from '@angular/router'; // ganz wichtig damit das routing funktioniert
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 
 import { LoginService } from './services/login.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ProfileComponent } from './profile/profile.component';
+import { HeaderComponent } from './shared/header/header.component';
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
 
 // import { Firestore } from '@angular/fire/firestore';
 
@@ -23,24 +27,34 @@ import { LoginService } from './services/login.service';
     RouterModule,
     MatMenuModule,
     MatButtonModule,
+    MatDialogModule,
+    MatButtonModule,
+
+    HeaderComponent,
+    SidebarComponent,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'sinmple-crm';
-
-  isLoggedIn: boolean = false;
+  title = 'simple-crm';
+  readonly dialog = inject(MatDialog);
+  isLoggedIn = false;
+  isLoggedIn$ = this.loginService.isLoggedIn$;
   // isLoggedIn = true;
 
-  constructor(private loginService: LoginService) {
-    this.loginService.isLoggedIn$.subscribe(status => {
+  constructor(private loginService: LoginService) {}
+
+  ngOnInit() {
+    this.loginService.isLoggedIn$.subscribe((status) => {
       this.isLoggedIn = status;
     });
   }
-  openProfileDialog() { }
+  openProfileDialog() {
+    const dialogRef = this.dialog.open(ProfileComponent);
 
-  LogOut() { }
-
-
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
 }

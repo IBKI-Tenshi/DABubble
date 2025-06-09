@@ -1,7 +1,20 @@
-<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
+<div class="windowSetup" *ngIf="isLoggedIn$ | async">
+  <app-header></app-header>
+
+  <div class="main-layout" *ngIf="isLoggedIn$ | async">
+    <app-sidebar></app-sidebar>
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<!-- wird angezeigt wenn nicht eingelogt -->
+<div *ngIf="!(isLoggedIn$ | async)">
+  <router-outlet></router-outlet>
+</div>
+
+<!--<mat-drawer-container class="mat-drawer-container" autosize *ngIf="isLoggedIn">
   <mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
     <div class="logo-container">
-      <img class="logo" src="/assets/img/logo.png" alt="">
+      <img class="logo" src="/assets/img/logo.png" alt="" />
       <span>DABubble</span>
     </div>
 
@@ -19,7 +32,6 @@
         Channels
       </li>
     </ul>
-
   </mat-drawer>
 
   <div class="example-sidenav-content">
@@ -29,19 +41,20 @@
         <span>space_for_searchbar</span>
         <div class="actual_user dFlex_ac">
           <span>User Name</span>
-          <img src="/assets/img/dummy_pic.png" alt="profile_pictrue">
+          <img src="/assets/img/dummy_pic.png" alt="profile_pictrue" /> -->
 
-          <!-- button + menu -->
-          <button mat-icon-button [matMenuTriggerFor]="addressMenu" class="pin-right-upper-corner">
+<!-- button + menu -->
+<!-- <button
+            mat-icon-button
+            [matMenuTriggerFor]="addressMenu"
+            class="pin-right-upper-corner"
+          >
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
           <mat-menu #addressMenu="matMenu">
             <button mat-menu-item (click)="openProfileDialog()">Profile</button>
             <button mat-menu-item (click)="LogOut()">Log out</button>
           </mat-menu>
-
-
-
         </div>
       </mat-toolbar-row>
     </mat-toolbar>
@@ -49,12 +62,5 @@
     <div class="router-container">
       <router-outlet></router-outlet>
     </div>
-
   </div>
-</mat-drawer-container>
-
-
-<!-- wird angezeigt wenn nicht eingelogt -->
-<div *ngIf="!isLoggedIn">
-  <router-outlet></router-outlet>
-</div>
+</mat-drawer-container> -->

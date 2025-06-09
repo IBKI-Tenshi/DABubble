@@ -1,0 +1,40 @@
+<mat-toolbar>
+  <mat-toolbar-row class="toolbar_top dFlex">
+    <div class="logo-container">
+      <img class="logo" src="/assets/img/logo.png" alt="" />
+      <span>DABubble</span>
+    </div>
+    <div class="searchContainer">
+      <input
+        class="searchInput"
+        matInput
+        type="search"
+        placeholder="Space durchsuchen"
+      />
+      <button matSuffix mat-icon-button aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+    <div class="actual_user dFlex_ac">
+      <span>User Name</span>
+      <img
+        class="profilePic"
+        src="/assets/img/dummy_pic.png"
+        alt="profile_pictrue"
+      />
+
+      <!-- button + menu -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="addressMenu"
+        class="pin-right-upper-corner"
+      >
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #addressMenu="matMenu">
+        <button mat-menu-item (click)="openProfileDialog()">Profile</button>
+        <button mat-menu-item (click)="LogOut()">Log out</button>
+      </mat-menu>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
