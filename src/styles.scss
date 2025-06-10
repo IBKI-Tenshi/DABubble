@@ -5,9 +5,11 @@ body {
   height: 100%;
   background-color: #eceefe;
 }
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Nunito";
+  font-weight: 400;
 }
 
 .m-16 {
@@ -57,11 +59,31 @@ body {
   display: flex;
   justify-content: center;
 }
-html,
-body {
-  height: 100%;
+
+@font-face {
+  font-family: "Nunito";
+  font-weight: 400;
+  font-style: normal;
+  src: url("assets/fonts/Nunito-Regular.ttf") format("truetype");
 }
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+@font-face {
+  font-family: "Nunito";
+  font-weight: 500;
+  font-style: normal;
+  src: url("assets/fonts/Nunito-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-weight: 600;
+  font-style: normal;
+  src: url("assets/fonts/Nunito-Black.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Nunito";
+  font-weight: 700;
+  font-style: normal;
+  src: url("assets/fonts/Nunito-Bold.ttf") format("truetype");
 }
