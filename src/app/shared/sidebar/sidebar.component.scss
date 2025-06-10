@@ -1,37 +1,61 @@
-.mat-drawer-container {
+.devspace-container {
   height: 100vh;
   margin: 0 30px;
   background-color: white;
   border-radius: 30px;
 }
 
-.windowSetup {
-  display: flex;
-  flex-direction: column;
+// .toggle-btn {
+//   // height: 90%;
+//   width: 64px;
+//   background-color: rgba(0, 255, 255, 0.462);
+//   position: absolute;
+//   top: 10;
+//   bottom: 10;
+// }
+
+.devspace-header {
+  justify-content: space-between;
+
+  >div {
+    gap: 16px;
+
+    >span {
+      font-weight: 500;
+      font-size: 24px;
+    }
+  }
 }
+
+.new-message-button {}
+
+// .windowSetup {
+//   display: flex;
+//   flex-direction: column;
+// }
 
 .sidenav {
   width: 300px;
   display: block;
 }
 
-.menu-icon {
-  cursor: pointer;
-}
+// .menu-icon {
+//   cursor: pointer;
+// }
 
-.logo-container {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  padding: 0 16px;
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-}
+// .logo-container {
+//   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+//   padding: 0 16px;
+//   min-height: 56px;
+//   display: flex;
+//   align-items: center;
+// }
 
-mat-toolbar,
-mat-toolbar-row {
-  min-height: 56px;
-  height: 56px;
-}
+// mat-toolbar,
+// mat-toolbar-row {
+//   min-height: 56px;
+//   height: 56px;
+// }
 
 .menu-items {
   list-style-type: none;

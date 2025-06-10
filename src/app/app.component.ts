@@ -43,7 +43,10 @@ export class AppComponent {
   isLoggedIn$ = this.loginService.isLoggedIn$;
   // isLoggedIn = true;
 
-  constructor(private loginService: LoginService) {}
+  showSidebar = true; // Steuert Sichtbarkeit der Sidebar 
+
+
+  constructor(private loginService: LoginService) { }
 
   ngOnInit() {
     this.loginService.isLoggedIn$.subscribe((status) => {
@@ -57,4 +60,9 @@ export class AppComponent {
       console.log(`Dialog result: ${result}`);
     });
   }
+
+  toggleSidebar() {
+    this.showSidebar = !this.showSidebar;
+  }
+
 }

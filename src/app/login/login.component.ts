@@ -5,8 +5,8 @@ import { LoginService } from '../services/login.service';
 // Fehler unterdrücken
 const originalConsoleError = console.error;
 console.error = (...args) => {
-  if (args[0] && typeof args[0] === 'string' && 
-     (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))) {
+  if (args[0] && typeof args[0] === 'string' &&
+    (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))) {
     return;
   }
   originalConsoleError.apply(console, args);
@@ -23,28 +23,34 @@ declare const google: any;
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   @ViewChild('googleBtn') googleBtn!: ElementRef;
-  
+
   constructor(
     private loginService: LoginService,
     private router: Router,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   doLogin() {
     this.loginService.login();
     this.router.navigate(['/dashboard']);
   }
 
+  guestLogin() {
+    this.loginService.loginAsGuest();
+    this.router.navigate(['/dashboard']);
+  }
+
+
   ngOnInit(): void {
     console.log('LoginComponent initialisiert');
     console.log('Exakter Origin für Google:', window.location.origin);
   }
-  
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       try {
         if (this.googleBtn && this.googleBtn.nativeElement) {
-          
+
           // Diese Konfiguration ist optimiert, um Fehler zu minimieren
           google.accounts.id.initialize({
             client_id: '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
@@ -53,7 +59,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             cancel_on_tap_outside: true,
             use_fedcm_for_prompt: false
           });
-          
+
           google.accounts.id.renderButton(this.googleBtn.nativeElement, {
             theme: 'outline',
             size: 'large',
@@ -77,7 +83,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         console.error('Ungültige Anmeldeantwort erhalten');
         return;
       }
-      
+
       const token = response.credential;
       console.log('Google Login erfolgreich');
 
@@ -86,7 +92,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
       localStorage.setItem('google_token', token);
       this.loginService.login();
-      
+
       this.ngZone.run(() => {
         setTimeout(() => {
           this.router.navigate(['/dashboard']);

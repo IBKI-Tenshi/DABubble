@@ -1,5 +1,18 @@
-<div class="mat-drawer-container">
-  <mat-drawer #drawer class="sidenav" [opened]="true" mode="side">
+
+<div class="devspace-container">
+  
+  <mat-drawer class="sidenav" #drawer [opened]="true" mode="side">
+
+    <div class="devspace-header dFlex_ac p-16">
+      <div class="dFlex_ac">
+        <img src="/assets/img/workspace-logo.png" alt="">
+        <span>Devspace</span>
+      </div>
+      <a class="new-message-button" href="#">
+        <img src="/assets/icons/new-message.svg" alt="">
+      </a>
+    </div>
+
     <ul class="menu-items">
       <li routerLink="/dashboard">
         <mat-icon>fact_check</mat-icon>
