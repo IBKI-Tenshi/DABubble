@@ -1,10 +1,3 @@
-<button (click)="doLogin()">Login</button>
-<button (click)="guestLogin()">Als Gast fortfahren</button>
-
-
-<div #googleBtn></div>
-
-
 <div class="login-container dFlex_ac">
 
     <div class="login-header dFlex_ac">
@@ -13,7 +6,7 @@
             <span>DABubble</span>
         </div>
 
-        <div class="register-container">
+        <div class="register-container dFlex">
             <span>Nei bei DABubble?</span>
             <a href="">
                 <span>Konto erstellen</span>
@@ -34,6 +27,16 @@
         <a routerLink="/auth/request-password-reset">
             <span>Passwort vergessen?</span>
         </a>
+
+
+
+
+
+        <div #googleBtn></div>
+
+        <button (click)="doLogin()">Login</button>
+        <button (click)="guestLogin()">Als Gast fortfahren</button>
+
 
 
 

@@ -1,5 +1,4 @@
 .login-container {
-    background-color: aqua;
     flex-direction: column;
 }
 
@@ -12,11 +11,14 @@
     padding: 56px;
 }
 
+.register-container {}
+
 .logo-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
+
 
     >img {
         width: 80px;
@@ -33,7 +35,9 @@
 .login-dialog {
     height: 500px;
     width: 600px;
-    background-color: beige;
+    background-color: white;
+
+    border-radius: 20px;
 
     flex-direction: column;
 }

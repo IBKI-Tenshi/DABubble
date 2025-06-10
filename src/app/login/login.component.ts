@@ -1,7 +1,6 @@
 import { Component, OnInit, NgZone, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../services/login.service';
-import { NgIf } from '@angular/common';
 
 // Fehler unterdrücken
 const originalConsoleError = console.error;
@@ -18,7 +17,7 @@ declare const google: any;
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [NgIf],
+  imports: [],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
