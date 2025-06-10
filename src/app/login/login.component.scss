@@ -1,0 +1,39 @@
+.login-container {
+    background-color: aqua;
+    flex-direction: column;
+}
+
+.login-header {
+    width: 100%;
+    box-sizing: border-box;
+
+    justify-content: space-between;
+
+    padding: 56px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    >img {
+        width: 80px;
+        height: 80px;
+    }
+
+    >span {
+        font-weight: 700;
+        font-size: 32px;
+    }
+}
+
+
+.login-dialog {
+    height: 500px;
+    width: 600px;
+    background-color: beige;
+
+    flex-direction: column;
+}

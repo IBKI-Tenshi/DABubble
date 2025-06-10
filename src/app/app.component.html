@@ -1,9 +1,7 @@
 <div class="windowSetup" *ngIf="isLoggedIn$ | async">
   <app-header></app-header>
 
-
    <button class="toggle-sidebar-button" (click)="toggleSidebar()">Toggle Sidebar</button>
-
 
   <div class="main-layout" *ngIf="isLoggedIn$ | async">
     <ng-container *ngIf="showSidebar">
