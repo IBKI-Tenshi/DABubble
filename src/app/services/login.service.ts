@@ -11,15 +11,25 @@ export class LoginService {
   constructor() {}
 
   private hasToken(): boolean {
-    return !!localStorage.getItem('google_token');
+    return !!(localStorage.getItem('google_token') || localStorage.getItem('guest_token'));
   }
 
-  login() {
+  login(token: string = '') {
+    if (token) {
+      localStorage.setItem('user_token', token);
+    }
+    this.loggedIn.next(true);
+  }
+
+  loginAsGuest() {
+    localStorage.setItem('guest_token', 'guest_dummy_token');
     this.loggedIn.next(true);
   }
 
   logout() {
     localStorage.removeItem('google_token');
+    localStorage.removeItem('guest_token');
+    localStorage.removeItem('user_token'); // für späteren normalen Login
     this.loggedIn.next(false);
   }
 }

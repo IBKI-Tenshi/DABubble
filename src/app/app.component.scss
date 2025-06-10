@@ -2,3 +2,20 @@
   display: flex;
   justify-content: flex-start;
 }
+
+
+.toggle-sidebar-button {
+  position: absolute;
+  bottom: 0; // nach Wunsch anpassen
+  left: 0;
+  transform: rotate(-90deg);
+  transform-origin: left top;
+  background-color: #1976d2;
+  color: white;
+  padding: 8px 16px;
+  width: 500px;
+  border: none;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  z-index: 1000; // damit es über der Sidebar liegt
+}
