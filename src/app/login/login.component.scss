@@ -1,43 +1,42 @@
 .login-container {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 .login-header {
-    width: 100%;
-    box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
 
-    justify-content: space-between;
+  justify-content: space-between;
 
-    padding: 56px;
+  padding: 56px;
 }
 
-.register-container {}
+.register-container {
+}
 
 .logo-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 
+  > img {
+    width: 80px;
+    height: 80px;
+  }
 
-    >img {
-        width: 80px;
-        height: 80px;
-    }
-
-    >span {
-        font-weight: 700;
-        font-size: 32px;
-    }
+  > span {
+    font-weight: 700;
+    font-size: 32px;
+  }
 }
 
-
 .login-dialog {
-    height: 500px;
-    width: 600px;
-    background-color: white;
+  height: 500px;
+  width: 600px;
+  background-color: white;
 
-    border-radius: 20px;
+  border-radius: 30px;
 
-    flex-direction: column;
+  flex-direction: column;
 }
