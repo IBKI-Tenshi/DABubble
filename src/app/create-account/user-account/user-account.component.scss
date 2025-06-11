@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 24px;
   width: 660px;
-  padding: 24px;
+  padding: 40px;
   background-color: white;
   border-radius: 30px;
 }
@@ -23,7 +23,6 @@ h1 {
 .accountCreationInput {
   display: flex;
   flex-direction: column;
-  gap: 24px;
   input {
     padding: 18px 32px 18px 64px;
     border-radius: 100px;
@@ -43,6 +42,29 @@ h1 {
       color: transparent;
     }
   }
+  input.invalid {
+    background-color: rgb(255, 205, 205);
+    color: red;
+
+    &:hover {
+      border: 2px solid rgb(255, 115, 115) !important;
+    }
+    &:focus {
+      border: 2px solid red !important;
+    }
+  }
+  input.invalid::placeholder {
+    color: rgb(253, 99, 99);
+  }
+  span {
+    color: red;
+    height: 25px;
+  }
+}
+
+.validError {
+  color: red;
+  height: 25px;
 }
 
 input[type="text"] {
@@ -55,6 +77,10 @@ input[type="text"] {
   }
 }
 
+input[type="text"].invalid {
+  background-image: url(../../../assets/icons/create_user/person_red.svg);
+}
+
 input[type="email"] {
   background-image: url(../../../assets/icons/create_user/letter_grey.svg);
   background-repeat: no-repeat;
@@ -63,6 +89,10 @@ input[type="email"] {
   &:focus {
     background-image: url(../../../assets/icons/create_user/letter_black.svg);
   }
+}
+
+input[type="email"].invalid {
+  background-image: url(../../../assets/icons/create_user/letter_red.svg);
 }
 
 input[type="password"] {
@@ -75,6 +105,12 @@ input[type="password"] {
   }
 }
 
+input[type="password"].invalid {
+  background-image: url(../../../assets/icons/create_user/lock_red.svg) !important;
+  background-color: rgb(255, 205, 205);
+  color: red;
+}
+
 .accountCreationPrivacy {
   display: flex;
   gap: 6px;
@@ -82,6 +118,20 @@ input[type="password"] {
   p {
     margin-bottom: 0;
     color: #42526e;
+  }
+  a {
+    color: #797ef3;
+    text-decoration: none;
+    &:hover {
+      background-color: #eceefe;
+    }
+  }
+}
+
+.accountCreationPrivacy.invalid {
+  p {
+    color: red !important;
+    font-weight: 700;
   }
 }
 
@@ -96,5 +146,60 @@ input[type="password"] {
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
+  }
+}
+
+.customCheckbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  position: relative;
+  padding-left: 32px;
+  user-select: none;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border: 2px solid #797ef3;
+    border-radius: 4px;
+    &::after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+
+  input:checked ~ .checkmark {
+    background-color: #797ef3; /* Violet fill */
+    border-color: #797ef3;
+
+    &::after {
+      display: block;
+    }
+  }
+
+  &:hover .checkmark {
+    border-color: #5e47d2;
   }
 }

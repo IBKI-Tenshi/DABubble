@@ -1,12 +1,22 @@
-import { Component, OnInit, NgZone, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  NgZone,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../services/login.service';
 
 // Fehler unterdrücken
 const originalConsoleError = console.error;
 console.error = (...args) => {
-  if (args[0] && typeof args[0] === 'string' &&
-    (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))) {
+  if (
+    args[0] &&
+    typeof args[0] === 'string' &&
+    (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))
+  ) {
     return;
   }
   originalConsoleError.apply(console, args);
@@ -17,7 +27,7 @@ declare const google: any;
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -28,7 +38,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private loginService: LoginService,
     private router: Router,
     private ngZone: NgZone
-  ) { }
+  ) {}
 
   doLogin() {
     this.loginService.login();
@@ -40,7 +50,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/dashboard']);
   }
 
-
   ngOnInit(): void {
     console.log('LoginComponent initialisiert');
     console.log('Exakter Origin für Google:', window.location.origin);
@@ -50,14 +59,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       try {
         if (this.googleBtn && this.googleBtn.nativeElement) {
-
           // Diese Konfiguration ist optimiert, um Fehler zu minimieren
           google.accounts.id.initialize({
-            client_id: '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
+            client_id:
+              '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
             callback: this.handleCredentialResponse.bind(this),
             auto_select: false,
             cancel_on_tap_outside: true,
-            use_fedcm_for_prompt: false
+            use_fedcm_for_prompt: false,
           });
 
           google.accounts.id.renderButton(this.googleBtn.nativeElement, {
@@ -66,7 +75,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             text: 'signin_with',
             shape: 'rectangular',
             logo_alignment: 'left',
-            width: 240
+            width: 240,
           });
         } else {
           console.error('Google Button Element nicht gefunden (ViewChild)!');

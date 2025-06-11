@@ -1,45 +1,33 @@
 <div class="login-container dFlex_ac">
-
-    <div class="login-header dFlex_ac">
-        <div class="logo-container">
-            <img class="logo" src="/assets/img/logo.png" alt="" />
-            <span>DABubble</span>
-        </div>
-
-        <div class="register-container dFlex">
-            <span>Nei bei DABubble?</span>
-            <a href="">
-                <span>Konto erstellen</span>
-            </a>
-        </div>
+  <div class="login-header dFlex_ac">
+    <div class="logo-container">
+      <img class="logo" src="/assets/img/logo.png" alt="" />
+      <span>DABubble</span>
     </div>
 
-
-
-
-    <div class="login-dialog dFlex_ac">
-        <h2>Anmeldung</h2>
-        <p>Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.</p>
-
-        <input class="email" type="email" placeholder="beispielname@email.com" />
-        <input class="password" type="password" placeholder="Passwort" />
-
-        <a routerLink="/auth/request-password-reset">
-            <span>Passwort vergessen?</span>
-        </a>
-
-
-
-
-
-        <div #googleBtn></div>
-
-        <button (click)="doLogin()">Login</button>
-        <button (click)="guestLogin()">Als Gast fortfahren</button>
-
-
-
-
+    <div class="register-container dFlex">
+      <span>Neu bei DABubble? </span>
+      <a routerLink="accountCreation">Konto erstellen</a>
     </div>
+  </div>
 
+  <div class="login-dialog dFlex_ac">
+    <h2>Anmeldung</h2>
+    <p>
+      Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit
+      verwendest.
+    </p>
+
+    <input class="email" type="email" placeholder="beispielname@email.com" />
+    <input class="password" type="password" placeholder="Passwort" />
+
+    <a routerLink="/auth/request-password-reset">
+      <span>Passwort vergessen?</span>
+    </a>
+
+    <div #googleBtn></div>
+
+    <button (click)="doLogin()">Login</button>
+    <button (click)="guestLogin()">Als Gast fortfahren</button>
+  </div>
 </div>
