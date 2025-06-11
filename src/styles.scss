@@ -88,6 +88,15 @@ a {
   justify-content: center;
 }
 
+.directionColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.height25 {
+  height: 25px;
+}
+
 @font-face {
   font-family: "Nunito";
   font-weight: 400;

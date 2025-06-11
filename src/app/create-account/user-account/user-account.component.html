@@ -4,16 +4,103 @@
     Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
     DABubble-Konto.
   </p>
-  <div class="accountCreationInput">
-    <input type="text" placeholder="Name und Nachname" />
-    <input type="email" placeholder="beispielname@email.com" />
-    <input type="password" placeholder="Passwort" />
-  </div>
-  <div class="accountCreationPrivacy">
-    <input type="checkbox" />
-    <p>Ich stimme der Datenschutzerklärung zu</p>
-  </div>
-  <div class="continueButton">
-    <button mat-raised-button>Weiter</button>
-  </div>
+  <form (ngSubmit)="onSubmit(userForm)" #userForm="ngForm">
+    <div class="accountCreationInput">
+      <div class="directionColumn">
+        <input
+          #name="ngModel"
+          minlength="4"
+          [(ngModel)]="contactData.name"
+          type="text"
+          name="personName"
+          placeholder="Name und Nachname"
+          [class.invalid]="!name.valid && name.touched"
+          required
+          id="name"
+        />
+        @if(!name.valid && name.touched) {
+        <span class="entryError">Bitte geben Sie einen gültigen Namen ein</span>
+        } @else {
+        <div class="height25"></div>
+        }
+      </div>
+      <div class="directionColumn">
+        <input
+          #email="ngModel"
+          [(ngModel)]="contactData.email"
+          type="email"
+          placeholder="beispielname@email.com"
+          name="email"
+          id="email"
+          required
+          pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+          [class.invalid]="!email.valid && email.touched"
+        />
+        @if(!email.valid && email.touched) {
+        <span class="entryError">Bitte geben Sie eine gültige Email ein</span>
+        } @else {
+        <div class="height25"></div>
+        }
+      </div>
+      <div class="directionColumn">
+        <input
+          #password="ngModel"
+          [(ngModel)]="contactData.password"
+          type="password"
+          placeholder="Passwort"
+          name="password"
+          id="password"
+          title="Das Passwort muss min. 8 lang sein, 1x Großbuchstaben, 1x Zahl und 1x speziellen Character enthalten"
+          required
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$"
+          [class.invalid]="!password.valid && password.touched"
+        />
+        @if(!password.valid && password.touched) {
+        <span class="entryError"
+          >Bitte geben Sie ein gültiges Passwort ein</span
+        >
+        } @else {
+        <div class="height25"></div>
+        }
+      </div>
+    </div>
+    <div class="directionColumn">
+      <div
+        class="accountCreationPrivacy"
+        [class.invalid]="!check.valid && check.touched"
+      >
+        <label class="customCheckbox">
+          <input
+            type="checkbox"
+            id="privacyCheck"
+            name="privacyCheck"
+            [(ngModel)]="contactData.privacyAccepted"
+            #check="ngModel"
+            required
+          />
+          <span class="checkmark"></span>
+        </label>
+        <p>
+          Ich stimme der <a routerLink="/privacy">Datenschutzerklärung </a>zu
+        </p>
+      </div>
+      @if(!check.valid && check.touched) {
+      <span class="validError"
+        >Bitte lesen und akzeptieren Sie die Datenschutzbestimmung</span
+      >
+      } @else {
+      <div class="height25"></div>
+      }
+    </div>
+    <div class="continueButton">
+      <button
+        mat-raised-button
+        [class.disabled]="!userForm.valid"
+        [disabled]="!userForm.valid"
+        type="submit"
+      >
+        Weiter
+      </button>
+    </div>
+  </form>
 </section>
