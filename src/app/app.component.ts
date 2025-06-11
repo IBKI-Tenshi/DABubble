@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProfileComponent } from './profile/profile.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
+import { IntroComponent } from "./intro/intro.component";
 
 // import { Firestore } from '@angular/fire/firestore';
 
@@ -29,10 +30,10 @@ import { SidebarComponent } from './shared/sidebar/sidebar.component';
     MatButtonModule,
     MatDialogModule,
     MatButtonModule,
-
     HeaderComponent,
     SidebarComponent,
-  ],
+    IntroComponent
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

@@ -1,3 +1,4 @@
+<app-intro *ngIf="!(isLoggedIn$ | async)"></app-intro>
 <div class="windowSetup" *ngIf="isLoggedIn$ | async">
   <app-header></app-header>
 

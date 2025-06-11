@@ -1,0 +1,88 @@
+.intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(1.45deg, #313AE6 1.2%, #797EF3 99%);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+  }
+  
+  .intro-wrapper {
+    width: 350px;
+    height: 184px;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Stellt sicher, dass Elemente vertikal zentriert sind */
+    position: relative;
+    animation: moveToCorner 0.8s ease-in-out forwards 1.2s;
+  }
+  
+  .intro-icon {
+    width: 100px;
+    height: 100px;
+    margin-right: -100px;
+    animation: moveIconToLeft 500ms cubic-bezier(0.4, 1.2, 0.5, 1) forwards 500ms;
+    display: flex; /* Hinzugefügt für bessere Ausrichtung */
+    align-items: center; /* Hinzugefügt für vertikale Zentrierung */
+    justify-content: center; /* Hinzugefügt für horizontale Zentrierung */
+  }
+  
+  .intro-title {
+    /* Höhe auf auto geändert, um Abschneiden zu vermeiden */
+    height: auto;
+    /* Mindesthöhe eingestellt, damit es mindestens so hoch wie Icon ist */
+    min-height: 100px;
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    display: flex; /* Geändert von inline-block zu flex */
+    align-items: center; /* Vertikale Zentrierung des Textes */
+    width: 0;
+    margin-right: -100px;
+    animation: typeWriter 0.5s steps(8, end) forwards 800ms;
+    /* Padding hinzugefügt, um sicherzustellen, dass Text nicht abgeschnitten wird */
+    padding-top: 8px; 
+    padding-bottom: 8px;
+    line-height: 1; /* Verbesserte Zeilenhöhe für Text */
+  }
+  
+  /* Deine bestehenden Keyframes bleiben gleich */
+  @keyframes moveIconToLeft {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100px); }
+  }
+  
+  @keyframes typeWriter {
+    from { width: 0; }
+    to   { width: 230px; }
+  }
+  
+  @keyframes moveToCorner {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(-35vw, -35vh); }
+  }
+  
+  @media (max-width: 950px) {
+    .intro-wrapper {
+      animation: moveToTopCenter 0.8s ease-in-out forwards 1.2s;
+    }
+  
+    @keyframes moveToTopCenter {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(0, -40vh); }
+    }
+  }
+  
+  /* Füge diese Klasse hinzu, wenn du das Intro-Element komplett ausblenden möchtest */
+  .intro-screen.fade-out {
+    opacity: 0;
+  }
