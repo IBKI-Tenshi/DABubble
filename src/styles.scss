@@ -4,12 +4,36 @@ html,
 body {
   height: 100%;
   background-color: #eceefe;
+
+}
+
+.mat-h1,
+.mat-headline-5,
+.mat-typography .mat-h1,
+.mat-typography .mat-headline-5,
+.mat-typography h1 {
+  font: 700 46px / 32px 'Nunito', sans-serif !important;
+}
+
+html,
+body,
+.mat-typography,
+.mat-app-background {
+  font: 400 20px / 32px 'Nunito', sans-serif !important;
 }
 
 body {
   margin: 0;
   font-family: "Nunito";
-  font-weight: 400;
+  // font-weight: 400;
+}
+
+*{
+  font-family: "Nunito";
+}
+
+a {
+  text-decoration: none;
 }
 
 .m-16 {
@@ -25,6 +49,10 @@ body {
 }
 
 .p-16 {
+  padding: 16px;
+}
+
+.p-32 {
   padding: 16px;
 }
 
@@ -64,7 +92,7 @@ body {
   font-family: "Nunito";
   font-weight: 400;
   font-style: normal;
-  src: url("assets/fonts/Nunito-Regular.ttf") format("truetype");
+  src: url("/assets/fonts/Nunito-Regular.ttf") format("truetype");
 }
 
 @font-face {
@@ -86,4 +114,14 @@ body {
   font-weight: 700;
   font-style: normal;
   src: url("assets/fonts/Nunito-Bold.ttf") format("truetype");
+}
+
+// Farben
+
+.dark-blue {
+  color: rgb(68, 77, 242);
+}
+
+.text-gray {
+  color: #686868;
 }
