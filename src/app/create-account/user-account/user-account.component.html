@@ -93,7 +93,14 @@
       }
     </div>
     <div class="continueButton">
-      <button mat-raised-button [disabled]="!userForm.valid">Weiter</button>
+      <button
+        mat-raised-button
+        [class.disabled]="!userForm.valid"
+        [disabled]="!userForm.valid"
+        type="submit"
+      >
+        Weiter
+      </button>
     </div>
   </form>
 </section>

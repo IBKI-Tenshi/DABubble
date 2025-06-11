@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
@@ -13,6 +13,8 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './user-account.component.scss',
 })
 export class UserAccountComponent {
+  @Input() disabled: boolean = false;
+
   contactData = {
     name: '',
     email: '',
@@ -23,7 +25,7 @@ export class UserAccountComponent {
   http = inject(HttpClient);
 
   post = {
-    endPoint: 'https://www.strebel-company.de/sendMail.php',
+    endPoint: '',
     body: (payload: any) => JSON.stringify(payload),
     options: {
       headers: {

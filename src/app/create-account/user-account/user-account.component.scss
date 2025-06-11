@@ -147,6 +147,9 @@ input[type="password"].invalid {
     font-weight: 700;
     cursor: pointer;
   }
+  button.disabled {
+    background-color: gray;
+  }
 }
 
 .customCheckbox {
