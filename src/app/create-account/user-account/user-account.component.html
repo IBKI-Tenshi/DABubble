@@ -1,4 +1,5 @@
 <section class="accountCreationWindow">
+  <a routerLink="/"><div class="arrowBack"></div></a>
   <h1>Konto erstellen</h1>
   <p class="accountCreationDesc">
     Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
@@ -21,7 +22,7 @@
         @if(!name.valid && name.touched) {
         <span class="entryError">Bitte geben Sie einen gültigen Namen ein</span>
         } @else {
-        <div class="height25"></div>
+        <div class="height28"></div>
         }
       </div>
       <div class="directionColumn">
@@ -39,7 +40,7 @@
         @if(!email.valid && email.touched) {
         <span class="entryError">Bitte geben Sie eine gültige Email ein</span>
         } @else {
-        <div class="height25"></div>
+        <div class="height28"></div>
         }
       </div>
       <div class="directionColumn">
@@ -60,7 +61,7 @@
           >Bitte geben Sie ein gültiges Passwort ein</span
         >
         } @else {
-        <div class="height25"></div>
+        <div class="height28"></div>
         }
       </div>
     </div>
@@ -89,7 +90,7 @@
         >Bitte lesen und akzeptieren Sie die Datenschutzbestimmung</span
       >
       } @else {
-      <div class="height25"></div>
+      <div class="height28"></div>
       }
     </div>
     <div class="continueButton">
