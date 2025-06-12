@@ -40,7 +40,7 @@
 
 // emailControl = new FormControl('', [Validators.required, Validators.email]);
 // passwordControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
-  
+
 //   constructor(
 //     private loginService: LoginService,
 //     private router: Router,
@@ -56,7 +56,6 @@
 //     this.loginService.loginAsGuest();
 //     this.router.navigate(['/dashboard']);
 //   }
-
 
 //   ngOnInit(): void {
 //     console.log('LoginComponent initialisiert');
@@ -121,14 +120,8 @@
 //   }
 // }
 
-
-import {
-  Component,
-  OnInit,
-  NgZone,
-  AfterViewInit
-} from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../services/login.service';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -161,13 +154,17 @@ declare const google: any;
     ReactiveFormsModule,
     MatFormFieldModule,
     NgIf,
+    RouterModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   emailControl = new FormControl('', [Validators.required, Validators.email]);
-  passwordControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
+  passwordControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(6),
+  ]);
 
   constructor(
     private loginService: LoginService,
@@ -183,7 +180,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     try {
       google.accounts.id.initialize({
-        client_id: '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
+        client_id:
+          '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
         callback: this.handleCredentialResponse.bind(this),
         auto_select: false,
         cancel_on_tap_outside: true,
