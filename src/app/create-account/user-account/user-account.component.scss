@@ -6,6 +6,23 @@
   padding: 40px;
   background-color: white;
   border-radius: 30px;
+  position: relative;
+}
+
+.arrowBack {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  top: 45px;
+  left: 32px;
+  border-radius: 100%;
+  background-image: url(../../../assets/icons/creation_screens/arrow_back_black.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  &:hover {
+    background-color: #eceefe;
+    background-image: url(../../../assets/icons/creation_screens/arrow_back_violet.svg);
+  }
 }
 
 h1 {
@@ -58,13 +75,13 @@ h1 {
   }
   span {
     color: red;
-    height: 25px;
+    height: 28px;
   }
 }
 
 .validError {
   color: red;
-  height: 25px;
+  height: 28px;
 }
 
 input[type="text"] {

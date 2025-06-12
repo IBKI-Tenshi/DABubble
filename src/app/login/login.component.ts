@@ -153,7 +153,7 @@ declare const google: any;
     MatIconModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    NgIf,
+    /*NgIf,*/
     RouterModule,
   ],
   templateUrl: './login.component.html',

@@ -4,7 +4,6 @@ html,
 body {
   height: 100%;
   background-color: #eceefe;
-
 }
 
 .mat-h1,
@@ -12,14 +11,14 @@ body {
 .mat-typography .mat-h1,
 .mat-typography .mat-headline-5,
 .mat-typography h1 {
-  font: 700 46px / 32px 'Nunito', sans-serif !important;
+  font: 700 46px / 32px "Nunito", sans-serif !important;
 }
 
 html,
 body,
 .mat-typography,
 .mat-app-background {
-  font: 400 20px / 32px 'Nunito', sans-serif !important;
+  font: 400 20px / 32px "Nunito", sans-serif !important;
 }
 
 body {
@@ -28,7 +27,7 @@ body {
   // font-weight: 400;
 }
 
-*{
+* {
   font-family: "Nunito";
 }
 
@@ -93,8 +92,8 @@ a {
   flex-direction: column;
 }
 
-.height25 {
-  height: 25px;
+.height28 {
+  height: 28px;
 }
 
 @font-face {
