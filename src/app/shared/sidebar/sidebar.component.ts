@@ -26,6 +26,15 @@ import { CommonModule } from '@angular/common';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
-export class SidebarComponent {
 
+export class SidebarComponent {
+  showChannels = false;
+
+  channels = ['General', 'Frontend', 'Backend'];
+
+  toggleChannels() {
+    this.showChannels = !this.showChannels;
+  }
+
+  addChannel() {}
 }

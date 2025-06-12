@@ -5,15 +5,6 @@
   border-radius: 30px;
 }
 
-// .toggle-btn {
-//   // height: 90%;
-//   width: 64px;
-//   background-color: rgba(0, 255, 255, 0.462);
-//   position: absolute;
-//   top: 10;
-//   bottom: 10;
-// }
-
 .devspace-header {
   justify-content: space-between;
 
@@ -39,24 +30,6 @@
   display: block;
 }
 
-// .menu-icon {
-//   cursor: pointer;
-// }
-
-// .logo-container {
-//   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-//   padding: 0 16px;
-//   min-height: 56px;
-//   display: flex;
-//   align-items: center;
-// }
-
-// mat-toolbar,
-// mat-toolbar-row {
-//   min-height: 56px;
-//   height: 56px;
-// }
-
 .menu-items {
   list-style-type: none;
   padding: 0;
@@ -72,6 +45,7 @@
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.04);
+
     }
 
     &:focus {
@@ -100,4 +74,58 @@
     height: 40px;
     width: 40px;
   }
+}
+
+
+
+
+
+.add-channel-top-button{
+  border-radius: 100px;
+  border: none;
+  background-color: transparent;
+  // border: 1px solid black;
+  padding: 2px 2px 1px 2px;
+
+  margin-left: auto;
+
+  &:hover {
+    background-color: rgb(236, 238, 254);
+    color: rgb(83, 90, 241);
+    
+  }
+}
+
+
+.channel-submenu {
+  padding-left: 32px;
+  list-style: none;
+
+  li {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .add-channel {}
+}
+
+.channel-submenu li:hover .tag-icon {
+  background-image: url('/assets/icons/tag_hover.svg');
+}
+
+.tag-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  background-image: url('/assets/icons/tag.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+.expand-icon {
+  height: 20px;
+  width: 20px;
 }

@@ -1,6 +1,5 @@
-
 <div class="devspace-container">
-  
+
   <mat-drawer class="sidenav" #drawer [opened]="true" mode="side">
 
     <div class="devspace-header dFlex_ac p-16">
@@ -22,10 +21,35 @@
         <mat-icon>person</mat-icon>
         User
       </li>
-      <li routerLink="">
+      <!-- <li routerLink="">
         <img src="/assets/icons/channels.svg" alt="" />
         Channels
+      </li> -->
+
+      <li (click)="toggleChannels()">
+
+        <img
+          [src]="showChannels ? '/assets/icons/sidebar_arrows/arrow_open.svg' : '/assets/icons/sidebar_arrows/arrow_close.svg'"
+          alt="">
+
+        <img src="/assets/icons/channels.svg" alt="" />
+        Channels
+        <button class="add-channel-top-button">
+          <mat-icon>add</mat-icon>
+        </button>
       </li>
+
+      <ul *ngIf="showChannels" class="channel-submenu">
+        <li *ngFor="let channel of channels">
+          <div class="tag-icon"></div>
+          {{ channel }}
+        </li>
+        <li class="add-channel" (click)="addChannel()">
+          <mat-icon>add</mat-icon>
+          Channel hinzufügen
+        </li>
+      </ul>
+
     </ul>
   </mat-drawer>
 </div>
