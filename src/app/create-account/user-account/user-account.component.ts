@@ -3,7 +3,9 @@ import { Component, inject, Input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+
+const BASE_URL =
+  'https://firestore.googleapis.com/v1/projects/dabubble-7e942/databases/(default)/documents';
 
 @Component({
   selector: 'app-user-account',
@@ -22,20 +24,9 @@ export class UserAccountComponent {
     privacyAccepted: false,
   };
 
-  http = inject(HttpClient);
-
-  post = {
-    endPoint: '',
-    body: (payload: any) => JSON.stringify(payload),
-    options: {
-      headers: {
-        'Content-Type': 'text/plain',
-        responseType: 'text',
-      },
-    },
-  };
-
   isConfirmed = false;
+
+  isDuplicate = false;
 
   toggleConfirm() {
     this.isConfirmed = true;
@@ -44,32 +35,68 @@ export class UserAccountComponent {
     }, 3000);
   }
 
-  onSubmit(ngForm: NgForm) {
+  onEmailInput() {
+    this.isDuplicate = false;
+  }
+
+  async onSubmit(ngForm: NgForm) {
     if (ngForm.submitted && ngForm.form.valid) {
-      this.http
-        .post(this.post.endPoint, this.post.body(this.contactData))
-        .subscribe({
-          next: (response) => {
-            ngForm.resetForm();
-            this.contactData = {
-              name: '',
-              email: '',
-              password: '',
-              privacyAccepted: false,
-            };
-          },
-          error: (error) => {
-            console.error(error);
-          },
-          complete: () => console.info('send post complete'),
-        });
-      this.toggleConfirm();
-    } else if (ngForm.submitted && ngForm.form.valid) {
-      ngForm.resetForm();
-    } else {
-      Object.values(ngForm.controls).forEach((control) => {
-        control.markAsTouched();
-      });
+      const exists = await this.checkEmailExists(this.contactData.email);
+      if (exists) {
+        this.isDuplicate = true;
+        return;
+      } else {
+        this.isDuplicate = false;
+        this.createUser('/users', this.contactData);
+        this.toggleConfirm();
+      }
     }
+  }
+
+  async createUser<T = any>(
+    path: string = '',
+    data: Record<string, any> = {}
+  ): Promise<T> {
+    const firestoreData = {
+      fields: {
+        name: { stringValue: this.contactData.name },
+        email: { stringValue: this.contactData.email },
+        password: { stringValue: this.contactData.password },
+        privacyAccepted: { booleanValue: this.contactData.privacyAccepted },
+      },
+    };
+    const response = await fetch(`${BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreData),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  }
+
+  async checkEmailExists(email: string): Promise<boolean> {
+    const response = await fetch(`${BASE_URL}:runQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: 'users' }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: 'email' },
+              op: 'EQUAL',
+              value: { stringValue: email },
+            },
+          },
+        },
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Error checking email: ${response.status}`);
+    }
+    const results = await response.json();
+    return results.some((doc: any) => doc.document);
   }
 }

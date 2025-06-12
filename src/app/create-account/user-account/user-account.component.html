@@ -34,11 +34,14 @@
           name="email"
           id="email"
           required
+          (input)="onEmailInput()"
           pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
-          [class.invalid]="!email.valid && email.touched"
+          [class.invalid]="(!email.valid && email.touched) || isDuplicate"
         />
         @if(!email.valid && email.touched) {
         <span class="entryError">Bitte geben Sie eine gültige Email ein</span>
+        } @else if (isDuplicate) {
+        <span class="entryError">Diese Email ist bereits vergeben</span>
         } @else {
         <div class="height28"></div>
         }

@@ -59,9 +59,15 @@ h1 {
       color: transparent;
     }
   }
+
+  input.invalid:-webkit-autofill {
+    box-shadow: 0 0 0px 1000px rgb(255, 205, 205) inset !important;
+    color: red !important;
+  }
+
   input.invalid {
-    background-color: rgb(255, 205, 205);
-    color: red;
+    background-color: rgb(255, 205, 205) !important;
+    color: red !important;
 
     &:hover {
       border: 2px solid rgb(255, 115, 115) !important;
@@ -73,6 +79,7 @@ h1 {
   input.invalid::placeholder {
     color: rgb(253, 99, 99);
   }
+
   span {
     color: red;
     height: 28px;
@@ -99,17 +106,17 @@ input[type="text"].invalid {
 }
 
 input[type="email"] {
-  background-image: url(../../../assets/icons/create_user/letter_grey.svg);
+  background-image: url(../../../assets/icons/create_user/letter_grey.svg) !important;
   background-repeat: no-repeat;
   background-position: 24px 50%;
   background-size: 24px 24px;
   &:focus {
-    background-image: url(../../../assets/icons/create_user/letter_black.svg);
+    background-image: url(../../../assets/icons/create_user/letter_black.svg) !important;
   }
 }
 
 input[type="email"].invalid {
-  background-image: url(../../../assets/icons/create_user/letter_red.svg);
+  background-image: url(../../../assets/icons/create_user/letter_red.svg) !important;
 }
 
 input[type="password"] {
