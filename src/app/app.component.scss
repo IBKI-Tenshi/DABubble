@@ -6,17 +6,28 @@
 
 .toggle-sidebar-button {
   position: absolute;
-  bottom: 0; // nach Wunsch anpassen
+  bottom: 0;
   left: 0;
   transform: rotate(-90deg);
   transform-origin: left top;
-  background-color: #1976d2;
-  color: white;
+  color: black;
+  background-color: white;
   padding: 8px 16px;
   width: 347px;
   height: 60px;
   border: none;
   border-radius: 0 0 30px 30px;
   cursor: pointer;
-  z-index: 1000; // damit es über der Sidebar liegt
+  z-index: 1000;
+  box-shadow: -6px 6px 13px -1px rgba(0,0,0,0.6);
+
+  font-size: 20px;
+  font-weight: 500;
+  gap: 8px;
+
+  >img{
+    height: 16px;
+    width: 16px;
+    transform: rotate(+90deg);
+  }
 }

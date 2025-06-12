@@ -2,7 +2,11 @@
 <div class="windowSetup" *ngIf="isLoggedIn$ | async">
   <app-header></app-header>
 
-   <button class="toggle-sidebar-button" (click)="toggleSidebar()">Toggle Sidebar</button>
+<button class="toggle-sidebar-button dFlex_ac_jc" (click)="toggleSidebar()">
+  {{ showSidebar ? 'Workspace-Menü schließen' : 'Workspace-Menü öffnen' }}
+  <img [src]="showSidebar ? '/assets/icons/close-sidebar.svg' : '/assets/icons/open-sidebar.svg'" alt="">
+</button>
+
 
   <div class="main-layout" *ngIf="isLoggedIn$ | async">
     <ng-container *ngIf="showSidebar">
