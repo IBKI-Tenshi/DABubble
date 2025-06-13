@@ -50,9 +50,21 @@ export class AvatarSelectionComponent {
     }
   }
 
-  successMove() {
+  async successMove() {
+    await this.sendAvatar();
+    await this.deleteData();
+    await this.showSuccessNote();
     this.router.navigate(['/']);
   }
+
+  async deleteData() {
+    this.userId = '';
+    this.userName = '';
+    await this.userDataService.deleteUserId();
+    await this.userDataService.deleteUserName();
+  }
+
+  async showSuccessNote() {}
 
   changeAvatar(i: number): void {
     this.selectedAvatar = this.profileArray[i];

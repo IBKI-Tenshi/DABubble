@@ -24,4 +24,12 @@ export class UserDataService {
   getUserId(): string {
     return this._userId;
   }
+
+  async deleteUserName() {
+    this._name = '';
+  }
+
+  async deleteUserId() {
+    this._userId = '';
+  }
 }
