@@ -93,12 +93,12 @@ h1 {
 
   input.invalid:-webkit-autofill {
     box-shadow: 0 0 0px 1000px rgb(255, 205, 205) inset !important;
-    color: red !important;
+    color: #ed1e79 !important;
   }
 
   input.invalid {
     background-color: rgb(255, 205, 205) !important;
-    color: red !important;
+    color: #ed1e79 !important;
 
     &:hover {
       border: 2px solid rgb(255, 115, 115) !important;
@@ -112,14 +112,16 @@ h1 {
   }
 
   span {
-    color: red;
+    color: #ed1e79;
     height: 28px;
+    font-size: 14px;
   }
 }
 
 .validError {
-  color: red;
+  color: #ed1e79;
   height: 28px;
+  font-size: 14px;
 }
 
 input[type="text"] {
@@ -163,7 +165,7 @@ input[type="password"] {
 input[type="password"].invalid {
   background-image: url(../../../assets/icons/create_user/lock_red.svg) !important;
   background-color: rgb(255, 205, 205);
-  color: red;
+  color: #ed1e79;
 }
 
 .accountCreationPrivacy {
@@ -185,8 +187,9 @@ input[type="password"].invalid {
 
 .accountCreationPrivacy.invalid {
   p {
-    color: red !important;
+    color: #ed1e79 !important;
     font-weight: 700;
+    font-size: 14px;
   }
 }
 

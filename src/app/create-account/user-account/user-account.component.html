@@ -29,7 +29,7 @@
             />
             @if(!name.valid && name.touched) {
             <span class="entryError"
-              >Bitte geben Sie einen gültigen Namen ein</span
+              >*Bitte geben Sie einen gültigen Namen ein</span
             >
             } @else {
             <div class="height28"></div>
@@ -50,10 +50,10 @@
             />
             @if(!email.valid && email.touched) {
             <span class="entryError"
-              >Bitte geben Sie eine gültige Email ein</span
+              >*Bitte geben Sie eine gültige Email ein</span
             >
             } @else if (isDuplicate) {
-            <span class="entryError">Diese Email ist bereits vergeben</span>
+            <span class="entryError">*Diese Email ist bereits vergeben</span>
             } @else {
             <div class="height28"></div>
             }
@@ -73,7 +73,7 @@
             />
             @if(!password.valid && password.touched) {
             <span class="entryError"
-              >Bitte geben Sie ein gültiges Passwort ein</span
+              >*Bitte geben Sie ein gültiges Passwort ein</span
             >
             } @else {
             <div class="height28"></div>
@@ -103,7 +103,7 @@
           </div>
           @if(!check.valid && check.touched) {
           <span class="validError"
-            >Bitte lesen und akzeptieren Sie die Datenschutzbestimmung</span
+            >*Bitte lesen und akzeptieren Sie die Datenschutzbestimmung</span
           >
           } @else {
           <div class="height28"></div>
