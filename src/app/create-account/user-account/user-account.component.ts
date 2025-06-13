@@ -3,6 +3,7 @@ import { Component, inject, Input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
+import { UserDataService } from '../../services/user_data.service';
 
 const BASE_URL =
   'https://firestore.googleapis.com/v1/projects/dabubble-7e942/databases/(default)/documents';
@@ -16,7 +17,11 @@ const BASE_URL =
 })
 export class UserAccountComponent {
   @Input() disabled: boolean = false;
-  constructor(private router: Router) {}
+
+  constructor(
+    private router: Router,
+    private userDataService: UserDataService
+  ) {}
 
   contactData = {
     name: '',
@@ -49,6 +54,7 @@ export class UserAccountComponent {
       } else {
         this.isDuplicate = false;
         this.createUser('/users', this.contactData);
+        this.userDataService.setName(this.contactData.name);
         this.toggleConfirm();
         this.router.navigate(['/avatarSelection']);
       }

@@ -64,6 +64,31 @@ h1 {
   color: #444df2;
 }
 
+.avatarSelectionFields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  p {
+    font-weight: 400;
+    font-size: 20px;
+  }
+  h2 {
+    text-align: center;
+    font-weight: 700;
+    font-size: 32px;
+  }
+}
+
+.avatarPictures {
+  display: flex;
+  gap: 8px;
+  img {
+    width: 64px;
+    height: 64px;
+    border-radius: 100%;
+  }
+}
+
 .continueButton {
   display: flex;
   justify-content: flex-end;
