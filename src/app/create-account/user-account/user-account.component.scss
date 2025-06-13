@@ -50,6 +50,7 @@
   background-image: url(../../../assets/icons/creation_screens/arrow_back_black.svg);
   background-repeat: no-repeat;
   background-position: center center;
+  cursor: pointer;
   &:hover {
     background-color: #eceefe;
     background-image: url(../../../assets/icons/creation_screens/arrow_back_violet.svg);
@@ -198,7 +199,7 @@ input[type="password"].invalid {
   justify-content: flex-end;
   button {
     border-radius: 25px;
-    padding: 12px 25px;
+    padding: 25px;
     background-color: #444df2;
     color: white;
     font-size: 18px;

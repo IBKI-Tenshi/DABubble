@@ -1,0 +1,82 @@
+.accountCreationWindow {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 660px;
+  padding: 40px;
+  background-color: white;
+  border-radius: 30px;
+  position: relative;
+}
+
+.accountCreationContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-header {
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: space-between;
+  padding: 56px;
+}
+
+.logo-container {
+  gap: 16px;
+
+  > img {
+    width: 80px;
+    height: 80px;
+    //opacity: 0;
+    //animation: fadeInLogo 0.5s ease-in-out 0.4s forwards;
+  }
+
+  > span {
+    font-weight: 700;
+    font-size: 32px;
+    //opacity: 0;
+    //animation: fadeInText 0.5s ease-in-out 0.5s forwards;
+  }
+}
+
+.arrowBack {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  top: 45px;
+  left: 32px;
+  border-radius: 100%;
+  background-image: url(../../../assets/icons/creation_screens/arrow_back_black.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: pointer;
+  &:hover {
+    background-color: #eceefe;
+    background-image: url(../../../assets/icons/creation_screens/arrow_back_violet.svg);
+  }
+}
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 46px;
+  color: #444df2;
+}
+
+.continueButton {
+  display: flex;
+  justify-content: flex-end;
+  button {
+    border-radius: 25px;
+    padding: 12px 25px;
+    background-color: #444df2;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button.disabled {
+    background-color: gray;
+  }
+}
