@@ -37,23 +37,23 @@ export class SidebarComponent implements OnInit {
 
   channels = ['General', 'Frontend', 'Backend'];
 
-constructor(
-  private firestore: FirestoreService,
-  private avatarService: AvatarService
-) {}
+  constructor(
+    private firestore: FirestoreService,
+    private avatarService: AvatarService
+  ) { }
 
-ngOnInit() {
-  this.firestore.getAllUsers().subscribe(users => {
-    this.users = users.documents.map((doc: any, index: number) => {
-      const name = doc.fields.name?.stringValue || 'Unbekannt';
-      const avatar =
-        doc.fields.avatar?.stringValue ||
-        this.avatarService.profileArray[index % this.avatarService.profileArray.length];
+  ngOnInit() {
+    this.firestore.getAllUsers().subscribe(users => {
+      this.users = users.documents.map((doc: any, index: number) => {
+        const name = doc.fields.name?.stringValue || 'Unbekannt';
+        const avatar =
+          doc.fields.avatar?.stringValue ||
+          this.avatarService.profileArray[index % this.avatarService.profileArray.length];
 
-      return { name, avatar };
+        return { name, avatar };
+      });
     });
-  });
-}
+  }
 
 
   toggleChannels() {
@@ -64,5 +64,9 @@ ngOnInit() {
     this.showDMs = !this.showDMs;
   }
 
-  addChannel() {}
+  addChannel(event?: MouseEvent) {
+    event?.stopPropagation();
+    console.log('Neuer Channel hinzufügen');
+    // hier kommt später dein Logik-Code für das Hinzufügen eines Channels
+  }
 }

@@ -27,12 +27,12 @@
 
       <li (click)="toggleChannels()">
         <img
-          [src]="showChannels ? '/assets/icons/sidebar_arrows/arrow_open.svg' : '/assets/icons/sidebar_arrows/arrow_close.svg'"
+          [src]="showChannels ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
           alt="">
 
         <img src="/assets/icons/channels.svg" alt="" />
         Channels
-        <button class="add-channel-top-button">
+        <button class="add-channel-top-button" (click)="addChannel($event)">
           <mat-icon>add</mat-icon>
         </button>
       </li>
@@ -51,7 +51,7 @@
       <!-- Direktnachrichten -->
       <li (click)="toggleDMs()">
         <img
-          [src]="showDMs ? '/assets/icons/sidebar_arrows/arrow_open.svg' : '/assets/icons/sidebar_arrows/arrow_close.svg'"
+          [src]="showDMs ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
           alt="">
 
         <img src="/assets/icons/direct-message.svg" alt="" />

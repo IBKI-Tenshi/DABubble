@@ -170,7 +170,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private loginService: LoginService,
     private router: Router,
     private ngZone: NgZone
-  ) {}
+  ) { }
+
+  firstRoute: string = '/directMessage';
+
+  
 
   ngOnInit(): void {
     console.log('LoginComponent initialisiert');
@@ -213,7 +217,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
       this.ngZone.run(() => {
         setTimeout(() => {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([this.firstRoute]);
         }, 50);
       });
     } catch (error) {
@@ -223,11 +227,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   doLogin() {
     this.loginService.login();
-    this.router.navigate(['/dashboard']);
+    this.router.navigate([this.firstRoute]);
   }
 
   guestLogin() {
     this.loginService.loginAsGuest();
-    this.router.navigate(['/dashboard']);
+    this.router.navigate([this.firstRoute]);
   }
 }
