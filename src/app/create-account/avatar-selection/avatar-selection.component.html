@@ -9,20 +9,30 @@
     <div class="accountCreationWindow">
       <a routerLink="/accountCreation"><div class="arrowBack"></div></a>
       <h1>Wähle deinen Avatar</h1>
-      <img src="../../../assets/img/avatar/default.png" alt="Selected Avatar" />
+      <div class="profilePicture">
+        <img
+          class="selectedAvatar"
+          [src]="selectedAvatar"
+          alt="Selected Avatar"
+        />
+      </div>
       <div class="avatarSelectionFields">
         <h2>{{ userName }}</h2>
         <p>Aus der Liste wählen</p>
-        <div
-          class="avatarPictures"
-          *ngFor="let imageUrl of profileArray; let i = index"
-        >
-          <img [src]="imageUrl" [alt]="'avatar ' + i" />
+        <div class="avatarPictures">
+          <img
+            *ngFor="let imageUrl of profileArray; let i = index"
+            [src]="imageUrl"
+            [alt]="i"
+            (click)="this.changeAvatar(i)"
+          />
         </div>
       </div>
 
       <div class="continueButton">
-        <button mat-raised-button type="submit">Weiter</button>
+        <button mat-raised-button type="submit" (click)="this.successMove()">
+          Weiter
+        </button>
       </div>
     </div>
   </div>

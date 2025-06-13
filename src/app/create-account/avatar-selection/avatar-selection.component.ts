@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-avatar-selection',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, MatButtonModule],
   templateUrl: './avatar-selection.component.html',
   styleUrl: './avatar-selection.component.scss',
 })
@@ -25,6 +26,8 @@ export class AvatarSelectionComponent {
     '../../../assets/img/avatar/avatar_6.png',
   ];
 
+  selectedAvatar = '../../../assets/img/avatar/default.png';
+
   userName: string = '';
 
   ngOnInit() {
@@ -35,5 +38,9 @@ export class AvatarSelectionComponent {
 
   successMove() {
     this.router.navigate(['/']);
+  }
+
+  changeAvatar(i: number): void {
+    this.selectedAvatar = this.profileArray[i];
   }
 }
