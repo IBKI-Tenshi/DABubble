@@ -13,21 +13,19 @@
     </div>
 
     <ul class="menu-items">
-      <li routerLink="/dashboard">
+      <!-- <li routerLink="/dashboard">
         <mat-icon>fact_check</mat-icon>
         Dashboard
       </li>
       <li routerLink="/user">
         <mat-icon>person</mat-icon>
         User
-      </li>
-      <!-- <li routerLink="">
-        <img src="/assets/icons/channels.svg" alt="" />
-        Channels
       </li> -->
 
-      <li (click)="toggleChannels()">
 
+      <!-- channels -->
+
+      <li (click)="toggleChannels()">
         <img
           [src]="showChannels ? '/assets/icons/sidebar_arrows/arrow_open.svg' : '/assets/icons/sidebar_arrows/arrow_close.svg'"
           alt="">
@@ -47,6 +45,23 @@
         <li class="add-channel" (click)="addChannel()">
           <mat-icon>add</mat-icon>
           Channel hinzufügen
+        </li>
+      </ul>
+
+      <!-- Direktnachrichten -->
+      <li (click)="toggleDMs()">
+        <img
+          [src]="showDMs ? '/assets/icons/sidebar_arrows/arrow_open.svg' : '/assets/icons/sidebar_arrows/arrow_close.svg'"
+          alt="">
+
+        <img src="/assets/icons/direct-message.svg" alt="" />
+        Direktnachrichten
+      </li>
+
+      <ul *ngIf="showDMs" class="dm-submenu">
+        <li *ngFor="let user of users">
+          <img class="user-avatar" [src]="user.avatar" alt="Avatar von {{ user.name }}" />
+          {{ user.name }}
         </li>
       </ul>
 
