@@ -4,9 +4,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
-
-const BASE_URL =
-  'https://firestore.googleapis.com/v1/projects/dabubble-7e942/databases/(default)/documents';
+import { UrlService } from '../../services/url.service';
 
 @Component({
   selector: 'app-user-account',
@@ -20,7 +18,8 @@ export class UserAccountComponent {
 
   constructor(
     private router: Router,
-    private userDataService: UserDataService
+    private userDataService: UserDataService,
+    private urlService: UrlService
   ) {}
 
   contactData = {
@@ -33,6 +32,8 @@ export class UserAccountComponent {
   isConfirmed = false;
 
   isDuplicate = false;
+
+  BASE_URL = this.urlService.BASE_URL;
 
   toggleConfirm() {
     this.isConfirmed = true;
@@ -53,7 +54,8 @@ export class UserAccountComponent {
         return;
       } else {
         this.isDuplicate = false;
-        this.createUser('/users', this.contactData);
+        const userId = await this.createUser('/users', this.contactData);
+        this.userDataService.setUserId(userId);
         this.userDataService.setName(this.contactData.name);
         this.toggleConfirm();
         this.router.navigate(['/avatarSelection']);
@@ -73,7 +75,7 @@ export class UserAccountComponent {
         privacyAccepted: { booleanValue: this.contactData.privacyAccepted },
       },
     };
-    const response = await fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${this.BASE_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(firestoreData),
@@ -81,11 +83,14 @@ export class UserAccountComponent {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    const result = await response.json();
+    const fullPath = result.name;
+    const docId = fullPath.split('/').pop();
+    return docId;
   }
 
   async checkEmailExists(email: string): Promise<boolean> {
-    const response = await fetch(`${BASE_URL}:runQuery`, {
+    const response = await fetch(`${this.BASE_URL}:runQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

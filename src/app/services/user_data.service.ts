@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class UserDataService {
   private _name: string = '';
+  private _userId: string = '';
 
   constructor() {}
 
@@ -12,7 +13,15 @@ export class UserDataService {
     this._name = name;
   }
 
+  setUserId(userId: string): void {
+    this._userId = userId;
+  }
+
   getName(): string {
     return this._name;
+  }
+
+  getUserId(): string {
+    return this._userId;
   }
 }

@@ -3,6 +3,8 @@ import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { AvatarService } from '../../services/avatar.service';
+import { UrlService } from '../../services/url.service';
 
 @Component({
   selector: 'app-avatar-selection',
@@ -14,25 +16,37 @@ import { MatButtonModule } from '@angular/material/button';
 export class AvatarSelectionComponent {
   constructor(
     private router: Router,
-    private userDataService: UserDataService
+    private userDataService: UserDataService,
+    private avatarService: AvatarService,
+    private urlService: UrlService
   ) {}
 
-  profileArray = [
-    '../../../assets/img/avatar/avatar_1.png',
-    '../../../assets/img/avatar/avatar_2.png',
-    '../../../assets/img/avatar/avatar_3.png',
-    '../../../assets/img/avatar/avatar_4.png',
-    '../../../assets/img/avatar/avatar_5.png',
-    '../../../assets/img/avatar/avatar_6.png',
-  ];
+  profileArray: string[] = [];
 
-  selectedAvatar = '../../../assets/img/avatar/default.png';
+  selectedAvatar: string = '';
 
   userName: string = '';
+
+  userId: string = '';
+
+  avatarIndex: number = 0;
+
+  BASE_URL = this.urlService.BASE_URL;
+
+  path: string = '';
 
   ngOnInit() {
     {
       this.userName = this.userDataService.getName();
+    }
+    {
+      this.selectedAvatar = this.avatarService.selectedAvatar;
+    }
+    {
+      this.profileArray = this.avatarService.profileArray;
+    }
+    {
+      this.userId = this.userDataService.getUserId();
     }
   }
 
@@ -42,5 +56,24 @@ export class AvatarSelectionComponent {
 
   changeAvatar(i: number): void {
     this.selectedAvatar = this.profileArray[i];
+    this.avatarIndex = i;
+  }
+
+  async sendAvatar() {
+    this.path = this.BASE_URL + '/users/' + this.userId;
+    const firestoreData = {
+      fields: {
+        profile: { integerValue: this.avatarIndex },
+      },
+    };
+    const response = await fetch(`${this.path}?updateMask.fieldPaths=profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreData),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
   }
 }
