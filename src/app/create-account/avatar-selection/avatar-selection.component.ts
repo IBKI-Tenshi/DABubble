@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { AvatarService } from '../../services/avatar.service';
 import { UrlService } from '../../services/url.service';
+import { CreateUserComponent } from '../../overlay/create-user/create-user.component';
 
 @Component({
   selector: 'app-avatar-selection',
   standalone: true,
-  imports: [RouterModule, CommonModule, MatButtonModule],
+  imports: [RouterModule, CommonModule, MatButtonModule, CreateUserComponent],
   templateUrl: './avatar-selection.component.html',
   styleUrl: './avatar-selection.component.scss',
 })
@@ -20,6 +21,8 @@ export class AvatarSelectionComponent {
     private avatarService: AvatarService,
     private urlService: UrlService
   ) {}
+
+  showOverlay: boolean = false;
 
   profileArray: string[] = [];
 
@@ -53,7 +56,7 @@ export class AvatarSelectionComponent {
   async successMove() {
     await this.sendAvatar();
     await this.deleteData();
-    await this.showSuccessNote();
+    await this.openDialog();
     this.router.navigate(['/']);
   }
 
@@ -87,5 +90,10 @@ export class AvatarSelectionComponent {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
+  }
+
+  async openDialog(): Promise<void> {
+    this.showOverlay = true;
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 }
