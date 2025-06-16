@@ -16,7 +16,6 @@ export const routes: Routes = [
   { path: 'accountCreation', component: UserAccountComponent },
   { path: 'avatarSelection', component: AvatarSelectionComponent },
   { path: 'directMessage', component: DirectMessageComponent },
-  // { path: '', component: DirectMessageComponent },
   { path: '', component: LoginComponent },
 
   { path: 'privacy', component: PrivacyComponent },
