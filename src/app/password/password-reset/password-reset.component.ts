@@ -54,21 +54,32 @@ export class PasswordResetComponent {
   }
 
   async onSubmit(ngForm: NgForm) {
-    this.updatePassword();
+    if (ngForm.valid && this.passwordsMatch()) {
+      try {
+        await this.updatePassword();
+      } catch (error) {
+        console.error('Password update failed:', error);
+      }
+    } else {
+      console.warn('Form invalid or passwords do not match');
+    }
   }
 
   async updatePassword() {
     this.path = this.BASE_URL + '/users/' + this.userId;
     const firestoreData = {
       fields: {
-        password: { string: this.contactData.password },
+        password: { stringValue: this.contactData.password },
       },
     };
-    const response = await fetch(`${this.path}?updateMask.fieldPaths=profile`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(firestoreData),
-    });
+    const response = await fetch(
+      `${this.path}?updateMask.fieldPaths=password`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(firestoreData),
+      }
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
