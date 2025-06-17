@@ -17,10 +17,7 @@ export class PasswordEmailComponent {
   @Input() disabled: boolean = false;
 
   contactData = {
-    name: '',
     email: '',
-    password: '',
-    privacyAccepted: false,
   };
 
   isConfirmed = false;
@@ -51,12 +48,11 @@ export class PasswordEmailComponent {
       const existingUserId = await this.checkEmailExists(
         this.contactData.email
       );
-
       if (existingUserId) {
         this.emailExists = true;
         this.userDataService.setUserId(existingUserId);
         this.toggleConfirm();
-        console.log(existingUserId);
+        this.router.navigate(['/passwordReset']);
       } else {
         this.emailExists = false;
         return;
@@ -81,20 +77,16 @@ export class PasswordEmailComponent {
         },
       }),
     });
-
     if (!response.ok) {
       throw new Error(`Error checking email: ${response.status}`);
     }
-
     const results = await response.json();
-
     for (const doc of results) {
       if (doc.document?.name) {
         const parts = doc.document.name.split('/');
         return parts[parts.length - 1];
       }
     }
-
     return null;
   }
 }

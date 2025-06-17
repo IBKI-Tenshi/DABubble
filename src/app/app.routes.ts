@@ -8,6 +8,7 @@ import { PrivacyComponent } from './privacy/privacy.component';
 import { AvatarSelectionComponent } from './create-account/avatar-selection/avatar-selection.component';
 import { DirectMessageComponent } from './direct-message/direct-message.component';
 import { PasswordEmailComponent } from './password/password-email/password-email.component';
+import { PasswordResetComponent } from './password/password-reset/password-reset.component';
 
 export const routes: Routes = [
   { path: 'a', component: LoginComponent },
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'avatarSelection', component: AvatarSelectionComponent },
   { path: 'directMessage', component: DirectMessageComponent },
   { path: '', component: LoginComponent },
-
   { path: 'privacy', component: PrivacyComponent },
   { path: 'password', component: PasswordEmailComponent },
+  { path: 'passwordReset', component: PasswordResetComponent },
 ];
