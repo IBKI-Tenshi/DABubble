@@ -17,7 +17,8 @@ export const routes: Routes = [
   { path: 'user/:id', component: UserDetailComponent }, // ":" ist wichtig sonst wird "id" als text interpretiert
   { path: 'accountCreation', component: UserAccountComponent },
   { path: 'avatarSelection', component: AvatarSelectionComponent },
-  { path: 'directMessage', component: DirectMessageComponent },
+  // { path: 'directMessage', component: DirectMessageComponent },
+  { path: 'directMessage/:chatId', component: DirectMessageComponent },
   { path: '', component: LoginComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: 'password', component: PasswordEmailComponent },

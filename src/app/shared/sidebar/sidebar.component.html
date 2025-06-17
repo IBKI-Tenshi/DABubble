@@ -26,8 +26,7 @@
       <!-- channels -->
 
       <li (click)="toggleChannels()">
-        <img
-          [src]="showChannels ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
+        <img [src]="showChannels ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
           alt="">
 
         <img src="/assets/icons/channels.svg" alt="" />
@@ -50,19 +49,32 @@
 
       <!-- Direktnachrichten -->
       <li (click)="toggleDMs()">
-        <img
-          [src]="showDMs ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
-          alt="">
+        <img [src]="showDMs ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'" alt="">
 
         <img src="/assets/icons/direct-message.svg" alt="" />
         Direktnachrichten
       </li>
 
       <ul *ngIf="showDMs" class="dm-submenu">
+
+        <!-- nur für tests -->
+        <div class="user-info">
+          Eingeloggt als: {{ currentUserEmail }}
+        </div>
+
+
         <li *ngFor="let user of users">
-          <img class="user-avatar" [src]="user.avatar" alt="Avatar von {{ user.name }}" />
-          {{ user.name }}
+          <a (click)="openChatWithUser(user.email)" class="dFlex_ac">
+
+            <img class="user-avatar" [src]="user.avatar" alt="Avatar von {{ user.name }}" />
+            {{ user.name }}
+            {{ user.email }}
+          </a>
         </li>
+
+
+        <a [routerLink]="['/directMessage', 'chat_test_1']">Mit Max chatten</a>
+
       </ul>
 
     </ul>
