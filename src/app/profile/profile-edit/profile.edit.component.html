@@ -1,0 +1,78 @@
+<div class="profile-edit">
+    <div class="profile-info-header">
+      <h3>Dein Profil bearbeiten</h3>
+      <button mat-icon-button class="close-button" (click)="closeEditForm()">
+        <div class="change-image-on-hover">
+          <img src="assets/icons/close_x.svg" alt="Close" />
+          <img class="d-none" src="assets/icons/close_x_hover.svg" alt="Close" />
+        </div>
+      </button>
+    </div>
+    
+    <mat-accordion class="avatar-selector-container">
+      <mat-expansion-panel hideToggle #avatarSelector>
+        <mat-expansion-panel-header>
+          <img class="profile-edit-img" [src]="currentAvatar" alt="User Image" />
+        </mat-expansion-panel-header>
+        <div class="avatar-selector">
+          <img 
+            *ngFor="let avatar of avatarList; let i = index" 
+            [src]="avatar" 
+            alt="Avatar option"
+            [class.selected]="i === selectedAvatarIndex"
+            (click)="selectAvatar(avatar, i); avatarSelector.close()"
+            class="avatar-option"
+          >
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+    
+    <form [formGroup]="profileForm" (ngSubmit)="saveChanges()">
+      <div class="profile-edit-form">
+        <div class="form-field-header">
+          <div class="form-field-icon">
+            <mat-icon>person</mat-icon>
+          </div>
+          <span class="form-field-label">Vollständiger Name</span>
+        </div>
+        
+        <input 
+          class="input-field" 
+          [class.invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+          formControlName="name" 
+          placeholder="Dein Name"
+        />
+        
+        <div class="error-messages">
+          <div *ngIf="checkForBlankFirst(profileForm.get('name')?.value) && profileForm.get('name')?.touched" class="error-message">
+            Der Name kann nicht mit einem Leerzeichen anfangen.
+          </div>
+          <div *ngIf="profileForm.get('name')?.hasError('required') && profileForm.get('name')?.touched" class="error-message">
+            Dieses Feld muss ausgefüllt werden.
+          </div>
+        </div>
+        
+        <div *ngIf="errorMessage" class="global-error-message">
+          {{ errorMessage }}
+        </div>
+      </div>
+      
+      <div class="profile-edit-form-buttons">
+        <button 
+          type="button" 
+          class="btn-cancel" 
+          (click)="closeEditForm()"
+        >
+          Abbrechen
+        </button>
+        <button 
+          type="submit" 
+          class="btn-save" 
+          [disabled]="profileForm.invalid || isSubmitting"
+          [class.disabled]="profileForm.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Wird gespeichert...' : 'Speichern' }}
+        </button>
+      </div>
+    </form>
+  </div>
