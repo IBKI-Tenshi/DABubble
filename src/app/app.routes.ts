@@ -7,6 +7,7 @@ import { UserAccountComponent } from './create-account/user-account/user-account
 import { PrivacyComponent } from './privacy/privacy.component';
 import { AvatarSelectionComponent } from './create-account/avatar-selection/avatar-selection.component';
 import { DirectMessageComponent } from './direct-message/direct-message.component';
+import { PasswordEmailComponent } from './password/password-email/password-email.component';
 
 export const routes: Routes = [
   { path: 'a', component: LoginComponent },
@@ -19,5 +20,5 @@ export const routes: Routes = [
   { path: '', component: LoginComponent },
 
   { path: 'privacy', component: PrivacyComponent },
+  { path: 'password', component: PasswordEmailComponent },
 ];
-
