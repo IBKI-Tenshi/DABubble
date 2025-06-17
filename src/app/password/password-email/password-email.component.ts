@@ -27,7 +27,11 @@ export class PasswordEmailComponent {
   emailExists = true;
   BASE_URL: string;
 
-  constructor(private router: Router, private urlService: UrlService) {
+  constructor(
+    private router: Router,
+    private urlService: UrlService,
+    private userDataService: UserDataService
+  ) {
     this.BASE_URL = this.urlService.BASE_URL;
   }
 
@@ -44,18 +48,23 @@ export class PasswordEmailComponent {
 
   async onSubmit(ngForm: NgForm) {
     if (ngForm.submitted && ngForm.form.valid) {
-      const exists = await this.checkEmailExists(this.contactData.email);
-      if (!exists) {
+      const existingUserId = await this.checkEmailExists(
+        this.contactData.email
+      );
+
+      if (existingUserId) {
+        this.emailExists = true;
+        this.userDataService.setUserId(existingUserId);
+        this.toggleConfirm();
+        console.log(existingUserId);
+      } else {
         this.emailExists = false;
         return;
-      } else {
-        this.emailExists = true;
-        this.toggleConfirm();
       }
     }
   }
 
-  async checkEmailExists(email: string): Promise<boolean> {
+  async checkEmailExists(email: string): Promise<string | null> {
     const response = await fetch(`${this.BASE_URL}:runQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,10 +81,20 @@ export class PasswordEmailComponent {
         },
       }),
     });
+
     if (!response.ok) {
       throw new Error(`Error checking email: ${response.status}`);
     }
+
     const results = await response.json();
-    return results.some((doc: any) => doc.document);
+
+    for (const doc of results) {
+      if (doc.document?.name) {
+        const parts = doc.document.name.split('/');
+        return parts[parts.length - 1];
+      }
+    }
+
+    return null;
   }
 }
