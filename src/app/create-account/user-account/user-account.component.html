@@ -66,14 +66,14 @@
               placeholder="Passwort"
               name="password"
               id="password"
-              title="Das Passwort muss min. 8 lang sein, 1x Großbuchstaben, 1x Zahl und 1x speziellen Character enthalten"
+              title="Das Passwort muss min. 8 lang sein, 1x Großbuchstaben, 1x Zahl und 1x Sonderzeichen enthalten"
               required
               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$"
               [class.invalid]="!password.valid && password.touched"
             />
             <label class="input-hint"
               >Das Passwort muss min. 8 lang sein, 1x Großbuchstaben, 1x Zahl
-              und 1x speziellen Character enthalten</label
+              und 1x Sonderzeichen enthalten</label
             >
             @if(!password.valid && password.touched) {
             <span class="entryError"
