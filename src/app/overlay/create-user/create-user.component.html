@@ -1,6 +1,7 @@
 <div class="overlay">
   <div class="profile">
     <div class="header">
+      <img *ngIf="imageUrl" src="{{ imageUrl }}" alt="Sent Icon" />
       <h2 mat-dialog-title>{{ overlayText }}</h2>
     </div>
   </div>

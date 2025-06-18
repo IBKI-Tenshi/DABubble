@@ -22,3 +22,14 @@
     margin: 0;
   }
 }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  img {
+    width: 56px;
+    height: 56px;
+  }
+}
