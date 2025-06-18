@@ -94,6 +94,6 @@ export class AvatarSelectionComponent {
 
   async openDialog(): Promise<void> {
     this.showOverlay = true;
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 }

@@ -5,16 +5,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { UrlService } from '../../services/url.service';
+import { CreateUserComponent } from '../../overlay/create-user/create-user.component';
 
 @Component({
   selector: 'app-password-email',
   standalone: true,
-  imports: [MatButtonModule, FormsModule, CommonModule, RouterModule],
+  imports: [
+    MatButtonModule,
+    FormsModule,
+    CommonModule,
+    RouterModule,
+    CreateUserComponent,
+  ],
   templateUrl: './password-email.component.html',
   styleUrls: ['./password-email.component.scss'], // changed from styleUrl to styleUrls
 })
 export class PasswordEmailComponent {
   @Input() disabled: boolean = false;
+  showOverlay: boolean = false;
 
   contactData = {
     email: '',
@@ -43,6 +51,11 @@ export class PasswordEmailComponent {
     this.emailExists = true;
   }
 
+  async openDialog(): Promise<void> {
+    this.showOverlay = true;
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
   async onSubmit(ngForm: NgForm) {
     if (ngForm.submitted && ngForm.form.valid) {
       const existingUserId = await this.checkEmailExists(
@@ -52,6 +65,7 @@ export class PasswordEmailComponent {
         this.emailExists = true;
         this.userDataService.setUserId(existingUserId);
         this.toggleConfirm();
+        await this.openDialog();
         this.router.navigate(['/passwordReset']);
       } else {
         this.emailExists = false;
