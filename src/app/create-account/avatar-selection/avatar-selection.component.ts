@@ -39,35 +39,45 @@ export class AvatarSelectionComponent {
   path: string = '';
 
   ngOnInit() {
-    {
-      this.userName = this.userDataService.getName();
-    }
-    {
-      this.selectedAvatar = this.avatarService.selectedAvatar;
-    }
-    {
-      this.profileArray = this.avatarService.profileArray;
-    }
-    {
-      this.userId = this.userDataService.getUserId();
-    }
+    this.initializeUserData();
+    this.initializeAvatarData();
+  }
+
+  initializeUserData(): void {
+    this.userName = this.userDataService.getName();
+    this.userId = this.userDataService.getUserId();
+  }
+
+  initializeAvatarData(): void {
+    this.selectedAvatar = this.avatarService.selectedAvatar;
+    this.profileArray = this.avatarService.profileArray;
   }
 
   async successMove() {
     await this.sendAvatar();
     await this.deleteData();
+    await this.showAndNavigate();
+  }
+
+  async showAndNavigate(): Promise<void> {
     await this.openDialog();
     this.router.navigate(['/']);
   }
 
   async deleteData() {
+    this.clearLocalUserData();
+    await this.clearStoredUserData();
+  }
+
+  clearLocalUserData(): void {
     this.userId = '';
     this.userName = '';
+  }
+
+  async clearStoredUserData(): Promise<void> {
     await this.userDataService.deleteUserId();
     await this.userDataService.deleteUserName();
   }
-
-  async showSuccessNote() {}
 
   changeAvatar(i: number): void {
     this.selectedAvatar = this.profileArray[i];
@@ -75,21 +85,32 @@ export class AvatarSelectionComponent {
   }
 
   async sendAvatar() {
-    this.path = this.BASE_URL + '/users/' + this.userId;
-    const firestoreData = {
-      fields: {
-        profile: { integerValue: this.avatarIndex },
-      },
-    };
+    this.setPath();
+    const firestoreData = this.buildFirestorePayload();
+
     const response = await fetch(`${this.path}?updateMask.fieldPaths=profile`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(firestoreData),
     });
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
     return await response.json();
+  }
+
+  setPath(): void {
+    this.path = `${this.BASE_URL}/users/${this.userId}`;
+  }
+
+  buildFirestorePayload(): object {
+    return {
+      fields: {
+        profile: { integerValue: this.avatarIndex },
+      },
+    };
   }
 
   async openDialog(): Promise<void> {

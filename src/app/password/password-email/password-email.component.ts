@@ -40,61 +40,82 @@ export class PasswordEmailComponent {
     this.BASE_URL = this.urlService.BASE_URL;
   }
 
-  toggleConfirm() {
+  toggleConfirm(): void {
     this.isConfirmed = true;
     setTimeout(() => {
       this.isConfirmed = false;
     }, 3000);
   }
 
-  onEmailInput() {
+  onEmailInput(): void {
     this.emailExists = true;
   }
 
   async openDialog(): Promise<void> {
     this.showOverlay = true;
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await this.delay(2000);
   }
 
-  async onSubmit(ngForm: NgForm) {
-    if (ngForm.submitted && ngForm.form.valid) {
-      const existingUserId = await this.checkEmailExists(
-        this.contactData.email
-      );
-      if (existingUserId) {
-        this.emailExists = true;
-        this.userDataService.setUserId(existingUserId);
-        this.toggleConfirm();
-        await this.openDialog();
-        this.router.navigate(['/passwordReset']);
-      } else {
-        this.emailExists = false;
-        return;
-      }
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async onSubmit(ngForm: NgForm): Promise<void> {
+    if (!this.isFormValid(ngForm)) return;
+
+    const userId = await this.handleEmailCheck(this.contactData.email);
+    if (userId) {
+      this.preparePasswordResetFlow(userId);
+    } else {
+      this.emailExists = false;
     }
   }
 
-  async checkEmailExists(email: string): Promise<string | null> {
+  isFormValid(form: NgForm): boolean {
+    return form.submitted && form.form.valid;
+  }
+
+  async handleEmailCheck(email: string): Promise<string | null> {
+    try {
+      const results = await this.queryEmail(email);
+      return this.extractUserIdFromResults(results);
+    } catch (error) {
+      console.error('Email check failed:', error);
+      return null;
+    }
+  }
+
+  async queryEmail(email: string): Promise<any[]> {
+    const queryPayload = this.buildEmailQuery(email);
     const response = await fetch(`${this.BASE_URL}:runQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: 'users' }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: 'email' },
-              op: 'EQUAL',
-              value: { stringValue: email },
-            },
-          },
-        },
-      }),
+      body: JSON.stringify(queryPayload),
     });
+
     if (!response.ok) {
       throw new Error(`Error checking email: ${response.status}`);
     }
-    const results = await response.json();
+
+    return await response.json();
+  }
+
+  buildEmailQuery(email: string): object {
+    return {
+      structuredQuery: {
+        from: [{ collectionId: 'users' }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'email' },
+            op: 'EQUAL',
+            value: { stringValue: email },
+          },
+        },
+      },
+    };
+  }
+
+  extractUserIdFromResults(results: any[]): string | null {
     for (const doc of results) {
       if (doc.document?.name) {
         const parts = doc.document.name.split('/');
@@ -102,5 +123,13 @@ export class PasswordEmailComponent {
       }
     }
     return null;
+  }
+
+  async preparePasswordResetFlow(userId: string): Promise<void> {
+    this.emailExists = true;
+    this.userDataService.setUserId(userId);
+    this.toggleConfirm();
+    await this.openDialog();
+    this.router.navigate(['/passwordReset']);
   }
 }
