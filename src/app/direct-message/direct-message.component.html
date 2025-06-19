@@ -8,9 +8,14 @@
 
     <div class="chat-window">
         <div class="messages">
+
+            <pre>{{ messages | json }}</pre>
+
             <div *ngFor="let msg of messages" class="message">
                 <p><strong>{{ msg.senderId }}:</strong> {{ msg.text }}</p>
+                <!-- <small>{{ msg.timestamp.toDate() | date: 'dd.MM.yyyy HH:mm' }}</small> -->
                 <small>{{ msg.timestamp | date: 'dd.MM.yyyy HH:mm' }}</small>
+
             </div>
         </div>
 
