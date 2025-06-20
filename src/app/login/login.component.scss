@@ -58,10 +58,13 @@
 // Design
 
 .login-container {
+  display: flex;
   flex-direction: column;
+  margin: auto;
 }
 
 .login-header {
+  max-width: 1920px;
   width: 100%;
   box-sizing: border-box;
   justify-content: space-between;
@@ -70,7 +73,7 @@
 
 .register-container {
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   opacity: 0;
   animation: fadeInSecondary 0.7s ease-in-out 0.7s forwards;
   a {
@@ -79,13 +82,14 @@
 }
 
 .login-dialog {
-  width: 600px;
+  max-width: 600px;
+  width: 100%;
   background-color: white;
   border-radius: 30px;
   flex-direction: column;
+  gap: 25px;
   opacity: 0;
   animation: fadeInSecondary 0.7s ease-in-out 0.8s forwards;
-
   padding: 64px;
 }
 
@@ -100,17 +104,15 @@
     transform: translateY(0);
   }
 }
-
 h1 {
-  padding-bottom: 24px;
+  margin: 0;
 }
 
 .helper-text {
   font-size: 20px;
-  width: 500px;
+  width: 100%;
   display: inline-block;
   text-align: center;
-  padding-bottom: 32px;
 }
 
 .input-field {
@@ -162,15 +164,10 @@ h1 {
 .input_div {
   width: 100%;
   flex-direction: column;
-  padding-top: 12px;
-  padding-bottom: 12px;
 }
 
 .reset-password {
   font-size: 18px;
-  margin-bottom: 16px;
-  padding: 8px 32px;
-
   &:hover {
     background-color: #eceefe;
     border: none;
@@ -180,7 +177,6 @@ h1 {
 
 .login-border {
   width: 100%;
-  margin-top: 20px;
   border: 1px solid #adb0d9;
 }
 
@@ -201,7 +197,6 @@ h1 {
   height: 60px;
   gap: 12px;
   padding: 12px 24px;
-  margin: 32px;
   background-color: #eceefe;
   border: none;
   border-radius: 100px;
@@ -227,10 +222,8 @@ h1 {
   gap: 24px;
 
   button {
-    width: 137px;
-    height: 49px;
-    border-radius: 100px;
-    padding: 12px;
+    border-radius: 25px;
+    padding: 12px 25px;
     font-weight: 700;
     font-size: 18px;
   }
@@ -269,6 +262,61 @@ footer {
     &:hover {
       border: 1px solid #686868;
       border-radius: 100px;
+    }
+  }
+}
+
+#register-container-bottom {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  .helper-text {
+    font-size: 17px;
+  }
+
+  #register-container-top {
+    display: none;
+  }
+
+  #register-container-bottom {
+    display: flex;
+    a {
+      border: 1px solid #797ef3;
+      padding: 7px 18px;
+      border-radius: 25px;
+      &:active {
+        background-color: #797ef3;
+      }
+    }
+  }
+
+  .register-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .login-container {
+    gap: 16px;
+  }
+
+  .login-header {
+    justify-content: center;
+  }
+
+  .login-dialog {
+    padding: 32px 16px;
+    gap: 20px;
+  }
+
+  .login-buttons-div {
+    gap: 20px;
+    button {
+      padding: 12px;
     }
   }
 }
