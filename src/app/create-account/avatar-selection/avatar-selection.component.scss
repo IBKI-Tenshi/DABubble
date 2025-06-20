@@ -16,10 +16,14 @@
 }
 
 .login-header {
+  max-width: 1920px;
   width: 100%;
   box-sizing: border-box;
   justify-content: space-between;
   padding: 56px;
+  display: flex;
+  align-items: flex-start;
+  margin: auto;
 }
 
 .logo-container {
@@ -126,4 +130,47 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (max-width: 800px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  .login-header {
+    justify-content: center;
+  }
+
+  .accountCreationDesc {
+    font-size: 17px;
+  }
+
+  .accountCreationWindow {
+    padding: 32px 16px;
+  }
+
+  .accountCreationContent {
+    padding: 0;
+    gap: 20px;
+  }
+
+  .login-buttons-div {
+    gap: 20px;
+    button {
+      padding: 12px;
+    }
+  }
+
+  .accountCreationInput {
+    input {
+      padding: 18px 18px 18px 32px;
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .arrowBack {
+    top: 32px;
+    left: 24px;
+  }
 }

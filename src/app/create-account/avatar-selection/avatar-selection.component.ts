@@ -48,6 +48,10 @@ export class AvatarSelectionComponent {
     this.userId = this.userDataService.getUserId();
   }
 
+  mySelectedAvatar() {
+    console.log(this.selectedAvatar);
+  }
+
   initializeAvatarData(): void {
     this.selectedAvatar = this.avatarService.selectedAvatar;
     this.profileArray = this.avatarService.profileArray;
