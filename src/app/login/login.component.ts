@@ -1,12 +1,15 @@
 import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../services/login.service';
+import { UserDataService } from '../services/user_data.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Fehler unterdrücken
 const originalConsoleError = console.error;
@@ -31,8 +34,9 @@ declare const google: any;
     MatIconModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    /*NgIf,*/
     RouterModule,
+    MatSnackBarModule,
+    CommonModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -43,18 +47,24 @@ export class LoginComponent implements OnInit, AfterViewInit {
     Validators.required,
     Validators.minLength(6),
   ]);
+  
+  isLoggingIn: boolean = false;
+  loginErrorMessage: string = '';
 
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private userDataService: UserDataService,
+    private snackBar: MatSnackBar
   ) {}
 
-  firstRoute: string = '/directMessage';
+  firstRoute: string = '/'; 
 
   ngOnInit(): void {
     console.log('LoginComponent initialisiert');
     console.log('Exakter Origin für Google:', window.location.origin);
+    this.loginService.logout();
   }
 
   ngAfterViewInit(): void {
@@ -76,10 +86,24 @@ export class LoginComponent implements OnInit, AfterViewInit {
     google.accounts.id.prompt(); // manuelles Triggern
   }
 
-  handleCredentialResponse(response: any) {
+  private navigateAfterLogin() {
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        console.log('Navigiere nach Login zu:', this.firstRoute);
+        this.router.navigate([this.firstRoute]).then(() => {
+          console.log('Navigation erfolgreich!');
+        }).catch(err => {
+          console.error('Navigation fehlgeschlagen:', err);
+        });
+      });
+    }, 300);
+  }
+
+  async handleCredentialResponse(response: any) {
     try {
       if (!response || !response.credential) {
         console.error('Ungültige Anmeldeantwort erhalten');
+        this.showError('Ungültige Google-Anmeldung');
         return;
       }
 
@@ -88,30 +112,70 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
       setTimeout(() => console.clear(), 100);
 
-      localStorage.setItem('google_token', token);
-      this.loginService.login();
-
-      this.ngZone.run(() => {
-        setTimeout(() => {
-          this.router.navigate([this.firstRoute]);
-        }, 50);
-      });
+      const success = await this.loginService.loginWithGoogle(token);
+      
+      if (success) {
+        this.navigateAfterLogin();
+      } else {
+        this.showError('Google-Anmeldung fehlgeschlagen. Bitte registrieren Sie sich zuerst.');
+      }
     } catch (error) {
       console.error('Fehler bei der Verarbeitung der Anmeldung:', error);
+      this.showError('Fehler bei der Google-Anmeldung');
     }
   }
 
-  doLogin() {
-    this.loginService.login();
-    this.router.navigate([this.firstRoute]);
+  async doLogin() {
+    this.loginErrorMessage = '';
+    
+    if (this.isLoggingIn) return;
+    
+    const email = this.emailControl.value || '';
+    const password = this.passwordControl.value || '';
+    
+    if (!email || !password) {
+      this.loginErrorMessage = 'Bitte E-Mail und Passwort eingeben';
+      return;
+    }
+    
+    console.log(`Login-Versuch mit Email ${email}`);
+    this.isLoggingIn = true;
+    
+    try {
+      const success = await this.loginService.login(email, password);
+      
+      if (success) {
+        console.log('Login erfolgreich, navigiere weiter');
+
+        this.navigateAfterLogin();
+      } else {
+        console.error('Login fehlgeschlagen: Ungültige Anmeldedaten');
+        this.loginErrorMessage = 'Ungültige E-Mail oder Passwort';
+      }
+    } catch (error) {
+      console.error('Fehler beim Login:', error);
+      this.loginErrorMessage = 'Anmeldung fehlgeschlagen';
+    } finally {
+      this.isLoggingIn = false;
+    }
   }
 
   guestLogin() {
+    console.log('Gast-Login Button geklickt');
+    
     this.loginService.loginAsGuest();
-    this.router.navigate([this.firstRoute]);
+
+    this.navigateAfterLogin();
+  }
+  
+  showError(message: string) {
+    this.loginErrorMessage = message;
+    this.snackBar.open(message, 'OK', {
+      duration: 3000,
+      panelClass: 'error-snackbar'
+    });
   }
 }
-
 // import { Component, OnInit, NgZone, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 // import { Router } from '@angular/router';
 // import { LoginService } from '../services/login.service';

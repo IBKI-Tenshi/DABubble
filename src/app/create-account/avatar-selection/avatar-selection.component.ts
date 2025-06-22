@@ -60,13 +60,6 @@ export class AvatarSelectionComponent {
     this.router.navigate(['/']);
   }
 
-  async deleteData() {
-    this.userId = '';
-    this.userName = '';
-    await this.userDataService.deleteUserId();
-    await this.userDataService.deleteUserName();
-  }
-
   async showSuccessNote() {}
 
   changeAvatar(i: number): void {
@@ -74,23 +67,59 @@ export class AvatarSelectionComponent {
     this.avatarIndex = i;
   }
 
-  async sendAvatar() {
-    this.path = this.BASE_URL + '/users/' + this.userId;
-    const firestoreData = {
-      fields: {
-        profile: { integerValue: this.avatarIndex },
-      },
-    };
-    const response = await fetch(`${this.path}?updateMask.fieldPaths=profile`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(firestoreData),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+  // Diese Methode aktualisieren/überprüfen:
+
+async sendAvatar() {
+  this.path = this.BASE_URL + '/users/' + this.userId;
+  
+  console.log(`Sende Avatar-Index ${this.avatarIndex} für Benutzer ${this.userId} an Firebase`);
+  
+  const firestoreData = {
+    fields: {
+      profile: { integerValue: this.avatarIndex },
+    },
+  };
+  
+  console.log("Sende Daten an Firebase:", firestoreData);
+  
+  const response = await fetch(`${this.path}?updateMask.fieldPaths=profile`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(firestoreData),
+  });
+  
+  if (!response.ok) {
+    console.error(`HTTP Fehler! Status: ${response.status}`);
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+  
+  const result = await response.json();
+  console.log("Firebase-Antwort nach Avatar-Update:", result);
+  
+  // WICHTIG: Auch im localStorage für zukünftige Logins speichern
+  localStorage.setItem('user_profile_index', this.avatarIndex.toString());
+  console.log(`Avatar-Index ${this.avatarIndex} im localStorage gespeichert`);
+  
+  return result;
+}
+
+// WICHTIG: Falls es eine deleteData Methode gibt, muss sie NICHT den Avatar-Index löschen
+async deleteData() {
+  console.log("deleteData aufgerufen - Avatar-Index bleibt erhalten");
+  // Vorhandenen Avatar-Index sichern
+  const savedAvatarIndex = localStorage.getItem('user_profile_index');
+  
+  this.userId = '';
+  this.userName = '';
+  await this.userDataService.deleteUserId();
+  await this.userDataService.deleteUserName();
+  
+  // WICHTIG: Avatar-Index nach dem Löschen wiederherstellen
+  if (savedAvatarIndex) {
+    localStorage.setItem('user_profile_index', savedAvatarIndex);
+    console.log(`Avatar-Index ${savedAvatarIndex} nach dem Löschen wiederhergestellt`);
+  }
+}
 
   async openDialog(): Promise<void> {
     this.showOverlay = true;

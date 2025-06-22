@@ -16,25 +16,29 @@
       </button>
     </div>
     <div class="actual_user dFlex_ac">
+      <!-- Hier wird der Benutzername angezeigt -->
       <span>{{ userName }}</span>
       <div class="status-container">
-        <img class="profilePic" [src]="userImage" alt="profile_pictrue" />
+        <img class="profilePic" [src]="userImage" alt="profile_picture" />
         <div class="status-circle online"></div>
       </div>
 
-      <button
-        mat-icon-button
-        [matMenuTriggerFor]="profileMenu"
-        class="dropdown-btn"
-      >
+      <!-- Drop-Down-Button -->
+      <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="dropdown-btn">
         <mat-icon>keyboard_arrow_down</mat-icon>
       </button>
-      <mat-menu #profileMenu="matMenu" class="profile-dropdown-menu">
+      
+      <!-- Drop-Down-Menü -->
+      <mat-menu #profileMenu="matMenu" panelClass="profile-dropdown-menu">
         <button mat-menu-item (click)="openProfileDialog()">
-          Profil
+          <span class="mat-mdc-menu-item-text">
+            Profil
+          </span>
         </button>
         <button mat-menu-item (click)="LogOut()">
-          Log out
+          <span class="mat-mdc-menu-item-text">
+            Log out
+          </span>
         </button>
       </mat-menu>
     </div>
