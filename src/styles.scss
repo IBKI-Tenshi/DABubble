@@ -22,13 +22,16 @@ body,
 }
 
 body {
-  margin: 0;
+  margin: auto;
   font-family: "Nunito";
   // font-weight: 400;
 }
 
 * {
   font-family: "Nunito";
+  scroll-behavior: smooth;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 a {

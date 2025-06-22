@@ -28,13 +28,25 @@
             *ngFor="let imageUrl of profileArray; let i = index"
             [src]="imageUrl"
             [alt]="i"
-            (click)="this.changeAvatar(i)"
+            (click)="this.changeAvatar(i); this.mySelectedAvatar()"
           />
         </div>
       </div>
 
       <div class="continueButton">
-        <button mat-raised-button type="submit" (click)="this.successMove()">
+        <button
+          mat-raised-button
+          type="submit"
+          (click)="this.successMove()"
+          [class.disabled]="
+            selectedAvatar === '' ||
+            selectedAvatar === '../../../assets/img/avatar/default.png'
+          "
+          [disabled]="
+            selectedAvatar === '' ||
+            selectedAvatar === '../../../assets/img/avatar/default.png'
+          "
+        >
           Weiter
         </button>
       </div>

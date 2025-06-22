@@ -35,39 +35,64 @@ export class UserAccountComponent {
 
   BASE_URL = this.urlService.BASE_URL;
 
-  toggleConfirm() {
+  toggleConfirm(): void {
     this.isConfirmed = true;
     setTimeout(() => {
       this.isConfirmed = false;
     }, 3000);
   }
 
-  onEmailInput() {
+  onEmailInput(): void {
     this.isDuplicate = false;
   }
 
-  async onSubmit(ngForm: NgForm) {
-    if (ngForm.submitted && ngForm.form.valid) {
-      const exists = await this.checkEmailExists(this.contactData.email);
-      if (exists) {
-        this.isDuplicate = true;
-        return;
-      } else {
-        this.isDuplicate = false;
-        const userId = await this.createUser('/users', this.contactData);
-        this.userDataService.setUserId(userId);
-        this.userDataService.setName(this.contactData.name);
-        this.toggleConfirm();
-        this.router.navigate(['/avatarSelection']);
-      }
-    }
+  async onSubmit(ngForm: NgForm): Promise<void> {
+    if (!this.isFormValid(ngForm)) return;
+
+    const emailExists = await this.handleEmailCheck();
+    if (emailExists) return;
+
+    await this.registerUser();
+    this.router.navigate(['/avatarSelection']);
+  }
+
+  isFormValid(form: NgForm): boolean {
+    return form.submitted && form.form.valid;
+  }
+
+  async handleEmailCheck(): Promise<boolean> {
+    const exists = await this.checkEmailExists(this.contactData.email);
+    this.isDuplicate = exists;
+    return exists;
+  }
+
+  async registerUser(): Promise<void> {
+    const userId = await this.createUser('/users', this.contactData);
+    this.userDataService.setUserId(userId);
+    this.userDataService.setName(this.contactData.name);
+    this.toggleConfirm();
   }
 
   async createUser<T = any>(
     path: string = '',
     data: Record<string, any> = {}
-  ): Promise<T> {
-    const firestoreData = {
+  ): Promise<string> {
+    const firestoreData = this.buildUserPayload(data);
+    const response = await fetch(`${this.BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return this.extractDocumentId(await response.json());
+  }
+
+  buildUserPayload(data: Record<string, any>): object {
+    return {
       fields: {
         name: { stringValue: this.contactData.name },
         email: { stringValue: this.contactData.email },
@@ -75,41 +100,41 @@ export class UserAccountComponent {
         privacyAccepted: { booleanValue: this.contactData.privacyAccepted },
       },
     };
-    const response = await fetch(`${this.BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(firestoreData),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const result = await response.json();
-    const fullPath = result.name;
-    const docId = fullPath.split('/').pop();
-    return docId;
+  }
+
+  extractDocumentId(responseJson: any): string {
+    const fullPath = responseJson.name;
+    return fullPath.split('/').pop();
   }
 
   async checkEmailExists(email: string): Promise<boolean> {
+    const queryBody = this.buildEmailQuery(email);
     const response = await fetch(`${this.BASE_URL}:runQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: 'users' }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: 'email' },
-              op: 'EQUAL',
-              value: { stringValue: email },
-            },
-          },
-        },
-      }),
+      body: JSON.stringify(queryBody),
     });
+
     if (!response.ok) {
       throw new Error(`Error checking email: ${response.status}`);
     }
+
     const results = await response.json();
     return results.some((doc: any) => doc.document);
+  }
+
+  buildEmailQuery(email: string): object {
+    return {
+      structuredQuery: {
+        from: [{ collectionId: 'users' }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'email' },
+            op: 'EQUAL',
+            value: { stringValue: email },
+          },
+        },
+      },
+    };
   }
 }

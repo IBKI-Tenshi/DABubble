@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { FirestoreService } from '../services/firestore.service';
 import { Message } from '../../models/message.model';
 import { ActivatedRoute } from '@angular/router';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   selector: 'app-direct-message',
@@ -41,16 +42,37 @@ export class DirectMessageComponent implements OnInit {
     });
   }
 
-  loadMessages(): void {
-    console.log("load message test1");
 
-    this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
-      console.log("Neue Nachrichten empfangen:", msgs.length);
-      this.messages = msgs.sort((a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      );
-    });
-  }
+// timestamp als timestamp
+
+// loadMessages(): void {
+//   console.log("loadMessages triggered");
+
+//   this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
+//     console.log("load Messages: Nachrichten erhalten von Firestore:", msgs);
+//     console.log(this.messages);
+//     this.messages = msgs.sort((a, b) =>
+//       a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()  
+//     );
+//     console.log("loadMessages hat geklappt");
+    
+//   });
+// }
+
+
+
+// timestamp als string
+loadMessages(): void {
+  console.log("loadMessages triggered");
+
+  this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
+    this.messages = msgs.sort((a, b) =>
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  });
+
+}
+
 
   async sendMessage(): Promise<void> {
     if (!this.newMessageText.trim()) return;
@@ -59,14 +81,14 @@ export class DirectMessageComponent implements OnInit {
       text: this.newMessageText,
       senderId: this.senderName,
       timestamp: new Date().toISOString()
+      // timestamp: Timestamp.now()
     };
 
     try {
       await this.firestore.addMessageToChat(this.chatId, newMessage);
       this.newMessageText = '';
-      console.log("senden geklappt test1");
     } catch (error) {
-      console.error('❌ Fehler beim Senden der Nachricht:', error);
+      console.error(' Fehler beim Senden der Nachricht:', error);
     }
   }
 }
