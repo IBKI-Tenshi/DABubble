@@ -7,14 +7,14 @@ import { UrlService } from './url.service';
 import jwt_decode from 'jwt-decode';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoginService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private router: Router,
     private userDataService: UserDataService,
     private urlService: UrlService
@@ -22,13 +22,13 @@ export class LoginService {
     const userToken = localStorage.getItem('user_token');
     const googleToken = localStorage.getItem('google_token');
     const guestToken = localStorage.getItem('guest_token');
-    
+
     if (userToken || googleToken || guestToken) {
       this.isLoggedInSubject.next(true);
-      console.log("LoginService: Benutzer oder Gast ist angemeldet");
-      
+      console.log('LoginService: Benutzer oder Gast ist angemeldet');
+
       if (guestToken) {
-        console.log("LoginService: Gast-Token gefunden");
+        console.log('LoginService: Gast-Token gefunden');
         this.userDataService.loadGuestProfile();
       } else {
         this.loadUserIdFromStorage();
@@ -36,16 +36,18 @@ export class LoginService {
     }
   }
 
+  BASE_URL = this.urlService.BASE_URL;
+
   private loadUserIdFromStorage() {
     const storedUserId = localStorage.getItem('userId');
     const storedEmail = localStorage.getItem('user_email');
-    
+
     if (storedUserId) {
       console.log(`UserId aus localStorage geladen: ${storedUserId}`);
       this.userDataService.setUserId(storedUserId);
       return;
     }
-    
+
     if (storedEmail) {
       const userId = storedEmail.split('@')[0];
       localStorage.setItem('userId', userId);
@@ -57,7 +59,7 @@ export class LoginService {
   private async findUserIdByEmail(email: string): Promise<string | null> {
     try {
       console.log(`Suche Benutzer-ID für E-Mail: ${email}`);
-      
+
       const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,75 +76,77 @@ export class LoginService {
           },
         }),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`Fehler bei der Suche nach Benutzer-ID: ${response.status}`);
+        throw new Error(
+          `Fehler bei der Suche nach Benutzer-ID: ${response.status}`
+        );
       }
-      
+
       const results = await response.json();
-      console.log("Suchergebnisse für E-Mail:", results);
-      
+      console.log('Suchergebnisse für E-Mail:', results);
+
       const foundDoc = results.find((doc: any) => doc.document);
-      
+
+      console.log(foundDoc);
+
       if (foundDoc && foundDoc.document) {
         const docPath = foundDoc.document.name;
         const userId = docPath.split('/').pop();
         console.log(`Benutzer-ID gefunden: ${userId}`);
         return userId;
       } else {
-        console.warn("Keine Benutzer-ID für diese E-Mail gefunden");
+        console.warn('Keine Benutzer-ID für diese E-Mail gefunden');
         return null;
       }
     } catch (error) {
-      console.error("Fehler bei der Suche nach Benutzer-ID:", error);
+      console.error('Fehler bei der Suche nach Benutzer-ID:', error);
       return null;
     }
   }
-  
+
   // Prüft, ob die E-Mail in Firebase existiert
-  private async checkEmailExists(email: string): Promise<boolean> {
-    try {
-      console.log(`Prüfe, ob E-Mail existiert: ${email}`);
-      
-      const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          structuredQuery: {
-            from: [{ collectionId: 'users' }],
-            where: {
-              fieldFilter: {
-                field: { fieldPath: 'email' },
-                op: 'EQUAL',
-                value: { stringValue: email },
-              },
-            },
-          },
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Fehler bei der E-Mail-Überprüfung: ${response.status}`);
-      }
-      
-      const results = await response.json();
-      
-      // E-Mail existiert, wenn mindestens ein Dokument gefunden wurde
-      const exists = results.some((doc: any) => doc.document);
-      console.log(`E-Mail ${email} existiert in Firebase:`, exists);
-      
-      return exists;
-    } catch (error) {
-      console.error("Fehler bei der E-Mail-Überprüfung:", error);
-      return false;
+  async checkEmailExists(email: string): Promise<boolean> {
+    const queryBody = this.buildEmailQuery(email);
+    const response = await fetch(`${this.BASE_URL}:runQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(queryBody),
+    });
+
+    console.log(response);
+
+    if (!response.ok) {
+      throw new Error(`Error checking email: ${response.status}`);
     }
+
+    const results = await response.json();
+    return results.some((doc: any) => doc.document);
   }
-  
+
+  buildEmailQuery(email: string): object {
+    return {
+      structuredQuery: {
+        from: [{ collectionId: 'users' }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'email' },
+            op: 'EQUAL',
+            value: { stringValue: email },
+          },
+        },
+      },
+    };
+  }
+
   // Überprüft Passwort bei gegebener E-Mail
-  private async checkPassword(email: string, password: string): Promise<boolean> {
+  private async checkPassword(
+    email: string,
+    password: string
+  ): Promise<boolean> {
     try {
       console.log(`Überprüfe Passwort für E-Mail: ${email}`);
-  
+
       const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -173,105 +177,109 @@ export class LoginService {
           },
         }),
       });
-  
+
       if (!response.ok) {
-        throw new Error(`Fehler bei der Passwort-Überprüfung: ${response.status}`);
+        throw new Error(
+          `Fehler bei der Passwort-Überprüfung: ${response.status}`
+        );
       }
-  
+
       const results = await response.json();
-  
+
       const found = results.find(
         (doc: any) =>
           doc?.document?.fields?.email?.stringValue === email &&
           doc?.document?.fields?.password?.stringValue === password
       );
-  
+
       const isValid = !!found;
       console.log(`Passwort für ${email} ist korrekt:`, isValid);
       return isValid;
     } catch (error) {
-      console.error("Fehler bei der Passwort-Überprüfung:", error);
+      console.error('Fehler bei der Passwort-Überprüfung:', error);
       return false;
     }
   }
 
   async login(email: string = '', password: string = ''): Promise<boolean> {
     this.logout();
-    
+
     if (!email || !password) {
-      console.warn("E-Mail oder Passwort fehlt");
+      console.warn('E-Mail oder Passwort fehlt');
       return false;
     }
-    
+
     console.log(`Login für ${email} wird durchgeführt`);
-    
+
     try {
       const emailExists = await this.checkEmailExists(email);
       if (!emailExists) {
         console.error(`E-Mail ${email} existiert nicht in Firebase`);
         return false;
       }
-      
+
       const passwordValid = await this.checkPassword(email, password);
       if (!passwordValid) {
         console.error(`Passwort für ${email} ist nicht korrekt`);
         return false;
       }
-      
+
       console.log(`Authentifizierung erfolgreich für ${email}`);
-      
+
       const userId = await this.findUserIdByEmail(email);
       if (!userId) {
         console.error('Keine Benutzer-ID gefunden, Login abgebrochen');
         return false;
       }
-    
+
       localStorage.setItem('userId', userId);
       localStorage.setItem('user_token', 'dummy-token-' + new Date().getTime());
       localStorage.setItem('user_email', email);
-      
+
       console.log(`Login erfolgreich, setze userId: ${userId}`);
-      
+
       await this.userDataService.setUserId(userId);
       this.userDataService.resetUserData();
-      
+
       this.isLoggedInSubject.next(true);
-      
+
       return true;
     } catch (error) {
-      console.error("Fehler beim Login:", error);
+      console.error('Fehler beim Login:', error);
       return false;
     }
   }
 
   async loginWithGoogle(token: string, email: string): Promise<boolean> {
     this.logout();
-    console.log("Google-Login wird durchgeführt mit Email:", email);
-  
+    console.log('Google-Login wird durchgeführt mit Email:', email);
+
     try {
       localStorage.setItem('google_token', token);
       localStorage.setItem('user_email', email);
-  
+
       const emailExists = await this.checkEmailExists(email);
       if (!emailExists) {
-        console.warn(`Google-Account mit E-Mail ${email} ist nicht registriert`);
+        console.warn(
+          `Google-Account mit E-Mail ${email} ist nicht registriert`
+        );
         return false;
       }
-  
+
       const userId = await this.findUserIdByEmail(email);
       if (!userId) {
         console.error('Keine Benutzer-ID für Google-Login gefunden');
         return false;
       }
-  
+
       localStorage.setItem('userId', userId);
       console.log(`Google Login erfolgreich, ID: ${userId}`);
-  
+
       await this.userDataService.setUserId(userId);
       this.isLoggedInSubject.next(true);
       return true;
     } catch (error) {
-      console.error("Fehler beim Google-Login:", error);
+      console.error('Fehler beim Google-Login:', error);
       return false;
     }
   }
@@ -279,21 +287,21 @@ export class LoginService {
   // Gast-Login
   loginAsGuest(): boolean {
     this.logout();
-    
-    console.log("Gast-Login wird durchgeführt");
-    
+
+    console.log('Gast-Login wird durchgeführt');
+
     localStorage.setItem('guest_token', 'guest-token-' + new Date().getTime());
-    
+
     this.userDataService.loadGuestProfile();
     this.userDataService.resetUserData();
-    
+
     this.isLoggedInSubject.next(true);
     return true;
   }
 
   logout(): void {
-    console.log("Logout wird durchgeführt");
-  
+    console.log('Logout wird durchgeführt');
+
     localStorage.removeItem('user_token');
     localStorage.removeItem('google_token');
     localStorage.removeItem('userId');
@@ -301,15 +309,18 @@ export class LoginService {
     localStorage.removeItem('guest_token');
     localStorage.removeItem('user_profile_index');
     localStorage.removeItem('user_name');
-  
+
     this.isLoggedInSubject.next(false);
     this.userDataService.deleteUserId(); // Setzt Subject auf null
   }
 
   isLoggedIn(): boolean {
-    return this.isLoggedInSubject.getValue() || localStorage.getItem('guest_token') !== null;
+    return (
+      this.isLoggedInSubject.getValue() ||
+      localStorage.getItem('guest_token') !== null
+    );
   }
-  
+
   isGuestLoggedIn(): boolean {
     return localStorage.getItem('guest_token') !== null;
   }

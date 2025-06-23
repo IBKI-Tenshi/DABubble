@@ -115,6 +115,8 @@ export class UserAccountComponent {
       body: JSON.stringify(queryBody),
     });
 
+    console.log(response);
+
     if (!response.ok) {
       throw new Error(`Error checking email: ${response.status}`);
     }
