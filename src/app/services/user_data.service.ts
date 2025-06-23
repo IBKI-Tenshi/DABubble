@@ -423,16 +423,13 @@ export class UserDataService {
     }
   }
 
-  setUserId(userId: string): void {
+  async setUserId(userId: string): Promise<void> {
     console.log(`User-ID wird auf "${userId}" gesetzt`);
     this._userId = userId;
     localStorage.setItem('userId', userId);
-    
-    this._isGuest = localStorage.getItem('guest_token') !== null;
-    
-    if (!this._isGuest) {
-      this.loadUserFromFirestore(userId);
-    }
+    this._isGuest = false;
+  
+    await this.loadUserFromFirestore(userId);
   }
 
   getName(): string {

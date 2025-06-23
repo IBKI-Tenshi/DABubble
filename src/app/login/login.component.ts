@@ -3,7 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../services/login.service';
 import { UserDataService } from '../services/user_data.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { jwtDecode } from 'jwt-decode';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -106,21 +106,28 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.showError('Ungültige Google-Anmeldung');
         return;
       }
-
+  
       const token = response.credential;
-      console.log('Google Login erfolgreich');
-
-      setTimeout(() => console.clear(), 100);
-
-      const success = await this.loginService.loginWithGoogle(token);
-      
+      const decoded: any = jwtDecode(token); 
+      const email = decoded.email;
+  
+      if (!email) {
+        this.showError('Google hat keine E-Mail zurückgegeben.');
+        return;
+      }
+  
+      console.log('Google Login erfolgreich mit:', email);
+      localStorage.setItem('user_email', email);
+  
+      const success = await this.loginService.loginWithGoogle(token, email);
+  
       if (success) {
         this.navigateAfterLogin();
       } else {
         this.showError('Google-Anmeldung fehlgeschlagen. Bitte registrieren Sie sich zuerst.');
       }
     } catch (error) {
-      console.error('Fehler bei der Verarbeitung der Anmeldung:', error);
+      console.error('Fehler bei der Google-Anmeldung:', error);
       this.showError('Fehler bei der Google-Anmeldung');
     }
   }

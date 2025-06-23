@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { UserDataService } from './user_data.service';
 import { UrlService } from './url.service';
+import jwt_decode from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -141,7 +142,7 @@ export class LoginService {
   private async checkPassword(email: string, password: string): Promise<boolean> {
     try {
       console.log(`Überprüfe Passwort für E-Mail: ${email}`);
-      
+  
       const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -172,17 +173,21 @@ export class LoginService {
           },
         }),
       });
-      
+  
       if (!response.ok) {
         throw new Error(`Fehler bei der Passwort-Überprüfung: ${response.status}`);
       }
-      
+  
       const results = await response.json();
-      
-
-      const isValid = results.some((doc: any) => doc.document);
+  
+      const found = results.find(
+        (doc: any) =>
+          doc?.document?.fields?.email?.stringValue === email &&
+          doc?.document?.fields?.password?.stringValue === password
+      );
+  
+      const isValid = !!found;
       console.log(`Passwort für ${email} ist korrekt:`, isValid);
-      
       return isValid;
     } catch (error) {
       console.error("Fehler bei der Passwort-Überprüfung:", error);
@@ -227,7 +232,7 @@ export class LoginService {
       
       console.log(`Login erfolgreich, setze userId: ${userId}`);
       
-      this.userDataService.setUserId(userId);
+      await this.userDataService.setUserId(userId);
       this.userDataService.resetUserData();
       
       this.isLoggedInSubject.next(true);
@@ -239,42 +244,32 @@ export class LoginService {
     }
   }
 
-  // Login über Google
-  async loginWithGoogle(token: string): Promise<boolean> {
+  async loginWithGoogle(token: string, email: string): Promise<boolean> {
     this.logout();
-    
-    console.log("Google-Login wird durchgeführt");
-    
+    console.log("Google-Login wird durchgeführt mit Email:", email);
+  
     try {
-      
       localStorage.setItem('google_token', token);
-      
-      const storedEmail = localStorage.getItem('user_email');
-      
-      if (storedEmail) {
-        const emailExists = await this.checkEmailExists(storedEmail);
-        if (!emailExists) {
-          console.warn(`Google-Account mit E-Mail ${storedEmail} ist nicht registriert`);
-          return false;
-        }
-        
-        const userId = await this.findUserIdByEmail(storedEmail);
-        if (!userId) {
-          console.error('Keine Benutzer-ID für Google-Login gefunden');
-          return false;
-        }
-        
-        localStorage.setItem('userId', userId);
-        console.log(`Google Login erfolgreich, ID: ${userId}`);
-        
-        this.userDataService.setUserId(userId);
-        this.userDataService.resetUserData();
-        this.isLoggedInSubject.next(true);
-        return true;
-      } else {
-        console.error("Keine E-Mail für Google-Login verfügbar");
+      localStorage.setItem('user_email', email);
+  
+      const emailExists = await this.checkEmailExists(email);
+      if (!emailExists) {
+        console.warn(`Google-Account mit E-Mail ${email} ist nicht registriert`);
         return false;
       }
+  
+      const userId = await this.findUserIdByEmail(email);
+      if (!userId) {
+        console.error('Keine Benutzer-ID für Google-Login gefunden');
+        return false;
+      }
+  
+      localStorage.setItem('userId', userId);
+      console.log(`Google Login erfolgreich, ID: ${userId}`);
+  
+      await this.userDataService.setUserId(userId);
+      this.isLoggedInSubject.next(true);
+      return true;
     } catch (error) {
       console.error("Fehler beim Google-Login:", error);
       return false;
@@ -298,16 +293,17 @@ export class LoginService {
 
   logout(): void {
     console.log("Logout wird durchgeführt");
-    
+  
     localStorage.removeItem('user_token');
     localStorage.removeItem('google_token');
     localStorage.removeItem('userId');
     localStorage.removeItem('user_email');
     localStorage.removeItem('guest_token');
-    
+    localStorage.removeItem('user_profile_index');
+    localStorage.removeItem('user_name');
+  
     this.isLoggedInSubject.next(false);
-    
-    this.userDataService.deleteUserId();
+    this.userDataService.deleteUserId(); // Setzt Subject auf null
   }
 
   isLoggedIn(): boolean {
