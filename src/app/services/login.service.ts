@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { UserDataService } from './user_data.service';
 import { UrlService } from './url.service';
@@ -25,8 +26,7 @@ export class LoginService {
     private http: HttpClient,
     private router: Router,
     private userDataService: UserDataService,
-    private urlService: UrlService,
-    private router: Router
+    private urlService: UrlService
   ) {
     console.log('🔄 LoginService wird initialisiert');
     
@@ -70,6 +70,9 @@ export class LoginService {
       if (userId) {
         console.log('👤 Lade Benutzer mit ID:', userId);
         this.userDataService.loadUser(userId);
+      } else if (guestToken) {
+        console.log('👤 Gast-Token gefunden, lade Gastprofil');
+        this.userDataService.loadGuestProfile();
       }
     } else {
       console.log('❌ Kein Token gefunden, setze Login-Status auf false');
@@ -114,10 +117,15 @@ export class LoginService {
       
       // Benutzerdaten laden
       await this.userDataService.loadUser(userId);
+      
+      // Navigation zur DirectMessage-Seite
+      setTimeout(() => {
+        console.log('🚀 Navigiere nach Login zu DirectMessage');
+        this.router.navigate(['/directMessage/general']);
+      }, 100);
+      
       return { uid: userId, email: email };
     } catch (error) {
-      console.error('Fehler bei der Suche nach Benutzer-ID:', error);
-      return null;
       console.error("Login-Fehler:", error);
       return 'auth/unknown-error';
     }
@@ -181,57 +189,57 @@ export class LoginService {
   }
 
   /**
- * Authentifiziert den Benutzer gegen Firebase
- */
-private async authenticateUser(email: string, password: string): Promise<string | null> {
-  try {
-    const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        structuredQuery: {
-          from: [{ collectionId: 'users' }],
-          where: {
-            compositeFilter: {
-              op: 'AND',
-              filters: [
-                {
-                  fieldFilter: {
-                    field: { fieldPath: 'email' },
-                    op: 'EQUAL',
-                    value: { stringValue: email },
+   * Authentifiziert den Benutzer gegen Firebase
+   */
+  private async authenticateUser(email: string, password: string): Promise<string | null> {
+    try {
+      const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: 'users' }],
+            where: {
+              compositeFilter: {
+                op: 'AND',
+                filters: [
+                  {
+                    fieldFilter: {
+                      field: { fieldPath: 'email' },
+                      op: 'EQUAL',
+                      value: { stringValue: email },
+                    },
                   },
-                },
-                {
-                  fieldFilter: {
-                    field: { fieldPath: 'password' },
-                    op: 'EQUAL',
-                    value: { stringValue: password },
+                  {
+                    fieldFilter: {
+                      field: { fieldPath: 'password' },
+                      op: 'EQUAL',
+                      value: { stringValue: password },
+                    },
                   },
-                },
-              ],
+                ],
+              },
             },
           },
-        },
-      }),
-    });
+        }),
+      });
 
-    if (!response.ok) return null;
+      if (!response.ok) return null;
 
-    const results = await response.json();
-    const foundDoc = results.find((doc: any) => doc.document);
-    
-    if (foundDoc?.document) {
-      const docPath = foundDoc.document.name;
-      return docPath.split('/').pop() || null;
+      const results = await response.json();
+      const foundDoc = results.find((doc: any) => doc.document);
+      
+      if (foundDoc?.document) {
+        const docPath = foundDoc.document.name;
+        return docPath.split('/').pop() || null;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Authentifizierungsfehler:", error);
+      return null;
     }
-    
-    return null;
-  } catch (error) {
-    console.error("Authentifizierungsfehler:", error);
-    return null;
   }
-}
 
   /**
    * Google Login (Test-Implementation)
@@ -253,18 +261,6 @@ private async authenticateUser(email: string, password: string): Promise<string 
 
   /**
    * Gast-Login
-   */
-  async signInAsGuest(): Promise<any> {
-    const guestId = 'guest';
-    this.saveTokens('guest', `guest-token-${Date.now()}`, guestId, undefined, Date.now());
-    
-    await this.userDataService.loadGuestProfile();
-    
-    return { uid: guestId };
-  }
-
-  /**
-   * Gast-Login (Kompatibilität mit neuer Implementierung)
    */
   async signInAsGuest(): Promise<any> {
     const guestId = 'guest';
@@ -307,6 +303,15 @@ private async authenticateUser(email: string, password: string): Promise<string 
     localStorage.removeItem(this.LOGIN_TIMESTAMP_KEY);
     localStorage.removeItem('slack_clone_is_logged_in');
     
+    // Auch alte Token-Schlüssel löschen (für Kompatibilität)
+    localStorage.removeItem('user_token');
+    localStorage.removeItem('google_token');
+    localStorage.removeItem('guest_token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('user_email');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_profile_index');
+    
     // Logging nach dem Löschen
     console.log('🧹 Tokens nach Logout gelöscht, neue Werte:', { 
       userToken: localStorage.getItem(this.USER_TOKEN_KEY),
@@ -319,22 +324,30 @@ private async authenticateUser(email: string, password: string): Promise<string 
   }
 
   /**
-   * Prüft Login-Status (OHNE automatische Korrektur)
+   * Prüft Login-Status (mit Konsistenzprüfung)
    */
   isLoggedIn(): boolean {
     // Zusätzliche Konsistenzprüfung
     const subjectValue = this.isLoggedInSubject.getValue();
     const storageValue = localStorage.getItem('slack_clone_is_logged_in') === 'true';
+    const hasToken = this.checkToken();
     
-    if (subjectValue !== storageValue) {
+    // Auch alte Token-Schlüssel prüfen (für Kompatibilität)
+    const hasLegacyToken = 
+      localStorage.getItem('user_token') !== null || 
+      localStorage.getItem('google_token') !== null || 
+      localStorage.getItem('guest_token') !== null;
+    
+    if (subjectValue !== storageValue || subjectValue !== hasToken || hasLegacyToken !== hasToken) {
       console.warn('⚠️ Inkonsistenz im Login-Status:', {
         subjectValue,
         storageValue,
-        hasToken: this.checkToken()
+        hasToken,
+        hasLegacyToken
       });
       
       // Bei Inkonsistenz: Token prüfen und korrigieren
-      if (this.checkToken()) {
+      if (hasToken || hasLegacyToken) {
         console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
         this.isLoggedInSubject.next(true);
         localStorage.setItem('slack_clone_is_logged_in', 'true');
@@ -353,6 +366,111 @@ private async authenticateUser(email: string, password: string): Promise<string 
    * Prüft, ob ein Gast eingeloggt ist
    */
   checkIfGuestIsLoggedIn(): boolean {
-    return localStorage.getItem(this.GUEST_TOKEN_KEY) !== null;
+    return localStorage.getItem(this.GUEST_TOKEN_KEY) !== null || 
+           localStorage.getItem('guest_token') !== null;
+  }
+  
+  /**
+   * Login für Kompatibilität mit altem Code
+   */
+  async login(email: string, password: string): Promise<boolean> {
+    try {
+      const result = await this.logIn(email, password);
+      return result && result.uid ? true : false;
+    } catch (error) {
+      console.error('Fehler beim Login:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Google-Login für Kompatibilität mit altem Code
+   */
+  async loginWithGoogle(token: string, email: string): Promise<boolean> {
+    try {
+      if (!email) {
+        console.warn('Keine E-Mail für Google-Login angegeben');
+        return false;
+      }
+      
+      // Suchen der Benutzer-ID oder ableiten aus E-Mail
+      let userId = await this.authenticateUserByEmail(email);
+      
+      if (!userId) {
+        userId = email.split('@')[0]; // Fallback: UserId aus E-Mail ableiten
+      }
+      
+      // Token speichern
+      this.saveTokens('google', token, userId, email, Date.now());
+      
+      // Benutzerdaten laden
+      await this.userDataService.loadUser(userId);
+      
+      // Navigieren
+      setTimeout(() => {
+        this.router.navigate(['/directMessage/general']);
+      }, 100);
+      
+      return true;
+    } catch (error) {
+      console.error('Fehler beim Google-Login:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Hilfsmethode: Benutzer nur anhand der E-Mail suchen
+   */
+  private async authenticateUserByEmail(email: string): Promise<string | null> {
+    try {
+      const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: 'users' }],
+            where: {
+              fieldFilter: {
+                field: { fieldPath: 'email' },
+                op: 'EQUAL',
+                value: { stringValue: email },
+              },
+            },
+          },
+        }),
+      });
+
+      if (!response.ok) return null;
+
+      const results = await response.json();
+      const foundDoc = results.find((doc: any) => doc.document);
+      
+      if (foundDoc?.document) {
+        const docPath = foundDoc.document.name;
+        return docPath.split('/').pop() || null;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Fehler beim Suchen des Benutzers:", error);
+      return null;
+    }
+  }
+  
+  /**
+   * Gast-Login für Kompatibilität mit altem Code
+   */
+  loginAsGuest(): boolean {
+    const guestId = 'guest';
+    this.saveTokens('guest', `guest-token-${Date.now()}`, guestId, undefined, Date.now());
+    
+    this.userDataService.loadGuestProfile();
+    
+    // Navigieren
+    setTimeout(() => {
+      this.router.navigate(['/directMessage/general']);
+    }, 100);
+    
+    return true;
   }
 }

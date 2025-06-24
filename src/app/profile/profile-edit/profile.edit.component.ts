@@ -4,12 +4,12 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
-import { 
-  FormControl, 
-  FormGroup, 
-  ReactiveFormsModule, 
-  Validators, 
-  AbstractControl, 
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
   ValidationErrors
 } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -32,13 +32,13 @@ import { UserDataService } from '../../services/user_data.service';
 })
 export class ProfileEditComponent {
   @ViewChild('avatarSelector') avatarSelector!: MatExpansionPanel;
-  
+
   profileForm: FormGroup;
   currentAvatar: string;
   isSubmitting = false;
   errorMessage = '';
   selectedAvatarIndex: number;
-  
+
   // Avatar-Liste
   avatarList: string[] = [
     '/assets/img/avatar/avatar_1.png',
@@ -58,11 +58,11 @@ export class ProfileEditComponent {
     // Avatar-Auswahl initialisieren
     this.selectedAvatarIndex = data?.profile !== undefined ? data.profile : 0;
     this.currentAvatar = data?.profileImage || this.avatarList[this.selectedAvatarIndex];
-    
+
     // Formular initialisieren
     this.profileForm = new FormGroup({
       name: new FormControl(data?.name || '', [
-        Validators.required, 
+        Validators.required,
         this.noLeadingSpaceValidator
       ])
     });
@@ -72,9 +72,9 @@ export class ProfileEditComponent {
    * Validator für keine führenden Leerzeichen
    */
   noLeadingSpaceValidator(control: AbstractControl): ValidationErrors | null {
-    return control.value && 
-           typeof control.value === 'string' && 
-           control.value.charAt(0) === ' ' ? { leadingSpace: true } : null;
+    return control.value &&
+      typeof control.value === 'string' &&
+      control.value.charAt(0) === ' ' ? { leadingSpace: true } : null;
   }
 
   /**
@@ -99,36 +99,44 @@ export class ProfileEditComponent {
     return !!name && name.charAt(0) === ' ';
   }
 
-  /**
-   * Änderungen speichern
-   */
   async saveChanges(): Promise<void> {
     if (this.profileForm.invalid || this.isSubmitting) {
       this.profileForm.markAllAsTouched();
       return;
     }
-    
+
     this.isSubmitting = true;
     this.errorMessage = '';
-    
+
     try {
       const newName = this.profileForm.get('name')?.value;
-      
+
       // Profil aktualisieren
       const success = await this.userDataService.updateProfile({
         name: newName,
         profile: this.selectedAvatarIndex
       });
-      
+
       if (success) {
         this.snackBar.open('Profil gespeichert', 'OK', { duration: 2000 });
-        
+
+        // Wenn es ein Gast ist, auch im localStorage speichern
+        if (this.data.isGuest) {
+          localStorage.setItem('slack_clone_guest_name', newName);
+          localStorage.setItem('slack_clone_guest_profile_index', this.selectedAvatarIndex.toString());
+          console.log('✅ Gast-Profil im localStorage gespeichert:', {
+            name: newName,
+            profileIndex: this.selectedAvatarIndex
+          });
+        }
+
         // Dialog schließen und aktualisierte Daten zurückgeben
         this.dialogRef.close({
           name: newName,
           email: this.data.email,
           profileImage: this.currentAvatar,
-          profile: this.selectedAvatarIndex
+          profile: this.selectedAvatarIndex,
+          isGuest: this.data.isGuest
         });
       } else {
         this.errorMessage = 'Fehler beim Speichern des Profils';
