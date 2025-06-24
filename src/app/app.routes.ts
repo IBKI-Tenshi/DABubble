@@ -12,15 +12,17 @@ import { PasswordResetComponent } from './password/password-reset/password-reset
 
 export const routes: Routes = [
   { path: 'a', component: LoginComponent },
-  // { path: 'dashboard', component: DashboardComponent },
-  // { path: 'user', component: UserComponent },
-  { path: 'user/:id', component: UserDetailComponent }, // ":" ist wichtig sonst wird "id" als text interpretiert
+  // Auskommentiert, da nicht benötigt: { path: 'dashboard', component: DashboardComponent },
+  // Auskommentiert, da nicht benötigt: { path: 'user', component: UserComponent },
+  { path: 'user/:id', component: UserDetailComponent },
   { path: 'accountCreation', component: UserAccountComponent },
   { path: 'avatarSelection', component: AvatarSelectionComponent },
-  // { path: 'directMessage', component: DirectMessageComponent },
+  { path: 'directMessage', component: DirectMessageComponent }, // Diese Route aktivieren
   { path: 'directMessage/:chatId', component: DirectMessageComponent },
   { path: '', component: LoginComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: 'password', component: PasswordEmailComponent },
   { path: 'passwordReset', component: PasswordResetComponent },
+  // Fügen Sie eine Wildcard-Route hinzu, um nicht gefundene URLs aufzufangen
+  { path: '**', redirectTo: '' }
 ];

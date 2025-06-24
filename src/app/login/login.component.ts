@@ -1,30 +1,13 @@
-import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../services/login.service';
-import { UserDataService } from '../services/user_data.service';
+import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { jwtDecode } from 'jwt-decode';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-// Fehler unterdrücken
-const originalConsoleError = console.error;
-console.error = (...args) => {
-  if (
-    args[0] &&
-    typeof args[0] === 'string' &&
-    (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))
-  ) {
-    return;
-  }
-  originalConsoleError.apply(console, args);
-};
-
-declare const google: any;
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -34,273 +17,199 @@ declare const google: any;
     MatIconModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    RouterModule,
     MatSnackBarModule,
-    CommonModule
+    CommonModule,
+    RouterModule
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+  styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements OnInit {
+  // Form controls
   emailControl = new FormControl('', [Validators.required, Validators.email]);
-  passwordControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(6),
-  ]);
+  passwordControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
   
-  isLoggingIn: boolean = false;
-  loginErrorMessage: string = '';
-
+  // Status variables
+  isLoggingIn = false;
+  loginErrorMail: string | null = null;
+  loginErrorPassword: string | null = null;
+  
   constructor(
     private loginService: LoginService,
-    private router: Router,
-    private ngZone: NgZone,
-    private userDataService: UserDataService,
     private snackBar: MatSnackBar
   ) {}
 
-  firstRoute: string = '/'; 
-
   ngOnInit(): void {
-    console.log('LoginComponent initialisiert');
-    console.log('Exakter Origin für Google:', window.location.origin);
-    this.loginService.logout();
-  }
-
-  ngAfterViewInit(): void {
-    try {
-      google.accounts.id.initialize({
-        client_id:
-          '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
-        callback: this.handleCredentialResponse.bind(this),
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        use_fedcm_for_prompt: false,
-      });
-    } catch (error) {
-      console.error('Fehler beim Initialisieren des Google-Logins:', error);
+    // Animation Session Storage Check
+    const hasAnimated = sessionStorage.getItem('animation');
+    if (!hasAnimated) {
+      this.runStartupAnimation();
+      sessionStorage.setItem('animation', 'true');
     }
-  }
-
-  triggerGoogleLogin() {
-    google.accounts.id.prompt(); // manuelles Triggern
-  }
-
-  private navigateAfterLogin() {
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        console.log('Navigiere nach Login zu:', this.firstRoute);
-        this.router.navigate([this.firstRoute]).then(() => {
-          console.log('Navigation erfolgreich!');
-        }).catch(err => {
-          console.error('Navigation fehlgeschlagen:', err);
-        });
-      });
-    }, 300);
-  }
-
-  async handleCredentialResponse(response: any) {
-    try {
-      if (!response || !response.credential) {
-        console.error('Ungültige Anmeldeantwort erhalten');
-        this.showError('Ungültige Google-Anmeldung');
-        return;
-      }
-  
-      const token = response.credential;
-      const decoded: any = jwtDecode(token); 
-      const email = decoded.email;
-  
-      if (!email) {
-        this.showError('Google hat keine E-Mail zurückgegeben.');
-        return;
-      }
-  
-      console.log('Google Login erfolgreich mit:', email);
-      localStorage.setItem('user_email', email);
-  
-      const success = await this.loginService.loginWithGoogle(token, email);
-  
-      if (success) {
-        this.navigateAfterLogin();
-      } else {
-        this.showError('Google-Anmeldung fehlgeschlagen. Bitte registrieren Sie sich zuerst.');
-      }
-    } catch (error) {
-      console.error('Fehler bei der Google-Anmeldung:', error);
-      this.showError('Fehler bei der Google-Anmeldung');
-    }
-  }
-
-  async doLogin() {
-    this.loginErrorMessage = '';
     
-    if (this.isLoggingIn) return;
+    // WICHTIG: Prüfen, ob bereits angemeldet
+    const tokenInStorage = localStorage.getItem('slack_clone_user_token') !== null || 
+                          localStorage.getItem('slack_clone_google_token') !== null || 
+                          localStorage.getItem('slack_clone_guest_token') !== null;
+    
+    const isLoggedInStatus = this.loginService.isLoggedIn();
+    
+    console.log('📊 Login-Komponente initialisiert mit:', {
+      tokenInStorage,
+      isLoggedInStatus
+    });
+    
+    // Logout NUR wenn KEINE Tokens vorhanden und der Status false ist
+    if (!tokenInStorage && !isLoggedInStatus) {
+      console.log('🔄 Keine Tokens und nicht angemeldet, führe Logout durch');
+      this.loginService.logout();
+    } else {
+      console.log('🔒 Token oder Login-Status gefunden, kein Logout notwendig');
+    }
+  }
+
+  /**
+   * Startup Animation basierend auf der Fensterbreite
+   */
+  private runStartupAnimation(): void {
+    const width = window.innerWidth;
+    if (width <= 600) {
+      sessionStorage.setItem('animationType', 'mobileScreen');
+    } else if (width <= 900) {
+      sessionStorage.setItem('animationType', 'smallScreen');
+    } else if (width <= 1550) {
+      sessionStorage.setItem('animationType', 'middleScreen');
+    } else {
+      sessionStorage.setItem('animationType', 'fullScreen');
+    }
+  }
+
+  async doLogin(): Promise<void> {
+    console.log('🔍 LOGIN BUTTON CLICKED');
+    console.log('📧 Email:', this.emailControl.value);
+    console.log('🔒 Password length:', this.passwordControl.value?.length);
+    console.log('✅ Email valid:', this.emailControl.valid);
+    console.log('✅ Password valid:', this.passwordControl.valid);
+    
+    this.resetLoginError();
+    
+    if (this.isLoggingIn) {
+      console.log('⚠️ Already logging in, return');
+      return;
+    }
+    
+    this.emailControl.markAsTouched();
+    this.passwordControl.markAsTouched();
     
     const email = this.emailControl.value || '';
     const password = this.passwordControl.value || '';
     
-    if (!email || !password) {
-      this.loginErrorMessage = 'Bitte E-Mail und Passwort eingeben';
+    if (this.emailControl.invalid || this.passwordControl.invalid) {
+      console.log('❌ Form invalid, stopping');
       return;
     }
     
-    console.log(`Login-Versuch mit Email ${email}`);
+    console.log('🚀 Calling LoginService...');
     this.isLoggingIn = true;
     
     try {
-      const success = await this.loginService.login(email, password);
+      const result = await this.loginService.logIn(email, password);
+      console.log('📤 LoginService result:', result);
       
-      if (success) {
-        console.log('Login erfolgreich, navigiere weiter');
-
+      // WICHTIG: Fügen Sie hier eine Verzögerung ein
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Navigieren Sie zur Hauptseite nach erfolgreichem Login
+      if (result && result.uid) {
         this.navigateAfterLogin();
-      } else {
-        console.error('Login fehlgeschlagen: Ungültige Anmeldedaten');
-        this.loginErrorMessage = 'Ungültige E-Mail oder Passwort';
       }
     } catch (error) {
-      console.error('Fehler beim Login:', error);
-      this.loginErrorMessage = 'Anmeldung fehlgeschlagen';
+      console.log('💥 LoginService error:', error);
+      this.showError('Login fehlgeschlagen');
+    }
+    
+    this.isLoggingIn = false;
+  }
+
+  /**
+   * Google Login (vereinfacht mit Test-Login)
+   */
+  async triggerGoogleLogin(): Promise<void> {
+    if (this.isLoggingIn) return;
+    this.isLoggingIn = true;
+    
+    try {
+      const result = await this.loginService.googleSignIn();
+      
+      if (result && result.user && result.user.uid) {
+        console.log('✅ Google-Login erfolgreich:', result);
+        
+        // WICHTIG: Warten, damit localStorage-Updates wirksam werden
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        this.navigateAfterLogin();
+      } else {
+        this.showError('Google-Anmeldung fehlgeschlagen');
+      }
+    } catch (error) {
+      this.showError('Google-Anmeldung fehlgeschlagen');
     } finally {
       this.isLoggingIn = false;
     }
   }
 
-  guestLogin() {
-    console.log('Gast-Login Button geklickt');
+  /**
+   * Gast-Login
+   */
+  async guestLogin(): Promise<void> {
+    if (this.isLoggingIn) return;
+    this.isLoggingIn = true;
     
-    this.loginService.loginAsGuest();
-
-    this.navigateAfterLogin();
+    try {
+      const user = await this.loginService.signInAsGuest();
+      
+      if (user && user.uid) {
+        console.log('✅ Gast-Login erfolgreich');
+        
+        // WICHTIG: Warten, damit localStorage-Updates wirksam werden
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        this.navigateAfterLogin();
+      } else {
+        this.showError('Gast-Login fehlgeschlagen');
+      }
+    } catch (error) {
+      this.showError('Gast-Login fehlgeschlagen');
+    } finally {
+      this.isLoggingIn = false;
+    }
   }
-  
-  showError(message: string) {
-    this.loginErrorMessage = message;
+
+  private navigateAfterLogin() {
+    console.log('=== NAVIGATION NACH LOGIN ===');
+    
+    // WICHTIG: Gib dem System etwas Zeit, den Status zu aktualisieren
+    setTimeout(() => {
+      const isLoggedIn = this.loginService.isLoggedIn();
+      console.log('Login-Status:', isLoggedIn);
+    }, 100);
+  }
+
+  /**
+   * Fehler zurücksetzen
+   */
+  private resetLoginError(): void {
+    this.loginErrorMail = null;
+    this.loginErrorPassword = null;
+  }
+
+  /**
+   * Zeigt eine Fehlermeldung an
+   */
+  private showError(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 3000,
       panelClass: 'error-snackbar'
     });
   }
 }
-// import { Component, OnInit, NgZone, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-// import { Router } from '@angular/router';
-// import { LoginService } from '../services/login.service';
-
-// import { MatFormFieldModule } from '@angular/material/form-field';
-// import { MatInputModule } from '@angular/material/input';
-// import { MatIconModule } from '@angular/material/icon';
-// import { ReactiveFormsModule } from '@angular/forms';
-
-// import { FormControl, Validators } from '@angular/forms';
-// import { NgIf } from '@angular/common';
-
-// // Fehler unterdrücken
-// const originalConsoleError = console.error;
-// console.error = (...args) => {
-//   if (args[0] && typeof args[0] === 'string' &&
-//     (args[0].includes('Cross-Origin') || args[0].includes('window.postMessage'))) {
-//     return;
-//   }
-//   originalConsoleError.apply(console, args);
-// };
-
-// declare const google: any;
-
-// @Component({
-//   selector: 'app-login',
-//   standalone: true,
-//   imports: [
-//     MatInputModule,
-//     MatIconModule,
-//     ReactiveFormsModule,
-//     MatFormFieldModule,
-//     NgIf
-//   ],
-//   templateUrl: './login.component.html',
-//   styleUrl: './login.component.scss',
-// })
-// export class LoginComponent implements OnInit, AfterViewInit {
-//   @ViewChild('googleBtn') googleBtn!: ElementRef;
-
-// emailControl = new FormControl('', [Validators.required, Validators.email]);
-// passwordControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
-
-//   constructor(
-//     private loginService: LoginService,
-//     private router: Router,
-//     private ngZone: NgZone
-//   ) { }
-
-//   doLogin() {
-//     this.loginService.login();
-//     this.router.navigate(['/dashboard']);
-//   }
-
-//   guestLogin() {
-//     this.loginService.loginAsGuest();
-//     this.router.navigate(['/dashboard']);
-//   }
-
-//   ngOnInit(): void {
-//     console.log('LoginComponent initialisiert');
-//     console.log('Exakter Origin für Google:', window.location.origin);
-//   }
-
-//   ngAfterViewInit(): void {
-//     setTimeout(() => {
-//       try {
-//         if (this.googleBtn && this.googleBtn.nativeElement) {
-
-//           // Diese Konfiguration ist optimiert, um Fehler zu minimieren
-//           google.accounts.id.initialize({
-//             client_id: '225459377281-mgau26838llh0qm3g7e33ckpd1m09sno.apps.googleusercontent.com',
-//             callback: this.handleCredentialResponse.bind(this),
-//             auto_select: false,
-//             cancel_on_tap_outside: true,
-//             use_fedcm_for_prompt: false
-//           });
-
-//           google.accounts.id.renderButton(this.googleBtn.nativeElement, {
-//             theme: 'outline',
-//             size: 'large',
-//             text: 'signin_with',
-//             shape: 'rectangular',
-//             logo_alignment: 'left',
-//             width: 240
-//           });
-//         } else {
-//           console.error('Google Button Element nicht gefunden (ViewChild)!');
-//         }
-//       } catch (error) {
-//         console.error('Fehler beim Initialisieren des Google-Logins:', error);
-//       }
-//     }, 300);
-//   }
-
-//   handleCredentialResponse(response: any) {
-//     try {
-//       if (!response || !response.credential) {
-//         console.error('Ungültige Anmeldeantwort erhalten');
-//         return;
-//       }
-
-//       const token = response.credential;
-//       console.log('Google Login erfolgreich');
-
-//       // Nach der Anmeldung manuell die Konsole leeren
-//       setTimeout(() => console.clear(), 100);
-
-//       localStorage.setItem('google_token', token);
-//       this.loginService.login();
-
-//       this.ngZone.run(() => {
-//         setTimeout(() => {
-//           this.router.navigate(['/dashboard']);
-//         }, 50);
-//       });
-//     } catch (error) {
-//       console.error('Fehler bei der Verarbeitung der Anmeldung:', error);
-//     }
-//   }
-// }

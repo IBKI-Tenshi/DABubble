@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterOutlet } from '@angular/router'; // ganz wichtig damit das routing funktioniert
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,8 +13,6 @@ import { ProfileComponent } from './profile/profile.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { IntroComponent } from "./intro/intro.component";
-
-// import { Firestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-root',
@@ -33,30 +31,23 @@ import { IntroComponent } from "./intro/intro.component";
     HeaderComponent,
     SidebarComponent,
     IntroComponent
-],
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'simple-crm';
   readonly dialog = inject(MatDialog);
-  isLoggedIn = false;
+  
+  // Das Observable direkt verween
   isLoggedIn$ = this.loginService.isLoggedIn$;
-  // isLoggedIn = true;
+  
+  showSidebar = true;
 
-  showSidebar = true; // Steuert Sichtbarkeit der Sidebar 
+  constructor(private loginService: LoginService) {}
 
-
-  constructor(private loginService: LoginService) { }
-
-  ngOnInit() {
-    this.loginService.isLoggedIn$.subscribe((status) => {
-      this.isLoggedIn = status;
-    });
-  }
   openProfileDialog() {
     const dialogRef = this.dialog.open(ProfileComponent);
-
     dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog result: ${result}`);
     });
@@ -65,5 +56,4 @@ export class AppComponent {
   toggleSidebar() {
     this.showSidebar = !this.showSidebar;
   }
-
 }

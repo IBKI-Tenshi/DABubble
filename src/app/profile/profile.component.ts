@@ -19,12 +19,13 @@ import { UserDataService } from '../services/user_data.service';
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent {
+  // Eigenschaften für das HTML-Template
   userName: string;
   userEmail: string;
   profileImage: string;
   isGuestUser: boolean;
   lastLogin: string;
-  profileIndex: number | undefined;
+  profileIndex: number;
 
   constructor(
     private dialogRef: MatDialogRef<ProfileComponent>,
@@ -32,57 +33,61 @@ export class ProfileComponent {
     private userDataService: UserDataService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { 
-    console.log("Profil-Komponente gestartet mit Daten:", data);
-    
+    // Benutzerdaten aus Dialog-Input oder User-Service holen
     this.isGuestUser = localStorage.getItem('guest_token') !== null;
     
-    if (this.isGuestUser) {
-      this.userName = data?.name || localStorage.getItem('guest_name') || 'Frederik Leck';
-      this.userEmail = 'frederik.leck@example.com';
-      
-      // Avatar-Index aus localStorage für Gäste
-      this.profileIndex = data?.profile !== undefined ? 
-        data.profile : 
-        (localStorage.getItem('guest_avatar_index') ? 
-          parseInt(localStorage.getItem('guest_avatar_index')!) : undefined);
-          
-      console.log("Gast erkannt im Profil, verwende:", this.userName, "Avatar-Index:", this.profileIndex);
+    if (this.data) {
+      this.userName = data.name || '';
+      this.userEmail = data.email || '';
+      this.profileImage = data.profileImage || '';
+      this.profileIndex = data.profile !== undefined ? data.profile : 0;
     } else {
-      this.userName = data?.name || this.userDataService.getName() || '';
-      this.userEmail = data?.email || localStorage.getItem('user_email') || this.userDataService.getEmail() || '';
-      
-      // Avatar-Index aus Daten oder Service
-      this.profileIndex = data?.profile !== undefined ? data.profile : undefined;
-      
-      if (this.profileIndex === undefined) {
-        const currentUser = this.userDataService.currentUserValue;
-        if (currentUser && currentUser.profile !== undefined) {
-          this.profileIndex = currentUser.profile;
-        }
+      const currentUser = this.userDataService.currentUser;
+      if (currentUser) {
+        this.userName = currentUser.name;
+        this.userEmail = currentUser.email;
+        this.profileImage = currentUser.profileImage;
+        this.profileIndex = currentUser.profile;
+      } else {
+        // Fallback für Gäste
+        this.userName = 'Gast';
+        this.userEmail = 'guest@example.com';
+        this.profileImage = '/assets/img/avatar/avatar_1.png';
+        this.profileIndex = 0;
       }
-      
-      console.log("Benutzer erkannt im Profil, Name:", this.userName, "Avatar-Index:", this.profileIndex);
     }
     
-    this.profileImage = data?.profileImage || this.userDataService.getProfileImage() || '/assets/img/dummy_pic.png';
-    this.lastLogin = data?.lastLogin || this.userDataService.getFormattedDate();
+    // Letzten Login setzen
+    this.lastLogin = data?.lastLogin || this.getFormattedDate();
   }
 
+  /**
+   * Aktuelles Datum im Format YYYY-MM-DD HH:MM:SS
+   */
+  private getFormattedDate(): string {
+    const now = new Date();
+    return now.getUTCFullYear() + '-' + 
+           String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
+           String(now.getUTCDate()).padStart(2, '0') + ' ' +
+           String(now.getUTCHours()).padStart(2, '0') + ':' +
+           String(now.getUTCMinutes()).padStart(2, '0') + ':' +
+           String(now.getUTCSeconds()).padStart(2, '0');
+  }
+
+  /**
+   * Schließt den Dialog
+   */
   closeDialog(): void {
     this.dialogRef.close();
   }
 
+  /**
+   * Öffnet den Profil-Bearbeitungs-Dialog
+   */
   openEditProfile(): void {
-    console.log("Öffne Profil-Bearbeiten mit:", {
-      name: this.userName,
-      email: this.userEmail,
-      profileImage: this.profileImage,
-      profile: this.profileIndex, // Profile-Index übergeben
-      isGuest: this.isGuestUser
-    });
-    
     this.dialogRef.close();
     
+    // Dialog für Profil-Bearbeitung öffnen und aktuelle Daten übergeben
     const editDialogRef = this.dialog.open(ProfileEditComponent, {
       width: '500px',
       panelClass: 'profile-edit-dialog-container',
@@ -90,30 +95,28 @@ export class ProfileComponent {
         name: this.userName,
         email: this.userEmail,
         profileImage: this.profileImage,
-        profile: this.profileIndex, // Profile-Index übergeben
+        profile: this.profileIndex,
         isGuest: this.isGuestUser
       }
     });
 
+    // Nach dem Schließen entweder Profil mit neuen Daten anzeigen oder mit alten Daten
     editDialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log("Edit-Dialog geschlossen mit Ergebnis:", result);
-        
-        const currentlyGuest = localStorage.getItem('guest_token') !== null;
-        
+        // Neue Daten verwenden
         this.dialog.open(ProfileComponent, {
           width: '500px',
           panelClass: 'profile-dialog-container',
           data: {
             name: result.name,
-            email: currentlyGuest ? 'frederik.leck@example.com' : (result.email || this.userEmail),
+            email: result.email || this.userEmail,
             profileImage: result.profileImage,
-            profile: result.profile, // Profile-Index vom Ergebnis übernehmen
-            isGuest: currentlyGuest,
+            profile: result.profile,
             lastLogin: this.lastLogin
           }
         });
       } else {
+        // Alte Daten verwenden
         this.dialog.open(ProfileComponent, {
           width: '500px',
           panelClass: 'profile-dialog-container',
@@ -121,8 +124,7 @@ export class ProfileComponent {
             name: this.userName,
             email: this.userEmail,
             profileImage: this.profileImage,
-            profile: this.profileIndex, // Ursprünglichen Profile-Index beibehalten
-            isGuest: this.isGuestUser,
+            profile: this.profileIndex,
             lastLogin: this.lastLogin
           }
         });
