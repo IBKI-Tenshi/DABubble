@@ -5,7 +5,7 @@ import { UrlService } from './url.service';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoginService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
@@ -22,6 +22,8 @@ export class LoginService {
   private readonly LOGIN_TIMESTAMP_KEY = 'slack_clone_login_timestamp';
 
   constructor(
+    private http: HttpClient,
+    private router: Router,
     private userDataService: UserDataService,
     private urlService: UrlService,
     private router: Router
@@ -114,6 +116,8 @@ export class LoginService {
       await this.userDataService.loadUser(userId);
       return { uid: userId, email: email };
     } catch (error) {
+      console.error('Fehler bei der Suche nach Benutzer-ID:', error);
+      return null;
       console.error("Login-Fehler:", error);
       return 'auth/unknown-error';
     }
@@ -259,6 +263,27 @@ private async authenticateUser(email: string, password: string): Promise<string 
     return { uid: guestId };
   }
 
+  /**
+   * Gast-Login (Kompatibilität mit neuer Implementierung)
+   */
+  async signInAsGuest(): Promise<any> {
+    const guestId = 'guest';
+    this.saveTokens('guest', `guest-token-${Date.now()}`, guestId, undefined, Date.now());
+    
+    await this.userDataService.loadGuestProfile();
+    
+    // Navigiere zur DirectMessage-Seite nach erfolgreichem Login
+    setTimeout(() => {
+      console.log('🚀 Navigiere nach Gast-Login zu DirectMessage');
+      this.router.navigate(['/directMessage/general']);
+    }, 100);
+    
+    return { uid: guestId };
+  }
+
+  /**
+   * Abmelden des Benutzers
+   */
   logout(): void {
     // Logging vor dem Löschen
     console.log('🔓 Tokens vor Logout:', { 
