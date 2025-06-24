@@ -83,26 +83,6 @@ export class SidebarComponent implements OnInit {
     return `chat_${participants[0]}_${participants[1]}`;
   }
 
-  // async openChatWithUser(otherEmail: string) {
-  //   const chatId = this.getChatId(this.currentUserEmail, otherEmail);
-  //   try {
-  //     const chatDoc = await this.firestore.getChatById(chatId);
-
-  //     if (!chatDoc.exists()) {
-  //       await this.firestore.createChat(chatId, [this.currentUserEmail, otherEmail]);
-  //       console.log('🟢 Neuer Chat wurde erstellt:', chatId);
-  //     } else {
-  //       console.log('ℹ️ Chat existiert bereits:', chatId);
-  //     }
-
-  //     this.router.navigate(['/directMessage', chatId]);
-  //     console.log("richtiger chat offen");
-
-  //   } catch (error) {
-  //     console.error('❌ Fehler beim Öffnen oder Erstellen des Chats:', error);
-  //   }
-  // }
-
   async openChatWithUser(otherEmail: string) {
     const chatId = this.getChatId(this.currentUserEmail, otherEmail);
     try {
@@ -115,14 +95,14 @@ export class SidebarComponent implements OnInit {
         console.log('ℹ️ Chat existiert bereits:', chatId);
       }
 
-      this.router.navigate(['/directMessage', chatId]).then(() => {
-        console.log("📨 richtiger Chat offen");
-        this.chatNavigationService.triggerRefresh(chatId); // ⬅️ Event auslösen!
-      });
+      this.router.navigate(['/directMessage', chatId]);
+      console.log("richtiger chat offen");
+
     } catch (error) {
       console.error('❌ Fehler beim Öffnen oder Erstellen des Chats:', error);
     }
   }
+
 
 
 

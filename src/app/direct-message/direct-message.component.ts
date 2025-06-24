@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { FirestoreService } from '../services/firestore.service';
 import { Message } from '../../models/message.model';
 import { ActivatedRoute } from '@angular/router';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
+
 import { ChatNavigationService } from '../services/chat-navigation.service';
 
 
@@ -89,19 +90,19 @@ export class DirectMessageComponent implements OnInit {
 
   // timestamp als timestamp
 
-  // loadMessages(): void {
-  //   console.log("loadMessages triggered");
+  loadMessages(): void {
+    console.log("loadMessages triggered");
 
-  //   this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
-  //     console.log("load Messages: Nachrichten erhalten von Firestore:", msgs);
-  //     console.log(this.messages);
-  //     this.messages = msgs.sort((a, b) =>
-  //       a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()  
-  //     );
-  //     console.log("loadMessages hat geklappt");
+    this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
+      console.log("load Messages: Nachrichten erhalten von Firestore:", msgs);
+      console.log(this.messages);
+      this.messages = msgs.sort((a, b) =>
+        a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()  
+      );
+      console.log("loadMessages hat geklappt");
 
-  //   });
-  // }
+    });
+  }
 
 
 
@@ -120,20 +121,20 @@ export class DirectMessageComponent implements OnInit {
   // }
 
 
-  loadMessages(): void {
-  console.log("loadMessages triggered");
-  console.log('Chat ID:', this.chatId);
+//   loadMessages(): void {
+//   console.log("loadMessages triggered");
+//   console.log('Chat ID:', this.chatId);
 
-  this.firestore.getChatMessages(this.chatId).subscribe({
-    next: (msgs: Message[]) => {
-      console.log('Geladene Nachrichten:', msgs);
-      this.messages = msgs;
-    },
-    error: (err) => {
-      console.error('Fehler beim Laden der Nachrichten:', err);
-    }
-  });
-}
+//   this.firestore.getChatMessages(this.chatId).subscribe({
+//     next: (msgs: Message[]) => {
+//       console.log('Geladene Nachrichten:', msgs);
+//       this.messages = msgs;
+//     },
+//     error: (err) => {
+//       console.error('Fehler beim Laden der Nachrichten:', err);
+//     }
+//   });
+// }
 
 
   async sendMessage(): Promise<void> {
@@ -142,8 +143,8 @@ export class DirectMessageComponent implements OnInit {
     const newMessage: Message = {
       text: this.newMessageText,
       senderId: this.senderName,
-      timestamp: new Date().toISOString()
-      // timestamp: Timestamp.now()
+      // timestamp: new Date().toISOString()
+      timestamp: Timestamp.now()
     };
 
     try {

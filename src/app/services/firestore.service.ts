@@ -17,7 +17,11 @@ import {
   orderBy
 } from '@angular/fire/firestore';
 
-import { Timestamp } from 'firebase/firestore';
+
+
+
+import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
+
 import { map } from 'rxjs/operators';
 
 
@@ -44,17 +48,32 @@ export class FirestoreService {
     console.log(chatId);
 
     const snapshot = await getDoc(chatDocRef);
+    console.log("test getChatById ende der funktion");
+
     return snapshot;
   }
 
   // Firestore: Chat-Dokument erstellen
+  // als iso string
+  // createChat(chatId: string, participants: string[]): Promise<void> {
+  //   const chatDocRef = doc(this.firestore, 'chats', chatId);
+  //   return setDoc(chatDocRef, {
+  //     participants,
+  //     createdAt: new Date().toISOString()
+  //   });
+  // }
+
+  // als timestamp
   createChat(chatId: string, participants: string[]): Promise<void> {
     const chatDocRef = doc(this.firestore, 'chats', chatId);
+    console.log('🟢 Erstelle Chat mit ID:', chatId, 'und Teilnehmern:', participants);
+
     return setDoc(chatDocRef, {
       participants,
-      createdAt: new Date().toISOString()
+      createdAt: Timestamp.now()
     });
   }
+
 
   //  Firestore: Nachrichten auslesen (Subcollection mit Live-Update)
   // getChatMessages(chatId: string): Observable<Message[]> {
@@ -68,11 +87,17 @@ export class FirestoreService {
 
   // }
 
-getChatMessages(chatId: string): Observable<Message[]> {
-  console.log("getChatMessages() triggert");
-  const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
-  return collectionData(messagesCollection, { idField: 'id' }) as Observable<Message[]>;
-}
+  getChatMessages(chatId: string): Observable<Message[]> {
+    console.log("getChatMessages() triggert");
+    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
+    console.log("getChatMessages() 2");
+    const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
+    console.log("getChatMessages() 3");
+    return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+  }
+
+
+
 
 
 
@@ -85,3 +110,4 @@ getChatMessages(chatId: string): Observable<Message[]> {
 
 
 }
+
