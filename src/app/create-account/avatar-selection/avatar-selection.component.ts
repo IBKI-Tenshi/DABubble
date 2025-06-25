@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { AvatarService } from '../../services/avatar.service';
 import { UrlService } from '../../services/url.service';
-import { CreateUserComponent } from '../../overlay/create-user/create-user.component';
+import { CreateUserComponent } from '../../overlay/create-user.component';
 
 @Component({
   selector: 'app-avatar-selection',

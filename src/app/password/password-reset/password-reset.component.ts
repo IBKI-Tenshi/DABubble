@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { UrlService } from '../../services/url.service';
-import { CreateUserComponent } from '../../overlay/create-user/create-user.component';
+import { CreateUserComponent } from '../../overlay/create-user.component';
 @Component({
   selector: 'app-password-reset',
   standalone: true,
