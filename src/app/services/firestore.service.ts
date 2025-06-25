@@ -14,7 +14,9 @@ import {
   addDoc,
   collectionData,
   query,
-  orderBy
+  orderBy,
+  where,
+  getDocs
 } from '@angular/fire/firestore';
 
 
@@ -41,6 +43,19 @@ export class FirestoreService {
     const url = `${this.urlService.BASE_URL}/users`;
     return this.http.get(url);
   }
+
+// async getUserByEmail(email: string): Promise<any> {
+//   const usersRef = collection(this.firestore, 'users');
+//   const q = query(usersRef, where('email', '==', email));
+//   const querySnapshot = await getDocs(q);
+//   if (!querySnapshot.empty) {
+//     // nehme den ersten Treffer
+//     const userDoc = querySnapshot.docs[0];
+//     return userDoc.data();
+//   }
+//   return null;
+// }
+
 
   // Firestore: Chat-Dokument lesen
   async getChatById(chatId: string): Promise<any> {
@@ -97,17 +112,23 @@ export class FirestoreService {
     return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
   }
 
-
-
-
-
-
   // Firestore: Neue Nachricht hinzufügen
   addMessageToChat(chatId: string, message: Message): Promise<void> {
     const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
     return addDoc(messagesCollection, message).then(() => { });
   }
 
+
+  getChannelMessages(channelId: string): Observable<Message[]> {
+  const messagesCollection = collection(this.firestore, 'channels', channelId, 'messages');
+  const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
+  return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+}
+
+addMessageToChannel(channelId: string, message: Message): Promise<void> {
+  const messagesCollection = collection(this.firestore, 'channels', channelId, 'messages');
+  return addDoc(messagesCollection, message).then(() => { });
+}
 
 
 }

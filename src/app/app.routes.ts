@@ -9,6 +9,8 @@ import { AvatarSelectionComponent } from './create-account/avatar-selection/avat
 import { DirectMessageComponent } from './direct-message/direct-message.component';
 import { PasswordEmailComponent } from './password/password-email/password-email.component';
 import { PasswordResetComponent } from './password/password-reset/password-reset.component';
+import { ChannelChatComponent } from './channel-chat/channel-chat.component';
+
 
 export const routes: Routes = [
   { path: 'a', component: LoginComponent },
@@ -23,6 +25,11 @@ export const routes: Routes = [
   { path: 'privacy', component: PrivacyComponent },
   { path: 'password', component: PasswordEmailComponent },
   { path: 'passwordReset', component: PasswordResetComponent },
+  { path: 'channelChat/:channelId', component: ChannelChatComponent },
+
   // Fügen Sie eine Wildcard-Route hinzu, um nicht gefundene URLs aufzufangen
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
+
+
+
 ];

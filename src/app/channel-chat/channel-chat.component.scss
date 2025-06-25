@@ -1,0 +1,29 @@
+.channel-section {
+    height: 100vh;
+    width: 100%;
+    margin: 0 30px;
+    background-color: white;
+    border-radius: 30px;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.chat-window {
+    height: 240px;
+    width: 600px;
+    background-color: rgb(198, 198, 198);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.chatpartner-info {
+    flex-direction: column;
+}
+
+.message-window {
+    width: 600px;
+    height: 80px;
+    background-color: rgb(198, 198, 198);
+}

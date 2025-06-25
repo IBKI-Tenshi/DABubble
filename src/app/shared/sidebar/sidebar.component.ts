@@ -83,7 +83,7 @@ export class SidebarComponent implements OnInit {
     return `chat_${participants[0]}_${participants[1]}`;
   }
 
-  async openChatWithUser(otherEmail: string) {
+  async openChatWithUser(otherEmail: string, otherName: string) {
     const chatId = this.getChatId(this.currentUserEmail, otherEmail);
     try {
       const chatDoc = await this.firestore.getChatById(chatId);
@@ -95,7 +95,7 @@ export class SidebarComponent implements OnInit {
         console.log('ℹ️ Chat existiert bereits:', chatId);
       }
 
-      this.router.navigate(['/directMessage', chatId]);
+      this.router.navigate(['/directMessage', chatId],{ queryParams: { name: otherName } });
       console.log("richtiger chat offen");
 
     } catch (error) {
@@ -103,7 +103,9 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-
+  openChannelChat(channelId: string) {
+    this.router.navigate(['/channelChat', channelId]);
+  }
 
 
 }
