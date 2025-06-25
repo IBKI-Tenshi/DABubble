@@ -241,30 +241,6 @@ export class LoginService {
   }
 
   /**
-   * Google Login (Test-Implementation)
-   */
-  async googleSignIn(): Promise<any> {
-    const testEmail = 'google.test@example.com';
-    const testPassword = 'password123';
-
-    const result = await this.logIn(testEmail, testPassword);
-
-    if (result?.uid) {
-      // User-Token entfernen und Google-Token speichern
-      localStorage.removeItem(this.USER_TOKEN_KEY);
-      this.saveTokens(
-        'google',
-        `google-token-${Date.now()}`,
-        result.uid,
-        testEmail,
-        Date.now()
-      );
-    }
-
-    return { user: result };
-  }
-
-  /**
    * Gast-Login
   
   async signInAsGuest(): Promise<any> {
@@ -383,5 +359,19 @@ export class LoginService {
    */
   checkIfGuestIsLoggedIn(): boolean {
     return localStorage.getItem(this.GUEST_TOKEN_KEY) !== null;
+  }
+
+  googleLoginWithCredential(token: string, payload: any): void {
+    const googleUserId = payload.sub;
+    const email = payload.email;
+    const timestamp = Date.now();
+
+    this.saveTokens('google', token, googleUserId, email, timestamp);
+
+    this.userDataService.loadUser(googleUserId);
+
+    setTimeout(() => {
+      this.router.navigate(['/directMessage/general']);
+    }, 100);
   }
 }
