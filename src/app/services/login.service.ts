@@ -352,7 +352,6 @@ export class LoginService {
       const hasToken = this.checkToken();
       const hasLegacyToken = !!localStorage.getItem('legacy_token');
 
-      
       if (hasToken || hasLegacyToken) {
         console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
         this.isLoggedInSubject.next(true);

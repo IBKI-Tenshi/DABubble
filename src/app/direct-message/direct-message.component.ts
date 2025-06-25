@@ -33,38 +33,6 @@ export class DirectMessageComponent implements OnInit {
 
     private routeSub!: Subscription;
 
-  // async ngOnInit(): Promise<void> {
-  //   console.log('ngOnInit gestartet');
-
-  //   this.route.paramMap.subscribe(async params => {
-  //     const id = params.get('chatId');
-  //     if (id) {
-  //       this.chatId = id;
-
-  //       const chatDoc = await this.firestore.getChatById(this.chatId);
-  //       if (chatDoc.exists()) {
-  //         this.loadMessages();
-  //       } else {
-  //         console.log('Chat existiert nicht.');
-  //       }
-  //     }
-  //   });
-  // }
-
-
-//   ngOnInit(): void {
-//   console.log('🔵 ngOnInit gestartet');
-
-//   this.route.paramMap.subscribe(params => {
-//     const id = params.get('chatId');
-//     if (id) {
-//       this.chatId = id;
-//       console.log('➡️ Neue ChatID empfangen:', id);
-//       this.loadMessages();
-//     }
-//   });
-// }
-
   ngOnInit(): void {
     console.log('ngOnInit wurde einmalig aufgerufen');
 
@@ -89,7 +57,6 @@ export class DirectMessageComponent implements OnInit {
   
 
   // timestamp als timestamp
-
   loadMessages(): void {
     console.log("loadMessages triggered");
 
@@ -104,8 +71,6 @@ export class DirectMessageComponent implements OnInit {
     });
   }
 
-
-
   // timestamp als string
   // loadMessages(): void {
   //   console.log("loadMessages triggered");
@@ -119,23 +84,6 @@ export class DirectMessageComponent implements OnInit {
   //   });
 
   // }
-
-
-//   loadMessages(): void {
-//   console.log("loadMessages triggered");
-//   console.log('Chat ID:', this.chatId);
-
-//   this.firestore.getChatMessages(this.chatId).subscribe({
-//     next: (msgs: Message[]) => {
-//       console.log('Geladene Nachrichten:', msgs);
-//       this.messages = msgs;
-//     },
-//     error: (err) => {
-//       console.error('Fehler beim Laden der Nachrichten:', err);
-//     }
-//   });
-// }
-
 
   async sendMessage(): Promise<void> {
     if (!this.newMessageText.trim()) return;
