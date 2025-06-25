@@ -4,7 +4,6 @@ import { BehaviorSubject } from 'rxjs';
 import { UserDataService } from './user_data.service';
 import { UrlService } from './url.service';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -119,13 +118,13 @@ export class LoginService {
 
       // Benutzerdaten laden
       await this.userDataService.loadUser(userId);
-      
+
       // Navigation zur DirectMessage-Seite
       setTimeout(() => {
         console.log('🚀 Navigiere nach Login zu DirectMessage');
         this.router.navigate(['/directMessage/general']);
       }, 100);
-      
+
       return { uid: userId, email: email };
     } catch (error) {
       console.error('Fehler bei der Suche nach Benutzer-ID:', error);
@@ -348,7 +347,7 @@ export class LoginService {
       });
 
       // Bei Inkonsistenz: Token prüfen und korrigieren
-      if (hasToken || hasLegacyToken) {
+      if (this.hasToken || hasLegacyToken) {
         console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
         this.isLoggedInSubject.next(true);
         localStorage.setItem('slack_clone_is_logged_in', 'true');
