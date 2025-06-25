@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { UserDataService } from './user_data.service';
 import { UrlService } from './url.service';
 import { Router } from '@angular/router';
+// import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -347,7 +348,11 @@ export class LoginService {
       });
 
       // Bei Inkonsistenz: Token prüfen und korrigieren
-      if (this.hasToken || hasLegacyToken) {
+
+      const hasToken = this.checkToken();
+      const hasLegacyToken = !!localStorage.getItem('legacy_token');
+
+      if (hasToken || hasLegacyToken) {
         console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
         this.isLoggedInSubject.next(true);
         localStorage.setItem('slack_clone_is_logged_in', 'true');
