@@ -1,8 +1,10 @@
-import { Timestamp } from 'firebase/firestore';
+
+import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
+
 
 export interface Message {
   text: string;
   senderId: string;
-  // timestamp: Timestamp;
-    timestamp: string;
+  timestamp: Timestamp | any;
+    // timestamp: string;
 }

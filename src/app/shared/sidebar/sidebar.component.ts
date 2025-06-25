@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FirestoreService } from '../../services/firestore.service';
 import { AvatarService } from '../../services/avatar.service';
 import { UserDataService, UserProfile } from '../../services/user_data.service';
+import { ChatNavigationService } from '../../services/chat-navigation.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -43,6 +44,7 @@ export class SidebarComponent implements OnInit {
     private avatarService: AvatarService,
     private userService: UserDataService,
     private router: Router,
+    private chatNavigationService: ChatNavigationService
   ) { }
 
   ngOnInit() {
@@ -94,8 +96,14 @@ export class SidebarComponent implements OnInit {
       }
 
       this.router.navigate(['/directMessage', chatId]);
+      console.log("richtiger chat offen");
+
     } catch (error) {
       console.error('❌ Fehler beim Öffnen oder Erstellen des Chats:', error);
     }
   }
+
+
+
+
 }

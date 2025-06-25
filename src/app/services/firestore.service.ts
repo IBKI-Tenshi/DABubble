@@ -17,7 +17,11 @@ import {
   orderBy
 } from '@angular/fire/firestore';
 
-import { Timestamp } from 'firebase/firestore';
+
+
+
+import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
+
 import { map } from 'rxjs/operators';
 
 
@@ -44,32 +48,57 @@ export class FirestoreService {
     console.log(chatId);
 
     const snapshot = await getDoc(chatDocRef);
+    console.log("test getChatById ende der funktion");
+
     return snapshot;
   }
 
   // Firestore: Chat-Dokument erstellen
+  // als iso string
+  // createChat(chatId: string, participants: string[]): Promise<void> {
+  //   const chatDocRef = doc(this.firestore, 'chats', chatId);
+  //   return setDoc(chatDocRef, {
+  //     participants,
+  //     createdAt: new Date().toISOString()
+  //   });
+  // }
+
+  // als timestamp
   createChat(chatId: string, participants: string[]): Promise<void> {
     const chatDocRef = doc(this.firestore, 'chats', chatId);
+    console.log('🟢 Erstelle Chat mit ID:', chatId, 'und Teilnehmern:', participants);
+
     return setDoc(chatDocRef, {
       participants,
-      createdAt: new Date().toISOString()
+      createdAt: Timestamp.now()
     });
   }
 
-  //  Firestore: Nachrichten auslesen (Subcollection mit Live-Update)
-  getChatMessages(chatId: string): Observable<Message[]> {
-    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
-    const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
-    // return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
-    return collectionData(messagesQuery) as Observable<Message[]>;
 
+  //  Firestore: Nachrichten auslesen (Subcollection mit Live-Update)
+  // getChatMessages(chatId: string): Observable<Message[]> {
+  //             console.log("getChatMessages() triggert");
+  //   const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
+  //             console.log("getChatMessages() triggert" + messagesCollection);
+  //   const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
+
+  //   // return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+  //   return collectionData(messagesQuery) as Observable<Message[]>;
+
+  // }
+
+  getChatMessages(chatId: string): Observable<Message[]> {
+    console.log("getChatMessages() triggert");
+    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
+    console.log("getChatMessages() 2");
+    const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
+    console.log("getChatMessages() 3");
+    return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
   }
 
-  //   getChatMessages(chatId: string): Observable<Message[]> {
-  //   const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
-  //   // Kein orderBy hier!
-  //   return collectionData(messagesCollection, { idField: 'id' }) as Observable<Message[]>;
-  // }
+
+
+
 
 
   // Firestore: Neue Nachricht hinzufügen
@@ -81,3 +110,4 @@ export class FirestoreService {
 
 
 }
+
