@@ -149,8 +149,8 @@ export class LoginService {
       tokenType === 'user'
         ? this.USER_TOKEN_KEY
         : tokenType === 'google'
-          ? this.GOOGLE_TOKEN_KEY
-          : this.GUEST_TOKEN_KEY;
+        ? this.GOOGLE_TOKEN_KEY
+        : this.GUEST_TOKEN_KEY;
 
     // Vorherige Tokens löschen
     localStorage.removeItem(this.USER_TOKEN_KEY);
