@@ -76,25 +76,26 @@ export class FirestoreService {
 
 
   //  Firestore: Nachrichten auslesen (Subcollection mit Live-Update)
-  getChatMessages(chatId: string): Observable<Message[]> {
-              console.log("getChatMessages() triggert");
-    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
-              console.log("getChatMessages() triggert" + messagesCollection);
-    const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
-
-    // return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
-    return collectionData(messagesQuery) as Observable<Message[]>;
-
-  }
-
+  
   // getChatMessages(chatId: string): Observable<Message[]> {
-  //   console.log("getChatMessages() triggert");
+  //             console.log("getChatMessages() triggert");
   //   const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
-  //   console.log("getChatMessages() 2");
+  //             console.log("getChatMessages() triggert" + messagesCollection);
   //   const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
-  //   console.log("getChatMessages() 3");
-  //   return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+
+  //   // return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+  //   return collectionData(messagesQuery) as Observable<Message[]>;
+
   // }
+
+  getChatMessages(chatId: string): Observable<Message[]> {
+    console.log("getChatMessages() triggert");
+    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
+    console.log("getChatMessages() 2");
+    const messagesQuery = query(messagesCollection, orderBy('timestamp', 'asc'));
+    console.log("getChatMessages() 3");
+    return collectionData(messagesQuery, { idField: 'id' }) as Observable<Message[]>;
+  }
 
 
 
