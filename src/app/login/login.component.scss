@@ -1,5 +1,3 @@
-// animation
-
 :host {
   display: block;
   opacity: 0;
@@ -23,6 +21,16 @@
     height: 80px;
     opacity: 0;
     animation: fadeInLogo 0.5s ease-in-out 0.4s forwards;
+    
+    @media (max-width: 800px) {
+      width: 60px;
+      height: 60px;
+    }
+    
+    @media (max-width: 450px) {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   > span {
@@ -30,6 +38,14 @@
     font-size: 32px;
     opacity: 0;
     animation: fadeInText 0.5s ease-in-out 0.5s forwards;
+    
+    @media (max-width: 800px) {
+      font-size: 24px;
+    }
+    
+    @media (max-width: 450px) {
+      font-size: 18px;
+    }
   }
 }
 
@@ -61,6 +77,11 @@
   display: flex;
   flex-direction: column;
   margin: auto;
+  
+  @media (max-width: 800px) {
+    height: 100vh; // Wichtig: Volle Höhe nutzen
+    justify-content: space-between; // Elemente verteilen
+  }
 }
 
 .login-header {
@@ -69,6 +90,15 @@
   box-sizing: border-box;
   justify-content: space-between;
   padding: 56px;
+  
+  @media (max-width: 800px) {
+    padding: 24px;
+    flex-shrink: 0;
+  }
+  
+  @media (max-width: 450px) {
+    padding: 16px;
+  }
 }
 
 .register-container {
@@ -91,6 +121,19 @@
   opacity: 0;
   animation: fadeInSecondary 0.7s ease-in-out 0.8s forwards;
   padding: 64px;
+  
+  @media (max-width: 800px) {
+    gap: 15px;
+    border-radius: 20px;
+    max-width: 90%;
+  }
+  
+  @media (max-width: 450px) {
+    gap: 8px;
+    border-radius: 15px;
+    padding: 16px;
+    max-width: 95%;
+  }
 }
 
 @keyframes fadeInSecondary {
@@ -106,6 +149,16 @@
 }
 h1 {
   margin: 0;
+  
+  @media (max-width: 800px) {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  @media (max-width: 450px) {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
 }
 
 .helper-text {
@@ -113,6 +166,16 @@ h1 {
   width: 100%;
   display: inline-block;
   text-align: center;
+  
+  @media (max-width: 800px) {
+    font-size: 14px;
+    margin: 0 0 5px 0;
+  }
+  
+  @media (max-width: 450px) {
+    font-size: 12px;
+    margin: 0 0 2px 0;
+  }
 }
 
 .input-field {
@@ -136,6 +199,23 @@ h1 {
   &:hover {
     border: 1px solid rgb(68, 77, 242);
   }
+  
+  @media (max-width: 800px) {
+    height: 45px;
+    padding-left: 40px;
+    font-size: 14px;
+    background-size: 20px 20px;
+    background-position: 12px center;
+  }
+  
+  @media (max-width: 450px) {
+    height: 35px;
+    padding-left: 30px;
+    font-size: 12px;
+    background-size: 16px 16px;
+    background-position: 10px center;
+    border-radius: 50px;
+  }
 }
 
 .input-field.email {
@@ -152,6 +232,17 @@ h1 {
   color: red;
   margin-left: 8px;
   visibility: hidden;
+  
+  @media (max-width: 800px) {
+    height: 16px;
+    margin-top: -5px;
+  }
+  
+  @media (max-width: 450px) {
+    height: 12px;
+    font-size: 10px;
+    margin-top: -2px;
+  }
 }
 
 .error-text.visible {
@@ -161,10 +252,27 @@ h1 {
 .input_div {
   width: 100%;
   flex-direction: column;
+  
+  @media (max-width: 800px) {
+    margin-bottom: -5px;
+  }
+  
+  @media (max-width: 450px) {
+    margin-bottom: -2px;
+  }
 }
 
 .reset-password {
   font-size: 18px;
+  
+  @media (max-width: 800px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 450px) {
+    font-size: 11px;
+  }
+  
   &:hover {
     background-color: #eceefe;
     border: none;
@@ -175,6 +283,14 @@ h1 {
 .login-border {
   width: 100%;
   border: 1px solid #adb0d9;
+  
+  @media (max-width: 800px) {
+    margin: 5px 0;
+  }
+  
+  @media (max-width: 450px) {
+    margin: 2px 0;
+  }
 }
 
 .login-border-word {
@@ -185,6 +301,20 @@ h1 {
   position: relative;
   bottom: 15px;
   text-align: center;
+  
+  @media (max-width: 800px) {
+    width: 60px;
+    height: 25px;
+    font-size: 14px;
+    bottom: 12px;
+  }
+  
+  @media (max-width: 450px) {
+    width: 40px;
+    height: 18px;
+    font-size: 10px;
+    bottom: 9px;
+  }
 }
 
 .custom-google-button {
@@ -199,14 +329,46 @@ h1 {
   border-radius: 100px;
   cursor: pointer;
   width: 100%;
+  
+  @media (max-width: 800px) {
+    height: 45px;
+    padding: 8px 16px;
+    gap: 8px;
+  }
+  
+  @media (max-width: 450px) {
+    height: 35px;
+    padding: 6px 12px;
+    gap: 6px;
+    border-radius: 50px;
+  }
+  
   img {
     width: 38px;
     height: 38px;
+    
+    @media (max-width: 800px) {
+      width: 24px;
+      height: 24px;
+    }
+    
+    @media (max-width: 450px) {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   span {
     font-size: 18px;
     font-family: "Nunito";
+    
+    @media (max-width: 800px) {
+      font-size: 14px;
+    }
+    
+    @media (max-width: 450px) {
+      font-size: 11px;
+    }
   }
 
   &:hover {
@@ -217,12 +379,35 @@ h1 {
 
 .login-buttons-div {
   gap: 24px;
+  
+  @media (max-width: 800px) {
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  @media (max-width: 450px) {
+    gap: 6px;
+  }
 
   button {
     border-radius: 25px;
     padding: 12px 25px;
     font-weight: 700;
     font-size: 18px;
+    
+    @media (max-width: 800px) {
+      padding: 8px 16px;
+      font-size: 14px;
+      flex-grow: 1;
+    }
+    
+    @media (max-width: 450px) {
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 15px;
+    }
   }
 
   .login-button {
@@ -250,11 +435,33 @@ h1 {
 footer {
   gap: 16px;
   margin: 64px;
+  
+  @media (max-width: 800px) {
+    margin: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  @media (max-width: 450px) {
+    margin: 8px;
+    gap: 5px;
+  }
 
   a {
     font-size: 18px;
     font-weight: 400;
     padding: 10px 15px;
+    
+    @media (max-width: 800px) {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    
+    @media (max-width: 450px) {
+      font-size: 10px;
+      padding: 3px 6px;
+    }
 
     &:hover {
       border: 1px solid #686868;
@@ -265,55 +472,56 @@ footer {
 
 #register-container-bottom {
   display: none;
+  
+  @media (max-width: 800px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0;
+  }
+  
+  @media (max-width: 450px) {
+    margin: 2px 0;
+  }
+  
+  a {
+    border: 1px solid #797ef3;
+    padding: 5px 12px;
+    border-radius: 25px;
+    font-size: 14px;
+    
+    @media (max-width: 450px) {
+      padding: 3px 8px;
+      font-size: 10px;
+      border-radius: 15px;
+    }
+    
+    &:active {
+      background-color: #797ef3;
+    }
+  }
 }
 
 @media (max-width: 800px) {
   h1 {
-    font-size: 32px;
+    font-size: 24px;
   }
 
   .helper-text {
-    font-size: 17px;
+    font-size: 14px;
   }
 
   #register-container-top {
     display: none;
   }
+}
 
-  #register-container-bottom {
-    display: flex;
-    a {
-      border: 1px solid #797ef3;
-      padding: 7px 18px;
-      border-radius: 25px;
-      &:active {
-        background-color: #797ef3;
-      }
-    }
+@media (max-width: 450px) {
+  h1 {
+    font-size: 18px;
   }
 
-  .register-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .login-container {
-    gap: 16px;
-  }
-
-  .login-header {
-    justify-content: center;
-  }
-
-  .login-dialog {
-    padding: 32px 16px;
-    gap: 20px;
-  }
-
-  .login-buttons-div {
-    gap: 20px;
-    button {
-      padding: 12px;
-    }
+  .helper-text {
+    font-size: 12px;
   }
 }

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { UserAccountComponent } from './create-account/user-account/user-account.component';
-import { PrivacyComponent } from './privacy/privacy.component';
+import { PrivacyComponent } from './shared/privacy/privacy.component';
 import { AvatarSelectionComponent } from './create-account/avatar-selection/avatar-selection.component';
 import { DirectMessageComponent } from './direct-message/direct-message.component';
 import { PasswordEmailComponent } from './password/password-email/password-email.component';
@@ -22,7 +22,4 @@ export const routes: Routes = [
   { path: 'channelChat/:channelId', component: ChannelChatComponent },
 
   { path: '**', redirectTo: '' },
-
-
-
 ];
