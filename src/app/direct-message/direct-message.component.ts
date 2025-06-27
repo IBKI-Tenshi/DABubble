@@ -124,7 +124,7 @@
 
 
 
-  
+
 // }
 
 
@@ -161,7 +161,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
     private firestore: FirestoreService,
     private route: ActivatedRoute,
     private chatNavigationService: ChatNavigationService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('ngOnInit wurde einmalig aufgerufen');
@@ -192,20 +192,73 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
   /**
    * 🔁 Holt und abonniert live die Nachrichten für den aktuellen Chat
    */
+  // subscribeToMessages(): void {
+  //   if (this.messageSub) {
+  //     this.messageSub.unsubscribe();
+  //   }
+
+  //   console.log("📡 Abonniere Nachrichten-Stream von Firestore");
+
+  //   this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
+  //     console.log("📨 Neue Nachrichten erhalten:", msgs);
+  //     this.messages = msgs.sort((a, b) =>
+  //       a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
+  //     );
+  //   });
+  // }
+
+
+
+  //fast da mit der funktion
+
+  // subscribeToMessages(): void {
+  //   if (this.messageSub) {
+  //     this.messageSub.unsubscribe();
+  //   }
+
+  //   console.log("📡 Abonniere Nachrichten-Stream von Firestore (REST)");
+
+  //   this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[] | any) => {
+  //     console.log("📨 Neue Nachrichten erhalten:", msgs);
+
+  //     // Sicherstellen, dass msgs ein Array ist
+  //     const messagesArray = Array.isArray(msgs) ? msgs : [];
+
+  //     this.messages = messagesArray.sort((a, b) =>
+  //       new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  //     );
+  //   });
+  // }
+
+
   subscribeToMessages(): void {
     if (this.messageSub) {
       this.messageSub.unsubscribe();
     }
 
-    console.log("📡 Abonniere Nachrichten-Stream von Firestore");
+    console.log("📡 Abonniere Nachrichten-Stream von Firestore (REST)");
 
-    this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe((msgs: Message[]) => {
-      console.log("📨 Neue Nachrichten erhalten:", msgs);
-      this.messages = msgs.sort((a, b) =>
-        a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
+    this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe((response: any) => {
+      console.log("📨 Neue Nachrichten erhalten:", response);
+
+      const documents = response?.documents || [];
+
+      const messagesArray: Message[] = documents.map((doc: any) => {
+        return {
+          senderId: doc.fields.senderId.stringValue,
+          text: doc.fields.text.stringValue,
+          timestamp: new Date(doc.fields.timestamp.timestampValue),
+        };
+      });
+
+      this.messages = messagesArray.sort((a, b) =>
+        a.timestamp.getTime() - b.timestamp.getTime()
       );
     });
   }
+
+
+
 
   async sendMessage(): Promise<void> {
     if (!this.newMessageText.trim()) return;
@@ -213,7 +266,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
     const newMessage: Message = {
       text: this.newMessageText,
       senderId: this.senderName,
-      timestamp: Timestamp.now()
+      timestamp: new Date()  // ✅ Typ passt zu deinem Interface
     };
 
     try {
@@ -224,4 +277,5 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
       console.error('❌ Fehler beim Senden der Nachricht:', error);
     }
   }
+
 }

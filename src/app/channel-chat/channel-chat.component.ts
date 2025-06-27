@@ -112,7 +112,7 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
     this.messageSub = this.firestoreService.getChannelMessages(channelId).subscribe((msgs: Message[]) => {
       console.log("📨 Neue Nachrichten erhalten für Channel:", channelId, msgs);
       // Optional: Sortieren nach Timestamp, falls nicht bereits sortiert
-      this.messages = msgs.sort((a, b) => a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime());
+      this.messages = msgs.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     });
   }
 
@@ -123,7 +123,7 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
     const newMessage: Message = {
       text: this.newMessageText,
       senderId: this.senderName,
-      timestamp: Timestamp.now()
+      timestamp: new Date()
     };
 
     try {

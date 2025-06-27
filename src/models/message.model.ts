@@ -5,6 +5,7 @@ import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
 export interface Message {
   text: string;
   senderId: string;
-  timestamp: Timestamp | any;
+  timestamp: Date;
+  // timestamp: Timestamp | any;
     // timestamp: string;
 }

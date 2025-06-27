@@ -353,7 +353,7 @@ export class LoginService {
       const hasLegacyToken = !!localStorage.getItem('legacy_token');
 
       if (hasToken || hasLegacyToken) {
-        console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
+        // console.log('🔄 Korrigiere Login-Status auf true basierend auf Token');
         this.isLoggedInSubject.next(true);
         localStorage.setItem('slack_clone_is_logged_in', 'true');
         return true;
