@@ -1,5 +1,4 @@
 
-import { Timestamp } from '@angular/fire/firestore'; // ✅ RICHTIG
 
 
 export interface Message {

@@ -80,15 +80,25 @@ export class SidebarComponent implements OnInit {
     });
   }
 
-  loadChannelsInSidebar() {
-    // Channels aus Firestore laden
-    console.log("channels laden gestarttet");
 
-    this.firestore.getAllChannels().subscribe(channels => {
-      this.channels = channels;
-      console.log('📡 Channels geladen:', this.channels);
+  loadChannelsInSidebar() {
+    console.log("channels laden gestartet");
+
+    this.firestore.getAllChannels().subscribe((response: any) => {
+      console.log("📡 Channels geladen:", response);
+
+      if (response?.documents) {
+        this.channels = response.documents.map((doc: any) => {
+          return doc.fields?.name?.stringValue || 'Unbenannt';
+        });
+        console.log("📄 Channels extrahiert:", this.channels);
+      } else {
+        console.warn("⚠️ Keine Channels gefunden oder falsches Format:", response);
+        this.channels = [];
+      }
     });
   }
+
 
 
 
@@ -106,35 +116,34 @@ export class SidebarComponent implements OnInit {
 
   addChannel(event?: MouseEvent) {
     event?.stopPropagation();
-    console.log('Neuer Channel hinzufügen');
+
+    const newChannelName = prompt('Name des neuen Channels eingeben:');
+    if (!newChannelName || newChannelName.trim().length === 0) {
+      console.log('Kein Channelname eingegeben, Abbruch.');
+      return;
+    }
+
+    const trimmedName = newChannelName.trim();
+
+    // Firestore-Service aufrufen, um den neuen Channel anzulegen
+    this.firestore.createChannel(trimmedName).then(() => {
+      console.log(`Neuer Channel "${trimmedName}" wurde hinzugefügt.`);
+
+      // Lokal im Array hinzufügen, damit UI sofort aktualisiert wird
+      this.channels.push(trimmedName);
+
+      // Optional: Channels-Liste nochmal neu laden aus Firestore
+      // this.loadChannelsInSidebar();
+    }).catch((error) => {
+      console.error('Fehler beim Hinzufügen des Channels:', error);
+    });
   }
+
 
   getChatId(email1: string, email2: string): string {
     const participants = [email1, email2].sort();
     return `chat_${participants[0]}_${participants[1]}`;
   }
-
-  // async openChatWithUser(otherEmail: string, otherName: string) {
-  //   const chatId = this.getChatId(this.currentUserEmail, otherEmail);
-  //   try {
-  //     const chatDoc = await this.firestore.getChatById(chatId);
-
-  //     if (!chatDoc.exists()) {
-  //       await this.firestore.createChat(chatId, [this.currentUserEmail, otherEmail]);
-  //       console.log('🟢 Neuer Chat wurde erstellt:', chatId);
-  //     } else {
-  //       console.log('ℹ️ Chat existiert bereits:', chatId);
-  //     }
-
-  //     this.router.navigate(['/directMessage', chatId], { queryParams: { name: otherName } });
-  //     console.log("richtiger chat offen");
-
-  //   } catch (error) {
-  //     console.error('❌ Fehler beim Öffnen oder Erstellen des Chats:', error);
-  //   }
-  // }
-
-
 
 
   async openChatWithUser(otherEmail: string, otherName: string) {
