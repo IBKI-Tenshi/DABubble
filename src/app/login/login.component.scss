@@ -122,7 +122,6 @@ h1 {
   border: none;
   border-radius: 100px;
   padding-left: 50px;
-  /* Platz für das Icon */
   font-size: 16px;
   outline: none;
 
@@ -139,12 +138,10 @@ h1 {
   }
 }
 
-/* E-Mail-Feld mit Mail-Icon */
 .input-field.email {
   background-image: url("/assets/icons/mail.svg");
 }
 
-/* Passwort-Feld mit Lock-Icon */
 .input-field.password {
   background-image: url("/assets/icons/lock.svg");
 }

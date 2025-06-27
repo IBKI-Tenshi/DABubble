@@ -37,13 +37,9 @@ export class UserDataService {
     const id = userId || localStorage.getItem('slack_clone_user_id');
     
     if (!id) {
-      console.log('⚠️ Keine User-ID gefunden');
       return;
     }
     
-    console.log('🔄 Lade Benutzer mit ID:', id);
-    
-    // Für Gäste ein Gastprofil laden
     if (id === 'guest' || localStorage.getItem('slack_clone_guest_token')) {
       this.loadGuestProfile();
       return;
@@ -65,17 +61,11 @@ export class UserDataService {
           isGuest: false
         };
         
-        // Cache wichtige Werte mit den neuen Schlüsseln
         localStorage.setItem('slack_clone_user_name', user.name);
         localStorage.setItem('slack_clone_user_profile_index', profileIndex.toString());
         
-        // User setzen
         this.userSubject.next(user);
-        console.log('✅ User geladen:', user.name);
       } else {
-        console.log('❌ Keine Benutzerdaten gefunden, versuche Cache');
-        
-        // Versuche aus dem localStorage zu laden
         const cachedName = localStorage.getItem('slack_clone_user_name');
         const cachedEmail = localStorage.getItem('slack_clone_user_email');
         const cachedProfile = localStorage.getItem('slack_clone_user_profile_index') || '0';
@@ -91,43 +81,31 @@ export class UserDataService {
           };
           
           this.userSubject.next(user);
-          console.log('✅ User aus Cache geladen:', user.name);
         }
       }
     } catch (error) {
-      console.error('❌ Fehler beim Laden des Benutzers:', error);
+      console.error('Fehler beim Laden des Benutzers:', error);
     }
   }
 
-  /**
- * Lädt das Gast-Profil
- */
-loadGuestProfile(): void {
-  // Gespeicherten Gast-Avatar-Index laden oder Standardwert verwenden
-  const guestName = localStorage.getItem('slack_clone_guest_name') || 'Gast';
-  const guestProfileIndex = parseInt(localStorage.getItem('slack_clone_guest_profile_index') || '0');
-  
-  // Avatar-Pfad basierend auf dem Index
-  const profileImage = this.getAvatarPath(guestProfileIndex);
-  
-  // Gast-Profil erstellen
-  const guestProfile: UserProfile = {
-    id: 'guest',
-    name: guestName,
-    email: 'guest@example.com',
-    profileImage: profileImage,
-    profile: guestProfileIndex,
-    isGuest: true
-  };
-  
-  // Profil im Subject setzen
-  this.userSubject.next(guestProfile);
-  console.log('✅ Gast-Profil geladen:', guestProfile);
-}
+  loadGuestProfile(): void {
+    const guestName = localStorage.getItem('slack_clone_guest_name') || 'Gast';
+    const guestProfileIndex = parseInt(localStorage.getItem('slack_clone_guest_profile_index') || '0');
+    
+    const profileImage = this.getAvatarPath(guestProfileIndex);
+    
+    const guestProfile: UserProfile = {
+      id: 'guest',
+      name: guestName,
+      email: 'guest@example.com',
+      profileImage: profileImage,
+      profile: guestProfileIndex,
+      isGuest: true
+    };
+    
+    this.userSubject.next(guestProfile);
+  }
 
-  /**
-   * Lädt Benutzerdaten von Firebase
-   */
   private async fetchUserData(userId: string): Promise<any> {
     try {
       const response = await fetch(`${this.urlService.BASE_URL}/users/${userId}`);
@@ -150,48 +128,36 @@ loadGuestProfile(): void {
     }
   }
 
-  /**
- * Aktualisiert das Benutzerprofil
- */
-async updateProfile(data: { name?: string; profile?: number }): Promise<boolean> {
-  try {
-    const currentUser = this.userSubject.getValue();
-    
-    if (!currentUser) {
-      console.error('❌ Kein Benutzer zum Aktualisieren');
-      return false;
-    }
-    
-    // Für Gäste nur lokal speichern
-    if (currentUser.isGuest) {
-      // Aktualisiertes Gast-Profil
-      const updatedProfile: UserProfile = {
-        ...currentUser,
-        name: data.name !== undefined ? data.name : currentUser.name,
-        profile: data.profile !== undefined ? data.profile : currentUser.profile,
-        profileImage: data.profile !== undefined ? this.getAvatarPath(data.profile) : currentUser.profileImage
-      };
+  async updateProfile(data: { name?: string; profile?: number }): Promise<boolean> {
+    try {
+      const currentUser = this.userSubject.getValue();
       
-      // Im localStorage speichern
-      localStorage.setItem('slack_clone_guest_name', updatedProfile.name);
-      localStorage.setItem('slack_clone_guest_profile_index', updatedProfile.profile.toString());
+      if (!currentUser) {
+        return false;
+      }
       
-      // Aktualisiertes Profil setzen
-      this.userSubject.next(updatedProfile);
-      console.log('✅ Gast-Profil aktualisiert:', updatedProfile);
+      if (currentUser.isGuest) {
+        const updatedProfile: UserProfile = {
+          ...currentUser,
+          name: data.name !== undefined ? data.name : currentUser.name,
+          profile: data.profile !== undefined ? data.profile : currentUser.profile,
+          profileImage: data.profile !== undefined ? this.getAvatarPath(data.profile) : currentUser.profileImage
+        };
+        
+        localStorage.setItem('slack_clone_guest_name', updatedProfile.name);
+        localStorage.setItem('slack_clone_guest_profile_index', updatedProfile.profile.toString());
+        
+        this.userSubject.next(updatedProfile);
+        
+        return true;
+      }
       
       return true;
+    } catch (error) {
+      console.error('Fehler beim Aktualisieren des Profils:', error);
+      return false;
     }
-    
-    // Für normale Benutzer Daten in Firebase aktualisieren
-    // ... bestehender Code für die Aktualisierung der Benutzerdaten ...
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Fehler beim Aktualisieren des Profils:', error);
-    return false;
   }
-}
 
   getFormattedDate(): string {
     const now = new Date();
@@ -213,7 +179,6 @@ async updateProfile(data: { name?: string; profile?: number }): Promise<boolean>
     return this.avatarPaths[0];
   }
 
-  // Getter-Methoden
   isGuest(): boolean {
     return this.currentUser?.isGuest || false;
   }
@@ -234,7 +199,6 @@ async updateProfile(data: { name?: string; profile?: number }): Promise<boolean>
     return this.currentUser?.id || '';
   }
 
-  // Setter-Methoden
   setName(name: string): void {
     const currentUser = this.currentUser;
     if (currentUser) {
@@ -243,7 +207,6 @@ async updateProfile(data: { name?: string; profile?: number }): Promise<boolean>
         name: name
       });
       
-      // Auch im localStorage speichern
       if (currentUser.isGuest) {
         localStorage.setItem('guest_name', name);
       } else {
@@ -257,7 +220,6 @@ async updateProfile(data: { name?: string; profile?: number }): Promise<boolean>
     await this.loadUser(userId);
   }
 
-  // Delete-Methoden
   async deleteUserId(): Promise<void> {
     localStorage.removeItem('userId');
     const currentUser = this.currentUser;
@@ -281,11 +243,7 @@ async updateProfile(data: { name?: string; profile?: number }): Promise<boolean>
     }
   }
 
-  /**
-   * Löscht alle Benutzerdaten
-   */
   clear(): void {
     this.userSubject.next(null);
-    console.log('🧹 Benutzerdaten gelöscht');
   }
 }

@@ -16,19 +16,14 @@
       </button>
     </div>
     <div class="actual_user dFlex_ac">
-      <!-- Hier wird der Benutzername angezeigt -->
       <span>{{ userName }}</span>
       <div class="status-container">
         <img class="profilePic" [src]="userImage" alt="profile_picture" />
         <div class="status-circle online"></div>
       </div>
-
-      <!-- Drop-Down-Button -->
       <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="dropdown-btn">
         <mat-icon>keyboard_arrow_down</mat-icon>
       </button>
-      
-      <!-- Drop-Down-Menü -->
       <mat-menu #profileMenu="matMenu" panelClass="profile-dropdown-menu">
         <button mat-menu-item (click)="openProfileDialog()">
           <span class="mat-mdc-menu-item-text">

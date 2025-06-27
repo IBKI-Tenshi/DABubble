@@ -39,7 +39,6 @@ export class AppComponent {
   title = 'simple-crm';
   readonly dialog = inject(MatDialog);
   
-  // Das Observable direkt verween
   isLoggedIn$ = this.loginService.isLoggedIn$;
   
   showSidebar = true;

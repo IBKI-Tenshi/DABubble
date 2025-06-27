@@ -12,7 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
-export const appConfig: ApplicationConfig = {     // der kommende part ist um das projekt mit der firebase backend zu verbinden
+export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimationsAsync(),
@@ -31,11 +31,3 @@ export const appConfig: ApplicationConfig = {     // der kommende part ist um da
     provideFirestore(() => getFirestore()), provideAnimationsAsync()
   ]
 };
-
-
-// apiKey: "AIzaSyDiLcAldhsOGjYsIbbQup2xNxIbFO5Hjy0",
-// authDomain: "simplecrm-80a5b.firebaseapp.com",
-// projectId: "simplecrm-80a5b",
-// storageBucket: "simplecrm-80a5b.appspot.com",
-// messagingSenderId: "805197682589",
-// appId: "1:805197682589:web:04d2c819a4b5b7588dc174"
