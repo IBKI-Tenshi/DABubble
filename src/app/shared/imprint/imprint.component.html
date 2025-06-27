@@ -1,1 +1,41 @@
-<p>imprint works!</p>
+<div class="legal-container">
+    <div class="legal-content">
+      <div class="legal-header">
+        <div class="back-button" (click)="goBack()" (keydown.enter)="goBack()" tabindex="0">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Zurück</span>
+        </div>
+        <h1 class="title">{{ title }}</h1>
+      </div>
+      
+      <div class="legal-section">
+        <h2>Angaben gemäß § 5 TMG</h2>
+        <p>DABubble GmbH</p>
+        <p>Musterstraße 123</p>
+        <p>12345 Musterstadt</p>
+        <p>Deutschland</p>
+      </div>
+  
+      <div class="legal-section">
+        <h2>Kontakt:</h2>
+        <p>Email: <a href="mailto:info@dabubble.com">info.com</a></p>
+        <p>Telefon: +49 123 456789</p>
+      </div>
+  
+      <div class="legal-section">
+        <h2>Vertreten durch:</h2>
+        <p>Max Mustermann, Geschäftsführer</p>
+      </div>
+  
+      <div class="legal-section">
+        <h2>Handelsregister:</h2>
+        <p>HRB 12345</p>
+        <p>Amtsgericht Musterstadt</p>
+      </div>
+  
+      <div class="legal-section">
+        <h2>Umsatzsteuer-ID:</h2>
+        <p>DE123456789</p>
+      </div>
+    </div>
+  </div>
