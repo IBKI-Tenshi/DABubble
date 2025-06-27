@@ -19,11 +19,9 @@ export class IntroComponent implements OnInit {
     const isLoggedIn = !!localStorage.getItem('google_token');
     
     if (isLoggedIn) {
-      console.log('Animation übersprungen: Benutzer ist eingeloggt');
       this.showAnimation = false;
       this.router.navigate(['/dashboard']);
     } else {
-      console.log('Animation wird gezeigt');
       this.runAnimation();
     }
   }
@@ -36,8 +34,8 @@ export class IntroComponent implements OnInit {
       setTimeout(() => {
         this.showAnimation = false;
         this.router.navigate(['']);
-      }, 600); // Leicht verkürzt für nahtloseren Übergang
+      }, 600);
       
-    }, 1500); // Timing angepasst, um zu warten bis Logo an Zielposition ist
+    }, 1500);
   }
 }

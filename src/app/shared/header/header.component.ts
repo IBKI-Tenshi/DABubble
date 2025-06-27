@@ -42,19 +42,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginService: LoginService,
     private userDataService: UserDataService,
-    private cdr: ChangeDetectorRef  // <- WICHTIG: Hinzufügen
+    private cdr: ChangeDetectorRef
   ) {
-    console.log("Header-Komponente wird initialisiert");
   }
 
   ngOnInit() {
-    console.log("Header OnInit: Abonniere Benutzer-Updates");
-    
-    // User Updates mit Verzögerung verarbeiten
     this.subscription = this.userDataService.user$.subscribe(user => {
-      console.log("Neues Benutzer-Update empfangen:", user);
-      
-      // WICHTIG: Asynchron verarbeiten
       setTimeout(() => {
         this.updateUserData(user);
         this.cdr.detectChanges();
@@ -66,9 +59,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isGuestUser = localStorage.getItem('guest_token') !== null;
     
     if (this.isGuestUser) {
-      this.userName = localStorage.getItem('guest_name') || 'Frederik Leck';
-      this.userEmail = 'frederik.leck@example.com';
-      console.log("Gast erkannt, setze Namen:", this.userName);
+      this.userName = localStorage.getItem('guest_name') || 'Frederik Beck';
+      this.userEmail = 'frederik.beck@example.com';
     } else {
       this.userName = localStorage.getItem('user_name') || '';
       this.userEmail = localStorage.getItem('user_email') || '';
@@ -81,24 +73,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.userEmail = user.email || '';
       this.userImage = user.profileImage || '/assets/img/dummy_pic.png';
       this.isGuestUser = user.isGuest || false;
-      console.log(`User-Update: ${this.userName}, ${this.userEmail}`);
     } else {
-      // Bei null/undefined User: Auf lokale Werte prüfen
       this.initializeUserData();
     }
     
-    // Manuell Change Detection auslösen
     this.cdr.detectChanges();
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
-    console.log("Header-Subscription beendet");
   }
 
   openProfileDialog() {
-    console.log(`Öffne Profil-Dialog für: ${this.userName}, ${this.userEmail}`);
-    
     const currentlyGuest = localStorage.getItem('guest_token') !== null;
     
     const dialogRef = this.dialog.open(ProfileComponent, {
@@ -114,13 +100,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log("Profil-Dialog wurde geschlossen mit Ergebnis:", result);
       }
     });
   }
 
   LogOut() {
-    console.log("Logout ausgeführt");
     this.loginService.logout();
     this.router.navigate(['/']);
   }

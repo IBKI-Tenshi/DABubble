@@ -19,7 +19,6 @@ import { UserDataService } from '../services/user_data.service';
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent {
-  // Eigenschaften für das HTML-Template
   userName: string;
   userEmail: string;
   profileImage: string;
@@ -33,7 +32,6 @@ export class ProfileComponent {
     private userDataService: UserDataService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { 
-    // Benutzerdaten aus Dialog-Input oder User-Service holen
     this.isGuestUser = localStorage.getItem('guest_token') !== null;
     
     if (this.data) {
@@ -49,7 +47,6 @@ export class ProfileComponent {
         this.profileImage = currentUser.profileImage;
         this.profileIndex = currentUser.profile;
       } else {
-        // Fallback für Gäste
         this.userName = 'Gast';
         this.userEmail = 'guest@example.com';
         this.profileImage = '/assets/img/avatar/avatar_1.png';
@@ -57,13 +54,9 @@ export class ProfileComponent {
       }
     }
     
-    // Letzten Login setzen
     this.lastLogin = data?.lastLogin || this.getFormattedDate();
   }
 
-  /**
-   * Aktuelles Datum im Format YYYY-MM-DD HH:MM:SS
-   */
   private getFormattedDate(): string {
     const now = new Date();
     return now.getUTCFullYear() + '-' + 
@@ -74,20 +67,13 @@ export class ProfileComponent {
            String(now.getUTCSeconds()).padStart(2, '0');
   }
 
-  /**
-   * Schließt den Dialog
-   */
   closeDialog(): void {
     this.dialogRef.close();
   }
 
-  /**
-   * Öffnet den Profil-Bearbeitungs-Dialog
-   */
   openEditProfile(): void {
     this.dialogRef.close();
     
-    // Dialog für Profil-Bearbeitung öffnen und aktuelle Daten übergeben
     const editDialogRef = this.dialog.open(ProfileEditComponent, {
       width: '500px',
       panelClass: 'profile-edit-dialog-container',
@@ -100,10 +86,8 @@ export class ProfileComponent {
       }
     });
 
-    // Nach dem Schließen entweder Profil mit neuen Daten anzeigen oder mit alten Daten
     editDialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Neue Daten verwenden
         this.dialog.open(ProfileComponent, {
           width: '500px',
           panelClass: 'profile-dialog-container',
@@ -116,7 +100,6 @@ export class ProfileComponent {
           }
         });
       } else {
-        // Alte Daten verwenden
         this.dialog.open(ProfileComponent, {
           width: '500px',
           panelClass: 'profile-dialog-container',

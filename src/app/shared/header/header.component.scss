@@ -26,6 +26,10 @@
     right: 45px;
     top: 0;
   }
+
+  @media (max-width: 950px) {
+    display: none;
+  }
 }
 
 .searchInput {
@@ -40,6 +44,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 950px) {
+    padding: 0 16px; 
+  }
 }
 
 .mat-drawer-container {
@@ -97,6 +105,7 @@ mat-toolbar-row {
 
 .toolbar_top {
   justify-content: space-between;
+  gap: 16px;
 }
 
 .actual_user {
@@ -106,6 +115,10 @@ mat-toolbar-row {
   span {
     font-size: 18px;
     font-weight: 500;
+
+    @media (max-width: 600px) {
+      display: none;
+    }
   }
   
   .status-container {
@@ -133,6 +146,7 @@ mat-toolbar-row {
 ::ng-deep .mat-mdc-menu-panel {
   height: 181px !important;
   width: 282px !important;
+  overflow: hidden !important;
   border-radius: 30px 0px 30px 30px !important;
   display: flex;
   align-items: center;
@@ -141,7 +155,6 @@ mat-toolbar-row {
     width: 100%;
     padding: 16px 0;
     
-  
     .mat-mdc-menu-item {
       height: 64px !important;
       font-size: 32px !important;
@@ -151,19 +164,21 @@ mat-toolbar-row {
       display: flex;
       justify-content: center !important;
       align-items: center;
-      margin: 0 12px;
-      
     
       .mat-mdc-menu-item-text {
         display: flex;
         align-items: center;
         justify-content: center !important;
         width: 100%;
+        font-size: 18px;
+        font-weight: 800;
+
+        box-sizing: border-box;
+        border-radius: 32px;
         
         .mat-menu-button-img {
           height: 30px;
           width: 30px;
-          margin-right: 16px;
         }
       }
       

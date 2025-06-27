@@ -19,7 +19,7 @@
     height: 184px;
     display: flex;
     justify-content: center;
-    align-items: center; /* Stellt sicher, dass Elemente vertikal zentriert sind */
+    align-items: center;
     position: relative;
     animation: moveToCorner 0.8s ease-in-out forwards 1.2s;
   }
@@ -29,33 +29,29 @@
     height: 100px;
     margin-right: -100px;
     animation: moveIconToLeft 500ms cubic-bezier(0.4, 1.2, 0.5, 1) forwards 500ms;
-    display: flex; /* Hinzugefügt für bessere Ausrichtung */
-    align-items: center; /* Hinzugefügt für vertikale Zentrierung */
-    justify-content: center; /* Hinzugefügt für horizontale Zentrierung */
+    display: flex;
+    align-items: center;
+    justify-content: center; 
   }
   
   .intro-title {
-    /* Höhe auf auto geändert, um Abschneiden zu vermeiden */
     height: auto;
-    /* Mindesthöhe eingestellt, damit es mindestens so hoch wie Icon ist */
     min-height: 100px;
     font-size: 48px;
     font-weight: 700;
     color: white;
     white-space: nowrap;
     overflow: hidden;
-    display: flex; /* Geändert von inline-block zu flex */
-    align-items: center; /* Vertikale Zentrierung des Textes */
+    display: flex;
+    align-items: center;
     width: 0;
     margin-right: -100px;
     animation: typeWriter 0.5s steps(8, end) forwards 800ms;
-    /* Padding hinzugefügt, um sicherzustellen, dass Text nicht abgeschnitten wird */
     padding-top: 8px; 
     padding-bottom: 8px;
-    line-height: 1; /* Verbesserte Zeilenhöhe für Text */
+    line-height: 1;
   }
   
-  /* Deine bestehenden Keyframes bleiben gleich */
   @keyframes moveIconToLeft {
     from { transform: translateX(0); }
     to   { transform: translateX(-100px); }
@@ -82,7 +78,6 @@
     }
   }
   
-  /* Füge diese Klasse hinzu, wenn du das Intro-Element komplett ausblenden möchtest */
   .intro-screen.fade-out {
     opacity: 0;
   }

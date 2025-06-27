@@ -39,7 +39,6 @@ export class ProfileEditComponent {
   errorMessage = '';
   selectedAvatarIndex: number;
 
-  // Avatar-Liste
   avatarList: string[] = [
     '/assets/img/avatar/avatar_1.png',
     '/assets/img/avatar/avatar_2.png',
@@ -55,11 +54,9 @@ export class ProfileEditComponent {
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    // Avatar-Auswahl initialisieren
     this.selectedAvatarIndex = data?.profile !== undefined ? data.profile : 0;
     this.currentAvatar = data?.profileImage || this.avatarList[this.selectedAvatarIndex];
 
-    // Formular initialisieren
     this.profileForm = new FormGroup({
       name: new FormControl(data?.name || '', [
         Validators.required,
@@ -68,33 +65,21 @@ export class ProfileEditComponent {
     });
   }
 
-  /**
-   * Validator für keine führenden Leerzeichen
-   */
   noLeadingSpaceValidator(control: AbstractControl): ValidationErrors | null {
     return control.value &&
       typeof control.value === 'string' &&
       control.value.charAt(0) === ' ' ? { leadingSpace: true } : null;
   }
 
-  /**
-   * Avatar-Auswahl ändern
-   */
   selectAvatar(path: string, index: number): void {
     this.currentAvatar = path;
     this.selectedAvatarIndex = index;
   }
 
-  /**
-   * Dialog schließen ohne zu speichern
-   */
   closeEditForm(): void {
     this.dialogRef.close();
   }
 
-  /**
-   * Prüft, ob ein String mit einem Leerzeichen beginnt
-   */
   checkForBlankFirst(name: string | null): boolean {
     return !!name && name.charAt(0) === ' ';
   }
@@ -110,8 +95,6 @@ export class ProfileEditComponent {
 
     try {
       const newName = this.profileForm.get('name')?.value;
-
-      // Profil aktualisieren
       const success = await this.userDataService.updateProfile({
         name: newName,
         profile: this.selectedAvatarIndex
@@ -120,7 +103,6 @@ export class ProfileEditComponent {
       if (success) {
         this.snackBar.open('Profil gespeichert', 'OK', { duration: 2000 });
 
-        // Wenn es ein Gast ist, auch im localStorage speichern
         if (this.data.isGuest) {
           localStorage.setItem('slack_clone_guest_name', newName);
           localStorage.setItem('slack_clone_guest_profile_index', this.selectedAvatarIndex.toString());
@@ -130,7 +112,6 @@ export class ProfileEditComponent {
           });
         }
 
-        // Dialog schließen und aktualisierte Daten zurückgeben
         this.dialogRef.close({
           name: newName,
           email: this.data.email,

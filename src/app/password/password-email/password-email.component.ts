@@ -18,7 +18,7 @@ import { CreateUserComponent } from '../../overlay/create-user.component';
     CreateUserComponent,
   ],
   templateUrl: './password-email.component.html',
-  styleUrls: ['./password-email.component.scss'], // changed from styleUrl to styleUrls
+  styleUrls: ['./password-email.component.scss'],
 })
 export class PasswordEmailComponent {
   @Input() disabled: boolean = false;
