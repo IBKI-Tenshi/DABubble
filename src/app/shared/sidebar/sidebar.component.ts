@@ -1,3 +1,4 @@
+
 import { Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -119,35 +120,35 @@ export class SidebarComponent implements OnInit {
     }).catch((error) => {});
   }
 
-  async openChatWithUser(otherEmail: string, otherName: string) {
+  async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
     const currentUser = await firstValueFrom(this.userService.user$);
     const currentUserName = currentUser?.name || 'Unbekannt';
     
-    const chatId = this.firestore.generateChatId(currentUserName, otherName, this.currentUserEmail, otherEmail);
+    const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
     
     try {
       try {
         const chatDoc = await firstValueFrom(this.firestore.getChatById(chatId));
-        this.navigateToChat(chatId, otherName);
+        this.navigateToChat(chatId, otherName, otherAvatar);
       } 
       catch (getError) {
         if ((getError as { status: number }).status === 404) {
           try {
-            const result = await this.firestore.createChat(
+            await this.firestore.createChat(
               chatId,
               [this.currentUserEmail, otherEmail],
               [currentUserName, otherName]
             );
-            this.navigateToChat(chatId, otherName);
+            this.navigateToChat(chatId, otherName, otherAvatar);
           } 
           catch (createError1) {
             try {
-              const result2 = await this.firestore.createChatAlt(
+              await this.firestore.createChatAlt(
                 chatId,
                 [this.currentUserEmail, otherEmail],
                 [currentUserName, otherName]
               );
-              this.navigateToChat(chatId, otherName);
+              this.navigateToChat(chatId, otherName, otherAvatar);
             } 
             catch (createError2) {
               alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
@@ -164,8 +165,13 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  private navigateToChat(chatId: string, otherName: string) {
-    this.router.navigate(['/directMessage', chatId], { queryParams: { name: otherName } });
+  private navigateToChat(chatId: string, otherName: string, otherAvatar: string) {
+    this.router.navigate(['/directMessage', chatId], {
+      queryParams: {
+        name: otherName,
+        avatar: otherAvatar
+      }
+    });
   }
 
   openChannelChat(channelId: string) {

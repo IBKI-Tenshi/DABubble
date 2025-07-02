@@ -53,14 +53,21 @@ export class FirestoreService {
     return this.http.get(url);
   }
 
-  generateChatId(name1: string, name2: string, email1: string, email2: string): string {
-    const displayName = `Chat zwischen ${name1} und ${name2}`;
-    const sanitizedName = displayName
-      .replace(/[\/\.\#\$\[\]]/g, ' ')
-      .replace(/\s+/g, ' ');
+  // generateChatId(name1: string, name2: string, email1: string, email2: string): string {
+  //   const displayName = `Chat zwischen ${name1} und ${name2}`;
+  //   const sanitizedName = displayName
+  //     .replace(/[\/\.\#\$\[\]]/g, ' ')
+  //     .replace(/\s+/g, ' ');
       
-    return sanitizedName;
-  }
+  //   return sanitizedName;
+  // }
+
+generateChatId(email1: string, email2: string): string {
+  const sortedEmails = [email1, email2].sort();
+  return `${sortedEmails[0]}_${sortedEmails[1]}`;
+}
+
+
 
   createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);

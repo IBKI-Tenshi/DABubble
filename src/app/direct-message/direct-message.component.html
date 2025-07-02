@@ -1,15 +1,16 @@
-<section class="direct-message-section p-16 dFlex">
 
-    <div class="chatpartner-info dFlex">
+
+<section class="direct-message-section dFlex">
+
+    <div class="chatpartner-info dFlex p-16">
         <span>chat mit wem.</span>
-        <span>avatar</span>
+        <img class="otherAvatar" [src]="partnerAvatarUrl" alt="Avatar" width="40" height="40" />
+
         <span>{{ partnerName || '...' }}</span>
     </div>
 
     <div class="chat-window">
         <div class="messages">
-
-            <!-- <pre>{{ messages | json }}</pre> -->
 
             <div *ngFor="let msg of messages" class="message">
                 <p><strong>{{ msg.senderId }}:</strong> {{ msg.text }}</p>
@@ -27,4 +28,6 @@
     </div>
 
 
-</section>
+</section> 
+
+

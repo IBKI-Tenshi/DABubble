@@ -1,3 +1,5 @@
+
+
 .direct-message-section {
     height: 100vh;
     width: 100%;
@@ -10,20 +12,35 @@
     gap: 8px;
 }
 
-.chat-window {
-    height: 240px;
-    width: 600px;
-    background-color: rgb(198, 198, 198);
-    max-height: 400px;
-    overflow-y: auto;
-}
 
 .chatpartner-info {
-    flex-direction: column;
+    // flex-direction: column;
+    gap: 8px;
+    // background-color: aqua;
+    box-shadow: 0px 5px 15px -8px rgba(0,0,0,0.25);
+    
+}
+
+.chat-window {
+    height: 240px;
+    width: 100%;
+    // background-color: rgb(198, 198, 198);
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .message-window {
     width: 600px;
     height: 80px;
-    background-color: rgb(198, 198, 198);
+    // background-color: rgb(198, 198, 198);
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 16px;
 }
+
+.otherAvatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+}
+
