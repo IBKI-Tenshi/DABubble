@@ -24,6 +24,11 @@ export class FirestoreService {
     return this.http.get<any[]>(url);
   }
 
+  getAllChats(): Observable<any> {
+    const url = `${this.urlService.BASE_URL}/chats`;
+    return this.http.get(url);
+  }
+
   getChannelMessages(channelId: string): Observable<Message[]> {
     const url = `${this.urlService.BASE_URL}/channels/${channelId}/messages`;
     return this.http.get<Message[]>(url);
@@ -45,14 +50,24 @@ export class FirestoreService {
   getChatById(chatId: string): Observable<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
-    console.log("🔍 Suche Chat mit URL:", url);
     return this.http.get(url);
   }
 
-  createChat(chatId: string, participants: string[]): Promise<any> {
+  generateChatId(name1: string, name2: string, email1: string, email2: string): string {
+    const displayName = `Chat zwischen ${name1} und ${name2}`;
+    const sanitizedName = displayName
+      .replace(/[\/\.\#\$\[\]]/g, ' ')
+      .replace(/\s+/g, ' ');
+      
+    return sanitizedName;
+  }
+
+  createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
     
+    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+    
     const firestoreFormattedChat = {
       fields: {
         participants: { 
@@ -60,17 +75,27 @@ export class FirestoreService {
             values: participants.map(p => ({ stringValue: p })) 
           } 
         },
+        participantNames: { 
+          arrayValue: { 
+            values: participantNames.map(name => ({ stringValue: name })) 
+          } 
+        },
+        displayName: { 
+          stringValue: displayName
+        },
         createdAt: { timestampValue: new Date().toISOString() }
       }
     };
     
-    console.log("📤 Sende Chat-Erstellung (Methode 1):", url, firestoreFormattedChat);
     return firstValueFrom(this.http.post(url, firestoreFormattedChat));
   }
 
-  createChatAlt(chatId: string, participants: string[]): Promise<any> {
+  createChatAlt(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
+    
+    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+    
     const firestoreFormattedChat = {
       fields: {
         participants: { 
@@ -78,16 +103,24 @@ export class FirestoreService {
             values: participants.map(p => ({ stringValue: p })) 
           } 
         },
+        participantNames: { 
+          arrayValue: { 
+            values: participantNames.map(name => ({ stringValue: name })) 
+          } 
+        },
+        displayName: { 
+          stringValue: displayName
+        },
         createdAt: { timestampValue: new Date().toISOString() }
       }
     };
     
-    console.log("📤 Sende Chat-Erstellung (Methode 2):", url, firestoreFormattedChat);
     return firstValueFrom(this.http.put(url, firestoreFormattedChat));
   }
 
   createChannel(channelName: string): Promise<void> {
     const url = `${this.urlService.BASE_URL}/channels`;
+
     const newChannel = {
       fields: {
         name: { stringValue: channelName }
@@ -117,20 +150,6 @@ export class FirestoreService {
       }
     };
 
-    console.log("📤 addMessageToChat wird gesendet:", url);
-
     return firstValueFrom(this.http.post(url, firestoreFormattedMessage));
-  }
-
-  testCreateSimpleDocument(): Promise<any> {
-    const url = `${this.urlService.BASE_URL}/test_documents`;
-    const simpleDoc = {
-      fields: {
-        test: { stringValue: "test_value" }
-      }
-    };
-    
-    console.log("🧪 Teste einfaches Dokument erstellen:", url, simpleDoc);
-    return firstValueFrom(this.http.post(url, simpleDoc));
   }
 }

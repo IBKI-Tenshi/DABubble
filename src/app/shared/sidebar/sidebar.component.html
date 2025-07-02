@@ -1,5 +1,4 @@
 <div class="sidebar">
-
   <mat-drawer class="sidenav" #drawer [opened]="true" mode="side">
 
     <div class="devspace-header dFlex_ac p-16">
@@ -13,18 +12,6 @@
     </div>
 
     <ul class="menu-items">
-      <!-- <li routerLink="/dashboard">
-        <mat-icon>fact_check</mat-icon>
-        Dashboard
-      </li>
-      <li routerLink="/user">
-        <mat-icon>person</mat-icon>
-        User
-      </li> -->
-
-
-      <!-- channels -->
-
       <li (click)="toggleChannels()">
         <img [src]="showChannels ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'"
           alt="">
@@ -50,36 +37,29 @@
         </li>
       </ul>
 
-      <!-- Direktnachrichten -->
       <li (click)="toggleDMs()">
         <img [src]="showDMs ? '/assets/icons/sidebar/arrow_open.svg' : '/assets/icons/sidebar/arrow_close.svg'" alt="">
-
-        <!-- <img src="/assets/icons/direct-message.svg" alt="" /> -->
         Direktnachrichten
       </li>
 
       <ul *ngIf="showDMs" class="dm-submenu">
-
-        <!-- nur für tests -->
-        <div class="user-info">
-          Eingeloggt als: {{ currentUserEmail }}
-        </div>
-
+        <li class="current-user">
+          <div class="actual_user dFlex_ac">
+            <span>{{ currentUserName }}</span>
+            <div class="status-container">
+              <img class="profilePic" [src]="currentUserImage" alt="profile_picture" />
+              <div class="status-circle online"></div>
+            </div>
+          </div>
+        </li>
 
         <li *ngFor="let user of users">
           <a (click)="openChatWithUser(user.email, user.name)" class="dFlex_ac">
-
             <img class="user-avatar" [src]="user.avatar" alt="Avatar von {{ user.name }}" />
             {{ user.name }}
-            {{ user.email }}
           </a>
         </li>
-
-
-        <a [routerLink]="['/directMessage', 'chat_max@a.de_test@b.de']">Mit Max chatten</a>
-
       </ul>
-
     </ul>
   </mat-drawer>
 </div>
