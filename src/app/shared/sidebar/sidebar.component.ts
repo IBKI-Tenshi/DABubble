@@ -1,5 +1,3 @@
-
-
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -38,9 +36,7 @@ export class SidebarComponent implements OnInit {
   showDMs: boolean = false;
   users: any[] = [];
   currentUserEmail: string = '';
-  // channels = ['General', 'Frontend', 'Backend'];
   channels: any[] = [];
-
 
   constructor(
     private firestore: FirestoreService,
@@ -51,15 +47,12 @@ export class SidebarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
     this.loadCurrentUser();
     this.loadUsersInSidebar();
     this.loadChannelsInSidebar();
-
   }
 
   loadCurrentUser() {
-    // Aktuellen Benutzer holen und dessen E-Mail speichern
     this.userService.user$.subscribe((user: UserProfile | null) => {
       if (user) {
         this.currentUserEmail = user.email || '';
@@ -68,7 +61,6 @@ export class SidebarComponent implements OnInit {
   }
 
   loadUsersInSidebar() {
-    // Alle Benutzer aus Firestore laden und aufbereiten
     this.firestore.getAllUsers().subscribe(users => {
       this.users = users.documents.map((doc: any, index: number) => {
         const name = doc.fields.name?.stringValue || 'Unbekannt';
@@ -79,7 +71,6 @@ export class SidebarComponent implements OnInit {
       });
     });
   }
-
 
   loadChannelsInSidebar() {
     console.log("channels laden gestartet");
@@ -99,13 +90,6 @@ export class SidebarComponent implements OnInit {
     });
   }
 
-
-
-
-
-
-
-
   toggleChannels() {
     this.showChannels = !this.showChannels;
   }
@@ -124,54 +108,81 @@ export class SidebarComponent implements OnInit {
     }
 
     const trimmedName = newChannelName.trim();
-
-    // Firestore-Service aufrufen, um den neuen Channel anzulegen
     this.firestore.createChannel(trimmedName).then(() => {
       console.log(`Neuer Channel "${trimmedName}" wurde hinzugefügt.`);
-
-      // Lokal im Array hinzufügen, damit UI sofort aktualisiert wird
       this.channels.push(trimmedName);
-
-      // Optional: Channels-Liste nochmal neu laden aus Firestore
-      // this.loadChannelsInSidebar();
     }).catch((error) => {
       console.error('Fehler beim Hinzufügen des Channels:', error);
     });
   }
-
 
   getChatId(email1: string, email2: string): string {
     const participants = [email1, email2].sort();
     return `chat_${participants[0]}_${participants[1]}`;
   }
 
-
   async openChatWithUser(otherEmail: string, otherName: string) {
     const chatId = this.getChatId(this.currentUserEmail, otherEmail);
+    console.log("📝 Versuche Chat zu öffnen mit ID:", chatId);
 
     try {
-      const chatDoc = await firstValueFrom(this.firestore.getChatById(chatId));
-
-      if (!chatDoc || Object.keys(chatDoc).length === 0) {
-        await this.firestore.createChat(chatId, [this.currentUserEmail, otherEmail]);
-        console.log('🟢 Neuer Chat wurde erstellt:', chatId);
-      } else {
-        console.log('ℹ️ Chat existiert bereits:', chatId);
+      try {
+        console.log("🔍 Suche nach existierendem Chat:", chatId);
+        const chatDoc = await firstValueFrom(this.firestore.getChatById(chatId));
+        console.log("📄 Chat-Dokument gefunden:", chatDoc);
+        
+        this.navigateToChat(chatId, otherName);
+      } 
+      catch (getError) {
+        if ((getError as { status: number }).status === 404) {
+          console.log("🆕 Chat existiert nicht, erstelle neu mit Methode 1...");
+          
+          try {
+            const result = await this.firestore.createChat(chatId, [this.currentUserEmail, otherEmail]);
+            console.log('🟢 Neuer Chat wurde erstellt (Methode 1):', result);
+            this.navigateToChat(chatId, otherName);
+          } 
+          catch (createError1) {
+            console.error('❌ Fehler bei Methode 1:', createError1);
+            console.log("🔄 Versuche alternative Methode 2...");
+            try {
+              const result2 = await this.firestore.createChatAlt(chatId, [this.currentUserEmail, otherEmail]);
+              console.log('🟢 Neuer Chat wurde erstellt (Methode 2):', result2);
+              this.navigateToChat(chatId, otherName);
+            } 
+            catch (createError2) {
+              console.error('❌ Fehler bei Methode 2:', createError2);
+              alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
+            }
+          }
+        } 
+        else {
+          console.error('❌ Unerwarteter Fehler beim Abrufen des Chats:', getError);
+          alert('Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.');
+        }
       }
-
-      this.router.navigate(['/directMessage', chatId], { queryParams: { name: otherName } });
-      console.log("richtiger chat offen");
-
-    } catch (error) {
-      console.error('❌ Fehler beim Öffnen oder Erstellen des Chats:', error);
+    } 
+    catch (error) {
+      console.error('❌ Gesamtfehler in openChatWithUser:', error);
+      alert('Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später erneut.');
     }
   }
 
+  private navigateToChat(chatId: string, otherName: string) {
+    this.router.navigate(['/directMessage', chatId], { queryParams: { name: otherName } });
+    console.log("✅ Navigation zum Chat gestartet");
+  }
+
+  async testChatCreation() {
+    try {
+      const testDoc = await this.firestore.testCreateSimpleDocument();
+      console.log("✅ Test-Dokument erstellt:", testDoc);
+    } catch (error) {
+      console.error("❌ Test fehlgeschlagen:", error);
+    }
+  }
 
   openChannelChat(channelId: string) {
     this.router.navigate(['/channelChat', channelId]);
   }
-
-
-
 }

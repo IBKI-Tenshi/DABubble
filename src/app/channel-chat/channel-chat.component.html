@@ -1,20 +1,13 @@
 <section class="channel-section p-16 dFlex">
 
-
     <span class="channel-name">channel name: {{ channelName }}</span>
 
     <div class="chat-window">
         <div class="messages">
-
             <div *ngFor="let msg of messages">
                 <strong>{{ msg.senderId }}:</strong> {{ msg.text }}
             </div>
-
-
-
         </div>
-
-
     </div>
 
     <div class="message-window">

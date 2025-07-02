@@ -1,12 +1,9 @@
-
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UrlService } from './url.service';
 import { Observable } from 'rxjs';
 import { Message } from '../../models/message.model';
 import { firstValueFrom } from 'rxjs';
-
 
 @Injectable({
   providedIn: 'root',
@@ -17,25 +14,21 @@ export class FirestoreService {
     private urlService: UrlService
   ) { }
 
-  // GET: Alle Benutzer laden
   getAllUsers(): Observable<any> {
     const url = `${this.urlService.BASE_URL}/users`;
     return this.http.get(url);
   }
 
-  // GET: Alle Channels laden
   getAllChannels(): Observable<any[]> {
     const url = `${this.urlService.BASE_URL}/channels`;
     return this.http.get<any[]>(url);
   }
 
-  // GET: Nachrichten eines Channels
   getChannelMessages(channelId: string): Observable<Message[]> {
     const url = `${this.urlService.BASE_URL}/channels/${channelId}/messages`;
     return this.http.get<Message[]>(url);
   }
 
-  // POST: Neue Nachricht zu einem Channel hinzufügen
   addMessageToChannel(channelId: string, message: Message): Promise<any> {
     const url = `${this.urlService.BASE_URL}/channels/${channelId}/messages`;
 
@@ -49,49 +42,72 @@ export class FirestoreService {
     return firstValueFrom(this.http.post(url, firestoreFormattedMessage));
   }
 
-  // GET: Chat-Dokument abrufen
   getChatById(chatId: string): Observable<any> {
-    const url = `${this.urlService.BASE_URL}/chats/${chatId}`;
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
+    console.log("🔍 Suche Chat mit URL:", url);
     return this.http.get(url);
   }
 
-  // POST: Chat-Dokument erstellen
-  createChat(chatId: string, participants: string[]): Observable<any> {
-    const url = `${this.urlService.BASE_URL}/chats`;
-    return this.http.post(url, {
-      chatId,
-      participants,
-      createdAt: new Date().toISOString()
-    });
+  createChat(chatId: string, participants: string[]): Promise<any> {
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
+    
+    const firestoreFormattedChat = {
+      fields: {
+        participants: { 
+          arrayValue: { 
+            values: participants.map(p => ({ stringValue: p })) 
+          } 
+        },
+        createdAt: { timestampValue: new Date().toISOString() }
+      }
+    };
+    
+    console.log("📤 Sende Chat-Erstellung (Methode 1):", url, firestoreFormattedChat);
+    return firstValueFrom(this.http.post(url, firestoreFormattedChat));
+  }
+
+  createChatAlt(chatId: string, participants: string[]): Promise<any> {
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
+    const firestoreFormattedChat = {
+      fields: {
+        participants: { 
+          arrayValue: { 
+            values: participants.map(p => ({ stringValue: p })) 
+          } 
+        },
+        createdAt: { timestampValue: new Date().toISOString() }
+      }
+    };
+    
+    console.log("📤 Sende Chat-Erstellung (Methode 2):", url, firestoreFormattedChat);
+    return firstValueFrom(this.http.put(url, firestoreFormattedChat));
   }
 
   createChannel(channelName: string): Promise<void> {
     const url = `${this.urlService.BASE_URL}/channels`;
-
-    // Wenn deine API das Firestore-ähnliche Format erwartet:
     const newChannel = {
       fields: {
         name: { stringValue: channelName }
-        // hier ggf. weitere Felder
       }
     };
 
-    // POST an die API senden und Promise zurückgeben
     return firstValueFrom(this.http.post(url, newChannel))
-      .then(() => { /* Erfolg - keine Rückgabe nötig */ })
+      .then(() => {})
       .catch((err: any) => Promise.reject(err));
   }
 
-
-  // GET: Nachrichten eines Chats
   getChatMessages(chatId: string): Observable<Message[]> {
-    const url = `${this.urlService.BASE_URL}/chats/${chatId}/messages`;
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages`;
     return this.http.get<Message[]>(url);
   }
 
-  // POST: Neue Nachricht zu einem Chat hinzufügen
   async addMessageToChat(chatId: string, message: Message): Promise<any> {
-    const url = `${this.urlService.BASE_URL}/chats/${chatId}/messages`;
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages`;
 
     const firestoreFormattedMessage = {
       fields: {
@@ -101,10 +117,20 @@ export class FirestoreService {
       }
     };
 
-    console.log("📤 addMessageToChat wird gesendet");
+    console.log("📤 addMessageToChat wird gesendet:", url);
 
     return firstValueFrom(this.http.post(url, firestoreFormattedMessage));
   }
 
-
+  testCreateSimpleDocument(): Promise<any> {
+    const url = `${this.urlService.BASE_URL}/test_documents`;
+    const simpleDoc = {
+      fields: {
+        test: { stringValue: "test_value" }
+      }
+    };
+    
+    console.log("🧪 Teste einfaches Dokument erstellen:", url, simpleDoc);
+    return firstValueFrom(this.http.post(url, simpleDoc));
+  }
 }
