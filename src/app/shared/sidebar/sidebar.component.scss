@@ -152,5 +152,40 @@
   }
 }
 
+.actual_user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  span {
+    font-weight: 500;
+    color: #222;
+    margin-right: 16px;
+  }
+  .status-container {
+    position: relative;
+    .profilePic {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .status-circle {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid white;
+      &.online {
+        background-color: #44b700;
+      }
+      &.offline {
+        background-color: #9e9e9e;
+      }
+    }
+  }
+}
 
 
