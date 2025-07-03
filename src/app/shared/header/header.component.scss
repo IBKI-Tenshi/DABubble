@@ -122,6 +122,25 @@ mat-toolbar-row {
   gap: 16px;
 }
 
+.dropdown-btn {
+  cursor: pointer;
+  border: none;
+  width: 30px;
+  height: 30px;
+  background-image: url(../../../assets/icons/header/arrow_down_black.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px 20px;
+}
+
+.actual_user:hover .profileSpan {
+  color: #797ef3;
+}
+
+.actual_user:hover .dropdown-btn {
+  background-image: url(../../../assets/icons/header/arrow_down_purple.svg);
+}
+
 .actual_user {
   gap: 20px;
   position: relative;
@@ -133,9 +152,6 @@ mat-toolbar-row {
 
     @media (max-width: 600px) {
       display: none;
-    }
-    &:hover {
-      color: #797ef3;
     }
   }
 
@@ -213,12 +229,6 @@ mat-toolbar-row {
         }
       }
     }
-  }
-}
-
-.dropdown-btn {
-  &:hover {
-    background-color: rgba(121, 126, 243, 0.1);
   }
 }
 

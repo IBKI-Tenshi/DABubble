@@ -15,25 +15,19 @@
         <mat-icon>search</mat-icon>
       </button>
     </div>
-    <div class="actual_user dFlex_ac">
-      <span>{{ userName }}</span>
+    <div class="actual_user dFlex_ac" [matMenuTriggerFor]="profileMenu">
+      <span class="profileSpan">{{ userName }}</span>
       <div class="status-container">
         <img class="profilePic" [src]="userImage" alt="profile_picture" />
         <div class="status-circle online"></div>
       </div>
-      <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="dropdown-btn">
-        <mat-icon>keyboard_arrow_down</mat-icon>
-      </button>
+      <button class="dropdown-btn"></button>
       <mat-menu #profileMenu="matMenu" panelClass="profile-dropdown-menu">
         <button mat-menu-item (click)="openProfileDialog()">
-          <span class="mat-mdc-menu-item-text">
-            Profil
-          </span>
+          <span class="mat-mdc-menu-item-text"> Profil </span>
         </button>
         <button mat-menu-item (click)="LogOut()">
-          <span class="mat-mdc-menu-item-text">
-            Log out
-          </span>
+          <span class="mat-mdc-menu-item-text"> Log out </span>
         </button>
       </mat-menu>
     </div>
