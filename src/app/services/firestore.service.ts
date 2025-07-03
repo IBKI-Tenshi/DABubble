@@ -53,77 +53,70 @@ export class FirestoreService {
     return this.http.get(url);
   }
 
-  // generateChatId(name1: string, name2: string, email1: string, email2: string): string {
-  //   const displayName = `Chat zwischen ${name1} und ${name2}`;
-  //   const sanitizedName = displayName
-  //     .replace(/[\/\.\#\$\[\]]/g, ' ')
-  //     .replace(/\s+/g, ' ');
-      
-  //   return sanitizedName;
-  // }
-
 generateChatId(email1: string, email2: string): string {
   const sortedEmails = [email1, email2].sort();
   return `${sortedEmails[0]}_${sortedEmails[1]}`;
 }
 
 
+createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
+  const encodedChatId = encodeURIComponent(chatId);
+  const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
 
-  createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
-    const encodedChatId = encodeURIComponent(chatId);
-    const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
-    
-    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
-    
-    const firestoreFormattedChat = {
-      fields: {
-        participants: { 
-          arrayValue: { 
-            values: participants.map(p => ({ stringValue: p })) 
-          } 
-        },
-        participantNames: { 
-          arrayValue: { 
-            values: participantNames.map(name => ({ stringValue: name })) 
-          } 
-        },
-        displayName: { 
-          stringValue: displayName
-        },
-        createdAt: { timestampValue: new Date().toISOString() }
-      }
-    };
-    
-    return firstValueFrom(this.http.post(url, firestoreFormattedChat));
-  }
+  const firestoreFormattedChat = this.formatChatForFirestore(participants, participantNames);
 
-  createChatAlt(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
-    const encodedChatId = encodeURIComponent(chatId);
-    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
+  return firstValueFrom(this.http.post(url, firestoreFormattedChat));
+}
+
+private formatChatForFirestore(participants: string[], participantNames: string[]) {
+  const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+  return {
+    fields: {
+      participants: { 
+        arrayValue: { 
+          values: participants.map(p => ({ stringValue: p })) 
+        } 
+      },
+      participantNames: { 
+        arrayValue: { 
+          values: participantNames.map(name => ({ stringValue: name })) 
+        } 
+      },
+      displayName: { stringValue: displayName },
+      createdAt: { timestampValue: new Date().toISOString() }
+    }
+  };
+}
+
+    // auskommentiert weil funktion wird nicht benötigt
+
+  // createChatAlt(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
+  //   const encodedChatId = encodeURIComponent(chatId);
+  //   const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
     
-    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+  //   const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
     
-    const firestoreFormattedChat = {
-      fields: {
-        participants: { 
-          arrayValue: { 
-            values: participants.map(p => ({ stringValue: p })) 
-          } 
-        },
-        participantNames: { 
-          arrayValue: { 
-            values: participantNames.map(name => ({ stringValue: name })) 
-          } 
-        },
-        displayName: { 
-          stringValue: displayName
-        },
-        createdAt: { timestampValue: new Date().toISOString() }
-      }
-    };
+  //   const firestoreFormattedChat = {
+  //     fields: {
+  //       participants: { 
+  //         arrayValue: { 
+  //           values: participants.map(p => ({ stringValue: p })) 
+  //         } 
+  //       },
+  //       participantNames: { 
+  //         arrayValue: { 
+  //           values: participantNames.map(name => ({ stringValue: name })) 
+  //         } 
+  //       },
+  //       displayName: { 
+  //         stringValue: displayName
+  //       },
+  //       createdAt: { timestampValue: new Date().toISOString() }
+  //     }
+  //   };
     
-    return firstValueFrom(this.http.put(url, firestoreFormattedChat));
-  }
+  //   return firstValueFrom(this.http.put(url, firestoreFormattedChat));
+  // }
 
   createChannel(channelName: string): Promise<void> {
     const url = `${this.urlService.BASE_URL}/channels`;

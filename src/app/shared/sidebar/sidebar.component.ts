@@ -120,50 +120,84 @@ export class SidebarComponent implements OnInit {
     }).catch((error) => {});
   }
 
-  async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
-    const currentUser = await firstValueFrom(this.userService.user$);
-    const currentUserName = currentUser?.name || 'Unbekannt';
+
+    // auskommentiert weil part mit der funktion createChatAlt() wird nicht benötigt
+
+  // async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
+  //   const currentUser = await firstValueFrom(this.userService.user$);
+  //   const currentUserName = currentUser?.name || 'Unbekannt';
     
-    const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
+  //   const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
     
-    try {
+  //   try {
+  //     try {
+  //       const chatDoc = await firstValueFrom(this.firestore.getChatById(chatId));
+  //       this.navigateToChat(chatId, otherName, otherAvatar);
+  //     } 
+  //     catch (getError) {
+  //       if ((getError as { status: number }).status === 404) {
+  //         try {
+  //           await this.firestore.createChat(
+  //             chatId,
+  //             [this.currentUserEmail, otherEmail],
+  //             [currentUserName, otherName]
+  //           );
+  //           this.navigateToChat(chatId, otherName, otherAvatar);
+  //         } 
+  //         catch (createError1) {
+  //           try {
+  //             await this.firestore.createChatAlt(
+  //               chatId,
+  //               [this.currentUserEmail, otherEmail],
+  //               [currentUserName, otherName]
+  //             );
+  //             this.navigateToChat(chatId, otherName, otherAvatar);
+  //           } 
+  //           catch (createError2) {
+  //             alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
+  //           }
+  //         }
+  //       } 
+  //       else {
+  //         alert('Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.');
+  //       }
+  //     }
+  //   } 
+  //   catch (error) {
+  //     alert('Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später erneut.');
+  //   }
+  // }
+
+async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
+  const currentUser = await firstValueFrom(this.userService.user$);
+  const currentUserName = currentUser?.name || 'Unbekannt';
+
+  const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
+
+  try {
+    await firstValueFrom(this.firestore.getChatById(chatId));
+    this.navigateToChat(chatId, otherName, otherAvatar);
+  } catch (getError) {
+    const status = (getError as { status?: number })?.status;
+
+    if (status === 404) {
       try {
-        const chatDoc = await firstValueFrom(this.firestore.getChatById(chatId));
+        await this.firestore.createChat(
+          chatId,
+          [this.currentUserEmail, otherEmail],
+          [currentUserName, otherName]
+        );
         this.navigateToChat(chatId, otherName, otherAvatar);
-      } 
-      catch (getError) {
-        if ((getError as { status: number }).status === 404) {
-          try {
-            await this.firestore.createChat(
-              chatId,
-              [this.currentUserEmail, otherEmail],
-              [currentUserName, otherName]
-            );
-            this.navigateToChat(chatId, otherName, otherAvatar);
-          } 
-          catch (createError1) {
-            try {
-              await this.firestore.createChatAlt(
-                chatId,
-                [this.currentUserEmail, otherEmail],
-                [currentUserName, otherName]
-              );
-              this.navigateToChat(chatId, otherName, otherAvatar);
-            } 
-            catch (createError2) {
-              alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
-            }
-          }
-        } 
-        else {
-          alert('Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.');
-        }
+      } catch (createError) {
+        alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
       }
-    } 
-    catch (error) {
-      alert('Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später erneut.');
+    } else {
+      alert('Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.');
     }
   }
+}
+
+
 
   private navigateToChat(chatId: string, otherName: string, otherAvatar: string) {
     this.router.navigate(['/directMessage', chatId], {
