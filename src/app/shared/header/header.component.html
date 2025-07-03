@@ -23,10 +23,14 @@
       </div>
       <button class="dropdown-btn"></button>
       <mat-menu #profileMenu="matMenu" panelClass="profile-dropdown-menu">
-        <button mat-menu-item (click)="openProfileDialog()">
+        <button
+          class="profileButtonFont"
+          mat-menu-item
+          (click)="openProfileDialog()"
+        >
           <span class="mat-mdc-menu-item-text"> Profil </span>
         </button>
-        <button mat-menu-item (click)="LogOut()">
+        <button class="profileButtonFont" mat-menu-item (click)="LogOut()">
           <span class="mat-mdc-menu-item-text"> Log out </span>
         </button>
       </mat-menu>
