@@ -1,0 +1,48 @@
+<!-- thread/thread.component.html -->
+<div class="thread-container">
+    <div class="thread-header">
+      <span class="thread-title">Thread</span>
+      <span *ngIf="channelId || chatId" class="thread-subtitle">
+        # {{ channelId || 'Chat' }}
+      </span>
+      <button class="close-button" (click)="closeThread()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <div class="thread-content">
+      <div *ngIf="parentMessage" class="parent-message">
+        <div class="message-header">
+          <span class="sender-name">{{ parentMessage.senderId }}</span>
+          <span class="timestamp">{{ parentMessage.timestamp | date:'dd.MM.yyyy HH:mm' }}</span>
+        </div>
+        <div class="message-text">{{ parentMessage.text }}</div>
+      </div>
+  
+      <div class="replies-count" *ngIf="replies.length > 0">
+        {{ replies.length }} {{ replies.length === 1 ? 'Antwort' : 'Antworten' }}
+      </div>
+  
+      <div class="replies-container">
+        <div *ngFor="let reply of replies" class="reply-message">
+          <div class="message-header">
+            <span class="sender-name">{{ reply.senderId }}</span>
+            <span class="timestamp">{{ reply.timestamp | date:'dd.MM.yyyy HH:mm' }}</span>
+          </div>
+          <div class="message-text">{{ reply.text }}</div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="reply-input">
+      <input 
+        type="text" 
+        [(ngModel)]="newReplyText" 
+        placeholder="Antworten..." 
+        (keyup.enter)="sendReply()"
+      />
+      <button [disabled]="!newReplyText.trim()" (click)="sendReply()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </div>

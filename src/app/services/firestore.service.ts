@@ -1,8 +1,9 @@
+// services/firestore.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UrlService } from './url.service';
 import { Observable } from 'rxjs';
-import { Message } from '../../models/message.model';
+import { Message, ThreadReply } from '../models/message.model';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -53,70 +54,39 @@ export class FirestoreService {
     return this.http.get(url);
   }
 
-generateChatId(email1: string, email2: string): string {
-  const sortedEmails = [email1, email2].sort();
-  return `${sortedEmails[0]}_${sortedEmails[1]}`;
-}
+  generateChatId(email1: string, email2: string): string {
+    const sortedEmails = [email1, email2].sort();
+    return `${sortedEmails[0]}_${sortedEmails[1]}`;
+  }
 
+  createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
 
-createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
-  const encodedChatId = encodeURIComponent(chatId);
-  const url = `${this.urlService.BASE_URL}/chats?documentId=${encodedChatId}`;
+    const firestoreFormattedChat = this.formatChatForFirestore(participants, participantNames);
 
-  const firestoreFormattedChat = this.formatChatForFirestore(participants, participantNames);
+    return firstValueFrom(this.http.post(url, firestoreFormattedChat));
+  }
 
-  return firstValueFrom(this.http.post(url, firestoreFormattedChat));
-}
-
-private formatChatForFirestore(participants: string[], participantNames: string[]) {
-  const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
-  return {
-    fields: {
-      participants: { 
-        arrayValue: { 
-          values: participants.map(p => ({ stringValue: p })) 
-        } 
-      },
-      participantNames: { 
-        arrayValue: { 
-          values: participantNames.map(name => ({ stringValue: name })) 
-        } 
-      },
-      displayName: { stringValue: displayName },
-      createdAt: { timestampValue: new Date().toISOString() }
-    }
-  };
-}
-
-    // auskommentiert weil funktion wird nicht benötigt
-
-  // createChatAlt(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
-  //   const encodedChatId = encodeURIComponent(chatId);
-  //   const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}`;
-    
-  //   const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
-    
-  //   const firestoreFormattedChat = {
-  //     fields: {
-  //       participants: { 
-  //         arrayValue: { 
-  //           values: participants.map(p => ({ stringValue: p })) 
-  //         } 
-  //       },
-  //       participantNames: { 
-  //         arrayValue: { 
-  //           values: participantNames.map(name => ({ stringValue: name })) 
-  //         } 
-  //       },
-  //       displayName: { 
-  //         stringValue: displayName
-  //       },
-  //       createdAt: { timestampValue: new Date().toISOString() }
-  //     }
-  //   };
-    
-  //   return firstValueFrom(this.http.put(url, firestoreFormattedChat));
-  // }
+  private formatChatForFirestore(participants: string[], participantNames: string[]) {
+    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+    return {
+      fields: {
+        participants: { 
+          arrayValue: { 
+            values: participants.map(p => ({ stringValue: p })) 
+          } 
+        },
+        participantNames: { 
+          arrayValue: { 
+            values: participantNames.map(name => ({ stringValue: name })) 
+          } 
+        },
+        displayName: { stringValue: displayName },
+        createdAt: { timestampValue: new Date().toISOString() }
+      }
+    };
+  }
 
   createChannel(channelName: string): Promise<void> {
     const url = `${this.urlService.BASE_URL}/channels`;
@@ -152,4 +122,84 @@ private formatChatForFirestore(participants: string[], participantNames: string[
 
     return firstValueFrom(this.http.post(url, firestoreFormattedMessage));
   }
+
+  getThreadMessages(messageId: string): Observable<any> {
+    const url = `${this.urlService.BASE_URL}/messages/${messageId}/thread`;
+    return this.http.get(url);
+  }
+
+  async addReplyToThread(messageId: string, reply: ThreadReply): Promise<any> {
+    const url = `${this.urlService.BASE_URL}/messages/${messageId}/thread`;
+
+    const firestoreFormattedMessage = {
+      fields: {
+        text: { stringValue: reply.text },
+        senderId: { stringValue: reply.senderId },
+        timestamp: { timestampValue: reply.timestamp.toISOString() },
+        threadId: { stringValue: messageId },
+        // Falls Avatar-URL vorhanden ist
+        avatar: reply.avatar ? { stringValue: reply.avatar } : { nullValue: null }
+      }
+    };
+
+    try {
+      const response = await firstValueFrom(this.http.post(url, firestoreFormattedMessage));
+      
+      // Nach erfolgreicher Antwort: Zähler der ursprünglichen Nachricht erhöhen
+      await this.updateThreadRepliesCount(messageId);
+      
+      return response;
+    } catch (error) {
+      console.error('Fehler beim Hinzufügen einer Thread-Antwort:', error);
+      throw error;
+    }
+  }
+
+  async updateThreadRepliesCount(messageId: string): Promise<any> {
+    // Zuerst aktuelle Antworten zählen
+    const threadResponse = await firstValueFrom(this.getThreadMessages(messageId));
+    const documents = threadResponse?.documents || [];
+    const count = documents.length;
+    
+    const url = `${this.urlService.BASE_URL}/messages/${messageId}`;
+    
+    const updateData = {
+      fields: {
+        threadRepliesCount: { integerValue: count }
+      }
+    };
+    
+    return firstValueFrom(this.http.patch(url, updateData));
+  }
+
+  async updateMessageReactions(chatId: string, messageId: string, reactions: any[]): Promise<any> {
+    const url = `${this.urlService.BASE_URL}/chats/${chatId}/messages/${messageId}`;
+    
+    const reactionsArray = reactions.map(reaction => ({
+      mapValue: {
+        fields: {
+          emoji: { stringValue: reaction.emoji },
+          count: { integerValue: reaction.count.toString() },
+          users: { 
+            arrayValue: { 
+              values: reaction.users.map((user: string) => ({ stringValue: user })) 
+            } 
+          }
+        }
+      }
+    }));
+    
+    const updateData = {
+      fields: {
+        reactions: { 
+          arrayValue: { 
+            values: reactionsArray 
+          } 
+        }
+      }
+    };
+    
+    return this.http.patch(url, updateData).toPromise();
+  }
 }
+
