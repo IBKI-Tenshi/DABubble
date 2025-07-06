@@ -14,6 +14,7 @@ import { AvatarService } from '../../services/avatar.service';
 import { UserDataService, UserProfile } from '../../services/user_data.service';
 import { ChatNavigationService } from '../../services/chat-navigation.service';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { AddChannelComponent } from "../../add-channel/add-channel.component";
 
 @Component({
   selector: 'app-sidebar',
@@ -28,7 +29,8 @@ import { firstValueFrom, Subscription } from 'rxjs';
     MatButtonModule,
     MatDialogModule,
     MatDrawer,
-  ],
+    AddChannelComponent
+],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })

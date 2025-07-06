@@ -22,6 +22,6 @@ export const routes: Routes = [
   { path: 'password', component: PasswordEmailComponent },
   { path: 'passwordReset', component: PasswordResetComponent },
   { path: 'channelChat/:channelId', component: ChannelChatComponent },
-
+  
   { path: '**', redirectTo: '' },
 ];
