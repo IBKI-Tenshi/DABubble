@@ -35,7 +35,8 @@ import { AddChannelComponent } from "../../add-channel/add-channel.component";
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent implements OnInit {
-  showChannels = false;
+  showChannels: boolean = false;
+  showAddChannel: boolean = false;
   showDMs: boolean = false;
   users: any[] = [];
   chats: any[] = [];
@@ -109,7 +110,7 @@ export class SidebarComponent implements OnInit {
   }
 
   addChannel(event?: MouseEvent) {
-    this.showChannels = true;
+    this.showAddChannel = true;
     event?.stopPropagation();
 
     // const newChannelName = prompt('Name des neuen Channels eingeben:');

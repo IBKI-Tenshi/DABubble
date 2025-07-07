@@ -23,8 +23,8 @@
 
         <img src="/assets/icons/channels.svg" alt="" />
         Channels
-        <button class="add-channel-top-button" (click)="addChannel($event)">
-          <mat-icon>add</mat-icon>
+        <button class="add-channel-top-button">
+          <mat-icon (click)="addChannel()">add</mat-icon>
         </button>
       </li>
 
@@ -36,7 +36,7 @@
           </a>
         </li>
 
-        <li class="add-channel" (click)="addChannel()">
+        <li class="add-channel">
           <mat-icon>add</mat-icon>
           Channel hinzufügen
         </li>
@@ -87,6 +87,6 @@
   </mat-drawer>
 </div>
 
-@if (showChannels) {
-<app-add-channel></app-add-channel>
+@if (showAddChannel) {
+<app-add-channel [(showAddChannel)]="showAddChannel"></app-add-channel>
 }
