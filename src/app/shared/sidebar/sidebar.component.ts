@@ -109,17 +109,18 @@ export class SidebarComponent implements OnInit {
   }
 
   addChannel(event?: MouseEvent) {
+    this.showChannels = true;
     event?.stopPropagation();
 
-    const newChannelName = prompt('Name des neuen Channels eingeben:');
-    if (!newChannelName || newChannelName.trim().length === 0) {
-      return;
-    }
+    // const newChannelName = prompt('Name des neuen Channels eingeben:');
+    // if (!newChannelName || newChannelName.trim().length === 0) {
+    //   return;
+    // }
 
-    const trimmedName = newChannelName.trim();
-    this.firestore.createChannel(trimmedName).then(() => {
-      this.channels.push(trimmedName);
-    }).catch((error) => {});
+    // const trimmedName = newChannelName.trim();
+    // this.firestore.createChannel(trimmedName).then(() => {
+    //   this.channels.push(trimmedName);
+    // }).catch((error) => {});
   }
 
 
