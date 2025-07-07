@@ -88,5 +88,8 @@
 </div>
 
 @if (showAddChannel) {
-<app-add-channel [(showAddChannel)]="showAddChannel"></app-add-channel>
+<app-add-channel
+  [(showAddChannel)]="showAddChannel"
+  (channelName)="onChannelAdded($event)"
+></app-add-channel>
 }

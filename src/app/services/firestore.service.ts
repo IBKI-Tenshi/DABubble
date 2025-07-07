@@ -88,7 +88,7 @@ export class FirestoreService {
     };
   }
 
-  createChannel(channelName: string): Promise<void> {
+  createChannel(channelName: string, description?: any): Promise<void> {
     const url = `${this.urlService.BASE_URL}/channels`;
 
     const newChannel = {

@@ -13,6 +13,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { IntroComponent } from "./intro/intro.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +31,9 @@ import { IntroComponent } from "./intro/intro.component";
     MatButtonModule,
     HeaderComponent,
     SidebarComponent,
-    IntroComponent
+    IntroComponent,
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

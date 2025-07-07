@@ -15,6 +15,8 @@ import { UserDataService, UserProfile } from '../../services/user_data.service';
 import { ChatNavigationService } from '../../services/chat-navigation.service';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { AddChannelComponent } from "../../add-channel/add-channel.component";
+import { collection } from 'firebase/firestore';
+import { collectionData } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-sidebar',
@@ -112,6 +114,8 @@ export class SidebarComponent implements OnInit {
   addChannel(event?: MouseEvent) {
     this.showAddChannel = true;
     event?.stopPropagation();
+    console.log(22);
+    
 
     // const newChannelName = prompt('Name des neuen Channels eingeben:');
     // if (!newChannelName || newChannelName.trim().length === 0) {
@@ -122,6 +126,14 @@ export class SidebarComponent implements OnInit {
     // this.firestore.createChannel(trimmedName).then(() => {
     //   this.channels.push(trimmedName);
     // }).catch((error) => {});
+  }
+
+    onChannelAdded(newChannelName: string) {
+    // this.channels.push(newChannelName);
+
+       this.firestore.createChannel(newChannelName).then(() => {
+      this.channels.push(newChannelName);
+    }).catch((error) => {});
   }
 
 
