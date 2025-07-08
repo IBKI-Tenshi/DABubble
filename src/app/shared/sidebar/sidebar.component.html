@@ -24,7 +24,9 @@
         <img src="/assets/icons/channels.svg" alt="" />
         Channels
         <button class="add-channel-top-button">
-          <mat-icon (click)="addChannel()">add</mat-icon>
+          <mat-icon (click)="$event.stopPropagation(); addChannel()"
+            >add</mat-icon
+          >
         </button>
       </li>
 
@@ -36,7 +38,7 @@
           </a>
         </li>
 
-        <li class="add-channel">
+        <li (click)="addChannel()" class="add-channel">
           <mat-icon>add</mat-icon>
           Channel hinzufügen
         </li>
