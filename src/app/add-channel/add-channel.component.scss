@@ -402,6 +402,11 @@ label {
   }
 }
 
+.create-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .button-icon {
   transition: transform 0.3s ease;
   font-size: 18px;

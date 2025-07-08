@@ -25,10 +25,10 @@ export class AddChannelComponent  implements OnChanges {
  }
 
  ngOnInit() {
-this.channelForm = this.fb.group({
-  name: [''],
-  description: ['']
-});
+  this.channelForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+    description: ['']
+  });
  }
 
   ngOnChanges(changes: SimpleChanges): void {

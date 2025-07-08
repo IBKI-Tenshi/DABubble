@@ -28,13 +28,18 @@
             />
           </div>
 
+          @if(channelForm.get('name')?.touched &&
+          channelForm.get('name')?.invalid){
           <div class="validation-feedback">
+            @if (channelForm.get('name')?.errors?.['required']) {
             <span>Ein Channelname wird benötigt.</span>
-
+            } @if (channelForm.get('name')?.errors?.['minlength']) {
             <span>Der Name muss mindestens 3 Zeichen lang sein.</span>
-
+            } @if (channelForm.get('name')?.errors?.['maxlength']) {
             <span>Der Name darf maximal 20 Zeichen lang sein.</span>
+            }
           </div>
+          }
         </div>
 
         <div class="form-group">
@@ -53,7 +58,12 @@
           <button type="button" class="cancel-button" (click)="closeModal()">
             Abbrechen
           </button>
-          <button type="button" class="create-button" (click)="addChannel()">
+          <button
+            type="button"
+            class="create-button"
+            [disabled]="channelForm.invalid"
+            (click)="addChannel()"
+          >
             <span class="button-text">Erstellen</span>
           </button>
         </div>
