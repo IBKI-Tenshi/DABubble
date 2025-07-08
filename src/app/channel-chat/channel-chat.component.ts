@@ -19,6 +19,12 @@ interface GroupedMessages {
   messages: Message[];
 }
 
+interface Reaction {
+  emoji: string;
+  count: number;
+  users: string[];
+}
+
 @Component({
   selector: 'app-channel-chat',
   standalone: true,
@@ -28,7 +34,7 @@ interface GroupedMessages {
     MatIconModule,
     DatePipe
   ],
-  providers: [DatePipe], // DatePipe als Provider hinzufügen
+  providers: [DatePipe],
   templateUrl: './channel-chat.component.html',
   styleUrls: ['./channel-chat.component.scss']
 })
@@ -43,15 +49,17 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
   channelName: string = 'Entwicklerteam';
   channelMembers: ChannelMember[] = [];
   
-  // Thread-Funktionalität
   activeThreadMessage: Message | null = null;
   showThread: boolean = false;
   threadReplies: ThreadReply[] = [];
+  showReactionPicker: boolean = false;
+  messageForReaction: Message | ThreadReply | null = null;
   
-  // Status-Flags
   isSending: boolean = false;
   isSendingReply: boolean = false;
   hasMessages: boolean = false;
+  
+  availableEmojis: string[] = ['👍', '❤️', '😂', '😮', '😢', '👏', '🎉', '🤔'];
 
   private routeSub!: Subscription;
   private messageSub!: Subscription;
@@ -89,7 +97,6 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
   }
 
   loadChannelMembers(): void {
-    // Mock-Daten für die Mitglieder
     this.channelMembers = [
       { name: 'Frederik Beck', avatar: '/assets/img/dummy_pic.png' },
       { name: 'Noah Braun', avatar: '/assets/img/dummy_pic.png' },
@@ -109,22 +116,12 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
       this.messageSub.unsubscribe();
     }
   
-    if (!this.channelId) {
-      console.error('Keine Channel-ID vorhanden!');
-      return;
-    }
-  
-    console.log(`Lade Nachrichten für Channel ${this.channelId}...`);
-  
+    if (!this.channelId) return;
+
     this.messageSub = this.firestoreService.getChannelMessages(this.channelId)
       .subscribe({
         next: (response: any) => {
-          console.log('Channel-Nachrichten erhalten:', response);
           const documents = response?.documents || [];
-  
-          if (documents.length === 0) {
-            console.log(`Keine Nachrichten für Channel ${this.channelId} gefunden.`);
-          }
   
           this.messages = documents.map((doc: any) => {
             return {
@@ -135,25 +132,50 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
               threadRepliesCount: doc.fields.threadRepliesCount?.integerValue 
                 ? parseInt(doc.fields.threadRepliesCount.integerValue) : 0,
               avatar: doc.fields.avatar?.stringValue || this.getAvatarForUser(doc.fields.senderId.stringValue),
-              reactions: doc.fields.reactions?.arrayValue?.values || []
+              reactions: this.parseReactions(doc.fields.reactions)
             };
           }).sort((a: Message, b: Message) => a.timestamp.getTime() - b.timestamp.getTime());
   
-          console.log(`${this.messages.length} Nachrichten für Channel ${this.channelId} geladen.`);
           this.hasMessages = this.messages.length > 0;
+          
+          if (!this.hasMessages) {
+            this.addDemoMessage();
+          }
+          
           this.groupMessagesByDate();
         },
-        error: (error) => {
-          console.error(`Fehler beim Laden der Nachrichten für Channel ${this.channelId}:`, error);
-        }
+        error: (error) => { }
       });
   }
   
+  parseReactions(reactionsField: any): Reaction[] {
+    if (!reactionsField?.arrayValue?.values) return [];
+    
+    return reactionsField.arrayValue.values.map((r: any) => ({
+      emoji: r.mapValue.fields.emoji.stringValue,
+      count: parseInt(r.mapValue.fields.count.integerValue),
+      users: r.mapValue.fields.users.arrayValue.values.map((u: any) => u.stringValue)
+    }));
+  }
+  
+  addDemoMessage(): void {
+    this.messages = [
+      {
+        id: '1',
+        senderId: 'Noah Braun',
+        text: 'Welche Version ist aktuell von Angular?',
+        timestamp: new Date('2023-01-14T14:25:00'),
+        avatar: '/assets/img/dummy_pic.png',
+        threadRepliesCount: 2,
+        reactions: []
+      }
+    ];
+    this.hasMessages = true;
+  }
+  
   groupMessagesByDate(): void {
-    // Nachrichten nach Datum gruppieren
     const groupedObj: { [key: string]: GroupedMessages } = {};
     
-    // Wenn keine Nachrichten vorhanden sind
     if (this.messages.length === 0) {
       this.groupedMessages = [];
       return;
@@ -161,11 +183,10 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
     
     for (const message of this.messages) {
       const date = new Date(message.timestamp);
-      date.setHours(0, 0, 0, 0); // Nur Datum ohne Zeit
+      date.setHours(0, 0, 0, 0);
       
       const dateStr = date.toISOString();
       
-      // Datumsbezeichnung erstellen
       let dateLabel: string;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -178,9 +199,12 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
       } else if (date.getTime() === yesterday.getTime()) {
         dateLabel = 'Gestern';
       } else {
-        // Format: Dienstag, 14 Januar
-        dateLabel = this.datePipe.transform(date, 'EEEE, d MMMM', '', 'de') || '';
-        // Erster Buchstabe groß
+        const options: Intl.DateTimeFormatOptions = { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long' 
+        };
+        dateLabel = date.toLocaleDateString('de-DE', options);
         dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
       }
       
@@ -195,7 +219,6 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
       groupedObj[dateStr].messages.push(message);
     }
     
-    // In Array umwandeln und nach Datum sortieren
     this.groupedMessages = Object.values(groupedObj).sort(
       (a, b) => a.date.getTime() - b.date.getTime()
     );
@@ -225,51 +248,77 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
       text: this.newMessageText,
       senderId: this.senderName,
       timestamp: new Date(),
-      avatar: this.senderAvatar
+      avatar: this.senderAvatar,
+      reactions: []
     };
 
-    // Text zwischenspeichern und Feld leeren
     const messageText = this.newMessageText;
     this.newMessageText = '';
     
     try {
-      // Lokale Nachricht anzeigen
       const tempId = Date.now().toString();
-      this.messages.push({ ...newMessage, id: tempId });
+      newMessage.id = tempId;
+      this.messages.push(newMessage);
       this.hasMessages = true;
-      
-      // Nachrichten nach Datum gruppieren
       this.groupMessagesByDate();
       
-      // Server-Speicherung (hier simuliert)
-      setTimeout(() => {
-        console.log('Nachricht erfolgreich gesendet');
-        this.isSending = false;
-      }, 500);
+      await this.firestoreService.addMessageToChannel(this.channelId, newMessage);
     } catch (error) {
-      console.error('Fehler beim Senden der Nachricht:', error);
       this.newMessageText = messageText;
+    } finally {
       this.isSending = false;
     }
   }
   
   openThread(message: Message): void {
+    console.log('Thread öffnen für Nachricht:', message);
     this.activeThreadMessage = message;
     this.showThread = true;
-    this.loadThreadReplies(message.id);
+    
+    if (message.id) {
+      this.loadThreadReplies(message.id);
+    }
   }
   
   loadThreadReplies(messageId?: string): void {
     if (!messageId) return;
     
-    // Beispiel-Thread-Antworten
+    if (this.threadSub) {
+      this.threadSub.unsubscribe();
+    }
+    
+    this.threadSub = this.firestoreService.getThreadMessages(messageId).subscribe({
+      next: (response: any) => {
+        const documents = response?.documents || [];
+        
+        this.threadReplies = documents.map((doc: any) => {
+          return {
+            id: doc.name.split('/').pop(),
+            senderId: doc.fields.senderId.stringValue,
+            text: doc.fields.text.stringValue,
+            timestamp: new Date(doc.fields.timestamp.timestampValue),
+            threadId: doc.fields.threadId.stringValue,
+            avatar: doc.fields.avatar?.stringValue || this.getAvatarForUser(doc.fields.senderId.stringValue),
+            reactions: this.parseReactions(doc.fields.reactions)
+          };
+        }).sort((a: ThreadReply, b: ThreadReply) => a.timestamp.getTime() - b.timestamp.getTime());
+        
+        if (this.threadReplies.length === 0) {
+          this.addDemoThreadReplies(messageId);
+        }
+      },
+      error: (error) => {}
+    });
+  }
+  
+  addDemoThreadReplies(messageId: string): void {
     this.threadReplies = [
       {
         id: '2',
         senderId: 'Sofia Müller',
         text: 'Ich habe die gleiche Frage. Ich habe gegoogelt und es scheint, dass die aktuelle Version Angular 13 ist. Vielleicht weiß Frederik, ob es wahr ist.',
         timestamp: new Date('2023-01-14T14:30:00'),
-        threadId: '1',
+        threadId: messageId,
         avatar: '/assets/img/dummy_pic.png',
         reactions: []
       },
@@ -278,7 +327,7 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
         senderId: 'Frederik Beck',
         text: 'Ja das ist es.',
         timestamp: new Date('2023-01-14T15:06:00'),
-        threadId: '1',
+        threadId: messageId,
         avatar: '/assets/img/dummy_pic.png',
         reactions: [{ emoji: '👍', count: 1, users: ['Sofia Müller'] }]
       }
@@ -289,6 +338,64 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
     this.activeThreadMessage = null;
     this.showThread = false;
     this.threadReplies = [];
+    if (this.threadSub) {
+      this.threadSub.unsubscribe();
+    }
+  }
+  
+  openReactionPicker(message: Message | ThreadReply): void {
+    this.messageForReaction = message;
+    this.showReactionPicker = true;
+  }
+  
+  closeReactionPicker(): void {
+    this.showReactionPicker = false;
+    this.messageForReaction = null;
+  }
+  
+  addReaction(emoji: string): void {
+    if (!this.messageForReaction || !this.messageForReaction.id) return;
+    
+    const message = this.messageForReaction;
+    this.closeReactionPicker();
+    
+    if (!message.reactions) {
+      message.reactions = [];
+    }
+    
+    const existingReaction = message.reactions.find(r => r.emoji === emoji);
+    
+    if (existingReaction) {
+      if (existingReaction.users.includes(this.senderName)) {
+        existingReaction.users = existingReaction.users.filter(user => user !== this.senderName);
+        existingReaction.count--;
+        
+        if (existingReaction.count <= 0) {
+          message.reactions = message.reactions.filter(r => r.emoji !== emoji);
+        }
+      } else {
+        existingReaction.users.push(this.senderName);
+        existingReaction.count++;
+      }
+    } else {
+      message.reactions.push({
+        emoji: emoji,
+        count: 1,
+        users: [this.senderName]
+      });
+    }
+    
+    this.updateReactions(message);
+  }
+  
+  updateReactions(message: Message | ThreadReply): void {
+    if (!message.id) return;
+    
+    if ('threadId' in message && message.threadId) {
+      this.firestoreService.updateThreadReply(message.threadId, message.id, { reactions: message.reactions });
+    } else {
+      this.firestoreService.updateChannelMessage(this.channelId, message.id, { reactions: message.reactions });
+    }
   }
   
   async sendThreadReply(): Promise<void> {
@@ -306,24 +413,22 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
       reactions: []
     };
     
-    // Text zwischenspeichern und Feld leeren
     const replyText = this.threadReplyText;
     this.threadReplyText = '';
     
     try {
-      // Lokale Anzeige aktualisieren
       this.threadReplies.push(reply);
       
-      // Server-Speicherung (hier simuliert)
-      setTimeout(() => {
-        if (this.activeThreadMessage) {
-          this.activeThreadMessage.threadRepliesCount = (this.activeThreadMessage.threadRepliesCount || 0) + 1;
-        }
-        this.isSendingReply = false;
-      }, 500);
+      await this.firestoreService.addReplyToThread(this.activeThreadMessage.id, reply);
+      
+      if (this.activeThreadMessage) {
+        this.activeThreadMessage.threadRepliesCount = (this.activeThreadMessage.threadRepliesCount || 0) + 1;
+        await this.firestoreService.updateThreadRepliesCount(this.activeThreadMessage.id);
+      }
     } catch (error) {
-      console.error('Fehler beim Senden der Antwort:', error);
       this.threadReplyText = replyText;
+      this.threadReplies = this.threadReplies.filter(r => r.id !== reply.id);
+    } finally {
       this.isSendingReply = false;
     }
   }

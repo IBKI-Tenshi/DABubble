@@ -10,9 +10,12 @@
     display: flex;
     flex-direction: column;
     background-color: #fff;
+    
+    &.with-thread {
+      width: calc(100% - 350px);
+    }
   }
   
-  /* Channel Header */
   .channel-header {
     display: flex;
     justify-content: space-between;
@@ -28,7 +31,7 @@
   
   .hash {
     font-size: 18px;
-    margin-right: 5px;
+    margin-right: 4px;
   }
   
   .channel-name {
@@ -89,7 +92,6 @@
     padding: 0;
   }
   
-  /* Messages Area */
   .messages-area {
     flex: 1;
     display: flex;
@@ -139,6 +141,12 @@
   
   .message-content {
     flex: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
   }
   
   .message-header {
@@ -163,13 +171,85 @@
     margin-bottom: 4px;
   }
   
-  .thread-link {
-    font-size: 12px;
-    color: #1976d2;
-    cursor: pointer;
+  .reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  
+  .reaction-bubble {
     display: flex;
     align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #e0e0e0;
+    }
+    
+    &.add-reaction {
+      padding: 2px;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+      }
+    }
+  }
+  
+  .emoji {
+    margin-right: 2px;
+  }
+  
+  .count {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .message-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
     margin-top: 4px;
+    
+    .message-content:hover & {
+      opacity: 1;
+    }
+  }
+  
+  .reaction-button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+    }
+    
+    &:hover {
+      color: #1976d2;
+    }
+  }
+  
+  .thread-link {
+    color: #1976d2;
+    font-size: 13px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
     
     &:hover {
       text-decoration: underline;
@@ -181,79 +261,6 @@
     margin-left: 8px;
   }
   
-  /* Message Editor */
-  .message-editor {
-    background-color: #f0f2f5;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  
-  .message-textarea {
-    width: 100%;
-    min-height: 80px;
-    border: none;
-    background-color: transparent;
-    resize: none;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.5;
-    padding: 0;
-    margin-bottom: 8px;
-    outline: none;
-  }
-  
-  .editor-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .emoji-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-  }
-  
-  .editor-buttons {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .cancel-button {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 6px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    
-    &:hover {
-      background-color: #f5f5f5;
-    }
-  }
-  
-  .send-button {
-    background-color: #4e54ff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    
-    &:disabled {
-      background-color: #a8aab8;
-      cursor: not-allowed;
-    }
-    
-    &:hover:not(:disabled) {
-      background-color: darken(#4e54ff, 5%);
-    }
-  }
-  
-  /* Message Input */
   .message-input-container {
     display: flex;
     align-items: center;
@@ -307,11 +314,15 @@
     }
   }
   
-  /* Thread Sidebar */
   .thread-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
     width: 350px;
+    height: 100vh;
     background-color: #fff;
-    border-left: 1px solid #e0e0e0;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    z-index: 100;
     display: flex;
     flex-direction: column;
   }
@@ -376,33 +387,6 @@
     gap: 12px;
   }
   
-  .reactions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-  }
-  
-  .reaction-bubble {
-    display: flex;
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 12px;
-    padding: 2px 6px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  
-  .emoji {
-    margin-right: 2px;
-  }
-  
-  .count {
-    font-size: 12px;
-    color: #666;
-  }
-  
-  /* Thread Input */
   .thread-input-container {
     display: flex;
     align-items: center;
@@ -418,4 +402,62 @@
     padding: 8px 16px;
     outline: none;
     font-size: 14px;
+  }
+  
+  .emoji-picker {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  
+  .emoji-picker-content {
+    padding: 12px;
+    position: relative;
+  }
+  
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  
+  .emoji-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+  
+  .close-picker {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .reaction-bubble, .reaction-button {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .empty-message-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }

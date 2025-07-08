@@ -199,7 +199,68 @@ export class FirestoreService {
       }
     };
     
-    return this.http.patch(url, updateData).toPromise();
+    return firstValueFrom(this.http.patch(url, updateData));
   }
+
+  async updateChannelMessage(channelId: string, messageId: string, updateData: any): Promise<any> {
+    const url = `${this.urlService.BASE_URL}/channels/${channelId}/messages/${messageId}`;
+    
+    const firestoreData: any = { fields: {} };
+    
+    if (updateData.reactions) {
+      const reactionsArray = updateData.reactions.map((reaction: any) => ({
+        mapValue: {
+          fields: {
+            emoji: { stringValue: reaction.emoji },
+            count: { integerValue: reaction.count.toString() },
+            users: { 
+              arrayValue: { 
+                values: reaction.users.map((user: string) => ({ stringValue: user })) 
+              } 
+            }
+          }
+        }
+      }));
+      
+      firestoreData.fields.reactions = { 
+        arrayValue: { 
+          values: reactionsArray 
+        } 
+      };
+    }
+    
+    return firstValueFrom(this.http.patch(url, firestoreData));
+  }
+  
+  async updateThreadReply(threadId: string, replyId: string, updateData: any): Promise<any> {
+    const url = `${this.urlService.BASE_URL}/messages/${threadId}/thread/${replyId}`;
+    
+    const firestoreData: any = { fields: {} };
+    
+    if (updateData.reactions) {
+      const reactionsArray = updateData.reactions.map((reaction: any) => ({
+        mapValue: {
+          fields: {
+            emoji: { stringValue: reaction.emoji },
+            count: { integerValue: reaction.count.toString() },
+            users: { 
+              arrayValue: { 
+                values: reaction.users.map((user: string) => ({ stringValue: user })) 
+              } 
+            }
+          }
+        }
+      }));
+      
+      firestoreData.fields.reactions = { 
+        arrayValue: { 
+          values: reactionsArray 
+        } 
+      };
+    }
+    
+    return firstValueFrom(this.http.patch(url, firestoreData));
+  }
+  
 }
 
