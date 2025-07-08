@@ -187,14 +187,12 @@ h1 {
   padding-left: 50px;
   font-size: 16px;
   outline: none;
-
   background-repeat: no-repeat;
   background-position: 16px center;
   background-size: 24px 24px;
-
   box-sizing: border-box;
-
   color: #686868;
+  cursor: pointer;
 
   &:hover {
     border: 1px solid rgb(68, 77, 242);

@@ -9,10 +9,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
   span {
     font-weight: 700;
-    font-size: 32px;
+    font-size: 24px;
   }
 }
 
@@ -112,8 +111,8 @@ mat-toolbar-row {
 }
 
 .logo {
-  height: 40px;
-  width: 40px;
+  height: 70px;
+  width: 70px;
   padding: 8px;
 }
 
