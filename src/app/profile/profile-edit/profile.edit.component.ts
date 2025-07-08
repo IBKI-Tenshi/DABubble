@@ -54,9 +54,18 @@ export class ProfileEditComponent {
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.selectedAvatarIndex = data?.profile !== undefined ? data.profile : 0;
-    this.currentAvatar = data?.profileImage || this.avatarList[this.selectedAvatarIndex];
-
+    const profileImagePath = data?.profileImage || '';
+    let initialIndex = 0;
+    
+    if (profileImagePath) {
+      const matches = profileImagePath.match(/avatar_(\d+)\.png$/);
+      if (matches && matches[1]) {
+        initialIndex = parseInt(matches[1]) - 1; 
+      }
+    }
+    this.selectedAvatarIndex = initialIndex;
+    this.currentAvatar = this.avatarList[this.selectedAvatarIndex];
+  
     this.profileForm = new FormGroup({
       name: new FormControl(data?.name || '', [
         Validators.required,
@@ -89,35 +98,24 @@ export class ProfileEditComponent {
       this.profileForm.markAllAsTouched();
       return;
     }
-
+  
     this.isSubmitting = true;
     this.errorMessage = '';
-
+  
     try {
       const newName = this.profileForm.get('name')?.value;
-      const success = await this.userDataService.updateProfile({
+      const updatedData = {
         name: newName,
         profile: this.selectedAvatarIndex
-      });
-
+      };
+      const success = await this.userDataService.updateProfile(updatedData);
+  
       if (success) {
         this.snackBar.open('Profil gespeichert', 'OK', { duration: 2000 });
-
-        if (this.data.isGuest) {
-          localStorage.setItem('slack_clone_guest_name', newName);
-          localStorage.setItem('slack_clone_guest_profile_index', this.selectedAvatarIndex.toString());
-          console.log('✅ Gast-Profil im localStorage gespeichert:', {
-            name: newName,
-            profileIndex: this.selectedAvatarIndex
-          });
-        }
-
         this.dialogRef.close({
           name: newName,
-          email: this.data.email,
-          profileImage: this.currentAvatar,
-          profile: this.selectedAvatarIndex,
-          isGuest: this.data.isGuest
+          profileImage: this.avatarList[this.selectedAvatarIndex],
+          profile: this.selectedAvatarIndex
         });
       } else {
         this.errorMessage = 'Fehler beim Speichern des Profils';
