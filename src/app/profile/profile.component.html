@@ -8,22 +8,24 @@
       </div>
     </button>
   </div>
-  
+
   <div class="profile-info-image">
     <img [src]="profileImage" alt="User Image" />
   </div>
-  
+
   <div class="profile-info-name-status">
     <div class="profile-info-name-status-upper">
       <span class="profile-info-name">{{ userName }}</span>
-      <button class="edit-button" (click)="openEditProfile()">Bearbeiten</button>
+      <button class="edit-button" (click)="openEditProfile()">
+        Bearbeiten
+      </button>
     </div>
     <div class="profile-info-name-status-lower">
       <div class="active-circle"></div>
       <span>Aktiv</span>
     </div>
   </div>
-  
+
   <div class="profile-info-mail">
     <div class="profile-info-mail-title">
       <mat-icon>mail</mat-icon>
@@ -31,4 +33,14 @@
     </div>
     <a href="mailto:{{ userEmail }}">{{ userEmail }}</a>
   </div>
+  <!-- Button, um Usern eine Nachricht zu schicken. Wird gebraucht, wenn user das profil von anderen öffnet
+  <div class="messageBox"> 
+    <button class="sendMessage">
+      <img
+        src="../../assets/icons/profile/speech_bubble.svg"
+        alt="speech bubble"
+      />
+      <p>Nachricht</p>
+    </button>
+  </div> -->
 </div>

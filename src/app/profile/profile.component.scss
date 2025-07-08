@@ -13,7 +13,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   h3 {
     margin: 0;
     font-size: 24px;
@@ -28,31 +28,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   .change-image-on-hover {
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     img {
       width: 16px;
       height: 16px;
     }
-    
+
     .d-none {
       display: none;
     }
-    
+
     &:hover {
-      background-color: #ECEEFE;
+      background-color: #eceefe;
       border-radius: 50%;
-      
+
       img:first-child {
         display: none;
       }
-      
+
       .d-none {
         display: block;
       }
@@ -63,7 +63,7 @@
 .profile-info-image {
   display: flex;
   justify-content: center;
-  
+
   img {
     width: 200px;
     height: 200px;
@@ -82,21 +82,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   .profile-info-name {
     font-size: 32px;
     font-weight: 700;
   }
-  
+
   .edit-button {
     background: none;
     border: none;
-    color: #797EF3;
+    color: #797ef3;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     padding: 0;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -107,16 +107,16 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  
+
   span {
     font-size: 20px;
-    color: #72C968;
+    color: #72c968;
   }
-  
+
   .active-circle {
     width: 16px;
     height: 16px;
-    background-color: #72C968;
+    background-color: #72c968;
     border-radius: 50%;
   }
 }
@@ -125,13 +125,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
   a {
     margin-left: 50px;
-    color: #1381FF;
+    color: #1381ff;
     text-decoration: none;
     font-size: 16px;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -142,11 +142,11 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  
+
   mat-icon {
     color: #444;
   }
-  
+
   span {
     font-size: 20px;
     font-weight: 700;
@@ -160,10 +160,35 @@
 ::ng-deep .profile-dialog-container {
   .mat-mdc-dialog-container {
     padding: 0 !important;
-    
+
     .mdc-dialog__surface {
       border-radius: 30px !important;
       overflow: hidden;
     }
+  }
+}
+
+.messageBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sendMessage {
+  background-color: #444df2;
+  border: 0 solid transparent;
+  border-radius: 50px;
+  padding: 12px 25px;
+  gap: 10px;
+  display: flex;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  p {
+    color: white;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
   }
 }

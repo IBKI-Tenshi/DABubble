@@ -1,6 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ProfileEditComponent } from './profile-edit/profile.edit.component';
@@ -9,12 +14,7 @@ import { UserDataService } from '../services/user_data.service';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    MatButtonModule, 
-    MatDialogModule, 
-    MatIconModule,
-    CommonModule
-  ],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, CommonModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -30,10 +30,11 @@ export class ProfileComponent {
     private dialogRef: MatDialogRef<ProfileComponent>,
     private dialog: MatDialog,
     private userDataService: UserDataService,
+
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { 
+  ) {
     this.isGuestUser = localStorage.getItem('guest_token') !== null;
-    
+
     if (this.data) {
       this.userName = data.name || '';
       this.userEmail = data.email || '';
@@ -42,6 +43,7 @@ export class ProfileComponent {
     } else {
       const currentUser = this.userDataService.currentUser;
       if (currentUser) {
+        console.log(currentUser);
         this.userName = currentUser.name;
         this.userEmail = currentUser.email;
         this.profileImage = currentUser.profileImage;
@@ -53,18 +55,25 @@ export class ProfileComponent {
         this.profileIndex = 0;
       }
     }
-    
+
     this.lastLogin = data?.lastLogin || this.getFormattedDate();
   }
 
   private getFormattedDate(): string {
     const now = new Date();
-    return now.getUTCFullYear() + '-' + 
-           String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
-           String(now.getUTCDate()).padStart(2, '0') + ' ' +
-           String(now.getUTCHours()).padStart(2, '0') + ':' +
-           String(now.getUTCMinutes()).padStart(2, '0') + ':' +
-           String(now.getUTCSeconds()).padStart(2, '0');
+    return (
+      now.getUTCFullYear() +
+      '-' +
+      String(now.getUTCMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getUTCDate()).padStart(2, '0') +
+      ' ' +
+      String(now.getUTCHours()).padStart(2, '0') +
+      ':' +
+      String(now.getUTCMinutes()).padStart(2, '0') +
+      ':' +
+      String(now.getUTCSeconds()).padStart(2, '0')
+    );
   }
 
   closeDialog(): void {
@@ -73,7 +82,6 @@ export class ProfileComponent {
 
   openEditProfile(): void {
     this.dialogRef.close();
-    
     const editDialogRef = this.dialog.open(ProfileEditComponent, {
       width: '500px',
       panelClass: 'profile-edit-dialog-container',
@@ -82,11 +90,11 @@ export class ProfileComponent {
         email: this.userEmail,
         profileImage: this.profileImage,
         profile: this.profileIndex,
-        isGuest: this.isGuestUser
-      }
+        isGuest: this.isGuestUser,
+      },
     });
 
-    editDialogRef.afterClosed().subscribe(result => {
+    editDialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.dialog.open(ProfileComponent, {
           width: '500px',
@@ -96,8 +104,8 @@ export class ProfileComponent {
             email: result.email || this.userEmail,
             profileImage: result.profileImage,
             profile: result.profile,
-            lastLogin: this.lastLogin
-          }
+            lastLogin: this.lastLogin,
+          },
         });
       } else {
         this.dialog.open(ProfileComponent, {
@@ -108,8 +116,8 @@ export class ProfileComponent {
             email: this.userEmail,
             profileImage: this.profileImage,
             profile: this.profileIndex,
-            lastLogin: this.lastLogin
-          }
+            lastLogin: this.lastLogin,
+          },
         });
       }
     });

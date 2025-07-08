@@ -29,7 +29,7 @@ export class LoginService {
   ) {
     setTimeout(() => {
       this.initializeLoginStatus();
-    }, 200); 
+    }, 200);
   }
 
   private initializeLoginStatus(): void {
@@ -38,7 +38,6 @@ export class LoginService {
     const guestToken = localStorage.getItem(this.GUEST_TOKEN_KEY);
     const userId = localStorage.getItem(this.USER_ID_KEY);
     const timestamp = localStorage.getItem(this.LOGIN_TIMESTAMP_KEY);
-
 
     if (this.checkToken()) {
       this.isLoggedInSubject.next(true);
@@ -188,7 +187,7 @@ export class LoginService {
 
     return { uid: guestId };
   }
-  
+
   logout(): void {
     this.isLoggedInSubject.next(false);
     localStorage.removeItem(this.USER_TOKEN_KEY);
