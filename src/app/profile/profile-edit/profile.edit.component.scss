@@ -63,15 +63,25 @@
   .avatar-selector-container {
     display: flex;
     justify-content: center;
+    width: 100%;
     
     ::ng-deep .mat-expansion-panel {
       box-shadow: none !important;
       background: transparent;
+      width: 100%;
     }
     
     ::ng-deep .mat-expansion-panel-header {
       padding: 0;
       height: auto !important;
+      display: flex;
+      justify-content: center !important;
+    }
+    
+    ::ng-deep .mat-content {
+      display: flex !important;
+      justify-content: center !important;
+      margin: 0 !important;
     }
     
     ::ng-deep .mat-expansion-panel-body {
@@ -84,7 +94,18 @@
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
+      display: block;
+      margin: 0 auto; 
     }
+  }
+  
+  ::ng-deep .avatar-selector-container .mat-expansion-panel-header-title {
+    justify-content: center;
+  }
+  
+  ::ng-deep .avatar-selector-container .mat-expansion-panel-header-description {
+    justify-content: center;
+    margin-right: 0;
   }
   
   .avatar-selector {
