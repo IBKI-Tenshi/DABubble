@@ -125,11 +125,26 @@ export class LoginComponent implements OnInit {
 
     try {
       const result = await this.loginService.logIn(email, password);
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      if (result && result.uid) {
-        this.navigateAfterLogin();
+      if (!result.success) {
+        switch (result.reason) {
+          case 'missing-credentials':
+            this.showError('Bitte gib E-Mail und Passwort ein.');
+            break;
+          case 'auth/wrong-password':
+            this.passwordControl.markAsTouched();
+            this.passwordControl.setErrors({ wrong: true });
+            break;
+          default:
+            this.passwordControl.markAsTouched();
+            this.passwordControl.setErrors({ invalid: true });
+            this.emailControl.markAsTouched();
+            this.emailControl.setErrors({ invalid: true });
+        }
+        return;
       }
+
+      this.navigateAfterLogin();
     } catch (error) {
       this.showError('Login fehlgeschlagen');
     }

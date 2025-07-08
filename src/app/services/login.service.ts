@@ -30,6 +30,9 @@ export class LoginService {
     setTimeout(() => {
       this.initializeLoginStatus();
     }, 200);
+    type LoginResult =
+      | { success: true; uid: string; email: string }
+      | { success: false; reason: string };
   }
 
   private initializeLoginStatus(): void {
@@ -62,29 +65,39 @@ export class LoginService {
     return hasToken;
   }
 
-  async logIn(email: string, password: string): Promise<any> {
+  async logIn(
+    email: string,
+    password: string
+  ): Promise<{
+    success: boolean;
+    uid?: string;
+    email?: string;
+    reason?: string;
+  }> {
     if (!email || !password) {
-      return 'missing-credentials';
+      return { success: false, reason: 'missing-credentials' };
     }
 
     try {
       const userId = await this.authenticateUser(email, password);
 
       if (!userId) {
-        return 'auth/wrong-password';
+        return { success: false, reason: 'auth/wrong-password' };
       }
+
       const timestamp = Date.now();
       const token = `user-token-${timestamp}`;
       this.saveTokens('user', token, userId, email, timestamp);
       await this.userDataService.loadUser(userId);
+
       setTimeout(() => {
         this.router.navigate(['/directMessage/general']);
       }, 100);
 
-      return { uid: userId, email: email };
+      return { success: true, uid: userId, email };
     } catch (error) {
       console.error('Fehler bei der Suche nach Benutzer-ID:', error);
-      return null;
+      return { success: false, reason: 'internal-error' };
     }
   }
 
