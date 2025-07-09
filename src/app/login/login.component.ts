@@ -66,6 +66,14 @@ export class LoginComponent implements OnInit {
     this.checkLoginStatus();
   }
 
+  loginWithGoogle() {
+    this.loginService.loginWithGoogle()
+      .then(() => {
+        this.router.navigate(['/directMessage/general']); 
+      })
+      .catch(err => console.error('Fehler beim Login:', err));
+  }
+
   private setupGoogleLogin(): void {
     this.googleLogin.initializeGoogleAuth(
       this.handleCredentialResponse.bind(this)

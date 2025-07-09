@@ -63,7 +63,11 @@
     <!-- <div #googleBtn></div>
     <div #googleButton id="google-button"></div> -->
 
-    <button type="button" class="input-field dFlex_ac_jc">
+    <button
+      type="button"
+      class="input-field dFlex_ac_jc"
+      (click)="loginWithGoogle()"
+    >
       <img src="./assets/icons/google-logo.png" alt="Google" />
       Anmelden mit Google
     </button>
