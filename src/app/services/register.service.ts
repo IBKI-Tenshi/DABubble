@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Auth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
