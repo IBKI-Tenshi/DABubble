@@ -1,6 +1,3 @@
-
-
-
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
@@ -12,6 +9,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
+import { getAuth, provideAuth } from '@angular/fire/auth';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -20,14 +19,15 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(MatNativeDateModule),
     provideFirebaseApp(() =>
       initializeApp({
-        apiKey: "AIzaSyDALtinxju3qAE1H5SY9BqsQKve9GBOn84",
-        authDomain: "dabubble-7e942.firebaseapp.com",
-        projectId: "dabubble-7e942",
-        storageBucket: "dabubble-7e942.firebasestorage.app",
-        messagingSenderId: "225459377281",
-        appId: "1:225459377281:web:5016a79ff01e1ba6e0a980"
+        apiKey: 'AIzaSyDALtinxju3qAE1H5SY9BqsQKve9GBOn84',
+        authDomain: 'dabubble-7e942.firebaseapp.com',
+        projectId: 'dabubble-7e942',
+        storageBucket: 'dabubble-7e942.firebasestorage.app',
+        messagingSenderId: '225459377281',
+        appId: '1:225459377281:web:5016a79ff01e1ba6e0a980',
       })
     ),
-    provideFirestore(() => getFirestore()), provideAnimationsAsync()
-  ]
+    provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth()),
+  ],
 };

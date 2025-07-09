@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+
 import { UserDataService } from './user_data.service';
 import { UrlService } from './url.service';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -25,26 +29,24 @@ export class LoginService {
     private http: HttpClient,
     private router: Router,
     private userDataService: UserDataService,
-    private urlService: UrlService
+    private urlService: UrlService,
+    private auth: Auth,
+    private firestore: Firestore
   ) {
     setTimeout(() => {
       this.initializeLoginStatus();
     }, 200);
-    type LoginResult =
-      | { success: true; uid: string; email: string }
-      | { success: false; reason: string };
   }
 
   private initializeLoginStatus(): void {
-    const userToken = localStorage.getItem(this.USER_TOKEN_KEY);
-    const googleToken = localStorage.getItem(this.GOOGLE_TOKEN_KEY);
-    const guestToken = localStorage.getItem(this.GUEST_TOKEN_KEY);
-    const userId = localStorage.getItem(this.USER_ID_KEY);
-    const timestamp = localStorage.getItem(this.LOGIN_TIMESTAMP_KEY);
+    const hasToken = this.checkToken();
 
-    if (this.checkToken()) {
+    if (hasToken) {
       this.isLoggedInSubject.next(true);
       localStorage.setItem('slack_clone_is_logged_in', 'true');
+
+      const userId = localStorage.getItem(this.USER_ID_KEY);
+      const guestToken = localStorage.getItem(this.GUEST_TOKEN_KEY);
 
       if (userId) {
         this.userDataService.loadUser(userId);
@@ -58,11 +60,11 @@ export class LoginService {
   }
 
   private checkToken(): boolean {
-    const hasToken =
+    return (
       localStorage.getItem(this.USER_TOKEN_KEY) !== null ||
       localStorage.getItem(this.GOOGLE_TOKEN_KEY) !== null ||
-      localStorage.getItem(this.GUEST_TOKEN_KEY) !== null;
-    return hasToken;
+      localStorage.getItem(this.GUEST_TOKEN_KEY) !== null
+    );
   }
 
   async logIn(
@@ -79,29 +81,39 @@ export class LoginService {
     }
 
     try {
-      const userId = await this.authenticateUser(email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
-      if (!userId) {
-        return { success: false, reason: 'auth/wrong-password' };
+      const userDocRef = doc(this.firestore, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log('User data:', userData); // Optional for debug/logging
       }
 
       const timestamp = Date.now();
       const token = `user-token-${timestamp}`;
-      this.saveTokens('user', token, userId, email, timestamp);
-      await this.userDataService.loadUser(userId);
+
+      this.saveTokens('user', token, user.uid, user.email || '', timestamp);
+      await this.userDataService.loadUser(user.uid);
 
       setTimeout(() => {
         this.router.navigate(['/directMessage/general']);
       }, 100);
 
-      return { success: true, uid: userId, email };
+      return { success: true, uid: user.uid, email: user.email || '' };
     } catch (error) {
-      console.error('Fehler bei der Suche nach Benutzer-ID:', error);
-      return { success: false, reason: 'internal-error' };
+      console.error('Firebase Auth error:', error);
+      return { success: false, reason: 'auth/wrong-password' };
     }
   }
 
-  private saveTokens(
+  public saveTokens(
     tokenType: 'user' | 'google' | 'guest',
     tokenValue: string,
     userId: string,
@@ -118,80 +130,33 @@ export class LoginService {
     localStorage.removeItem(this.USER_TOKEN_KEY);
     localStorage.removeItem(this.GOOGLE_TOKEN_KEY);
     localStorage.removeItem(this.GUEST_TOKEN_KEY);
+
     localStorage.setItem(tokenKey, tokenValue);
     localStorage.setItem(this.USER_ID_KEY, userId);
+
     if (email) {
       localStorage.setItem(this.USER_EMAIL_KEY, email);
     }
+
     if (timestamp) {
       localStorage.setItem(this.LOGIN_TIMESTAMP_KEY, timestamp.toString());
     }
+
     localStorage.setItem('slack_clone_is_logged_in', 'true');
     this.isLoggedInSubject.next(true);
   }
 
-  private async authenticateUser(
-    email: string,
-    password: string
-  ): Promise<string | null> {
-    try {
-      const response = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          structuredQuery: {
-            from: [{ collectionId: 'users' }],
-            where: {
-              compositeFilter: {
-                op: 'AND',
-                filters: [
-                  {
-                    fieldFilter: {
-                      field: { fieldPath: 'email' },
-                      op: 'EQUAL',
-                      value: { stringValue: email },
-                    },
-                  },
-                  {
-                    fieldFilter: {
-                      field: { fieldPath: 'password' },
-                      op: 'EQUAL',
-                      value: { stringValue: password },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        }),
-      });
-
-      if (!response.ok) return null;
-
-      const results = await response.json();
-      const foundDoc = results.find((doc: any) => doc.document);
-
-      if (foundDoc?.document) {
-        const docPath = foundDoc.document.name;
-        return docPath.split('/').pop() || null;
-      }
-
-      return null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async signInAsGuest(): Promise<any> {
+  async signInAsGuest(): Promise<{ uid: string }> {
     const guestId = 'guest';
+    const timestamp = Date.now();
+
     this.saveTokens(
       'guest',
-      `guest-token-${Date.now()}`,
+      `guest-token-${timestamp}`,
       guestId,
       undefined,
-      Date.now()
+      timestamp
     );
-
     await this.userDataService.loadGuestProfile();
 
     setTimeout(() => {
@@ -212,6 +177,7 @@ export class LoginService {
     localStorage.removeItem(this.GUEST_NAME_KEY);
     localStorage.removeItem(this.LOGIN_TIMESTAMP_KEY);
     localStorage.removeItem('slack_clone_is_logged_in');
+
     this.userDataService.clear();
   }
 
@@ -247,7 +213,6 @@ export class LoginService {
     const timestamp = Date.now();
 
     this.saveTokens('google', token, googleUserId, email, timestamp);
-
     this.userDataService.loadUser(googleUserId);
 
     setTimeout(() => {

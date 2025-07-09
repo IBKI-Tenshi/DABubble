@@ -17,36 +17,42 @@
       >Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit
       verwendest.</span
     >
-    <div class="input_div dFlex">
-      <input
-        class="input-field email"
-        type="email"
-        placeholder="beispielname@email.com"
-        [formControl]="emailControl"
-      />
-      <div
-        class="error-text"
-        [class.visible]="emailControl.invalid && emailControl.touched"
-      >
-        Bitte gib eine gültige E-Mail-Adresse ein.
+    <form [formGroup]="loginForm">
+      <div class="input_div dFlex">
+        <input
+          class="input-field email"
+          type="email"
+          placeholder="beispielname@email.com"
+          formControlName="email"
+        />
+        <div
+          class="error-text"
+          [class.visible]="
+            loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+          "
+        >
+          Bitte gib eine gültige E-Mail-Adresse ein.
+        </div>
       </div>
-    </div>
 
-    <div class="input_div dFlex">
-      <input
-        class="input-field password"
-        type="password"
-        placeholder="Passwort"
-        [formControl]="passwordControl"
-      />
-      <div
-        class="error-text"
-        [class.visible]="passwordControl.invalid && passwordControl.touched"
-      >
-        Bitte gib ein gültiges Passwort ein.
+      <div class="input_div dFlex">
+        <input
+          class="input-field password"
+          type="password"
+          placeholder="Passwort"
+          formControlName="password"
+        />
+        <div
+          class="error-text"
+          [class.visible]="
+            loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched
+          "
+        >
+          Bitte gib ein gültiges Passwort ein.
+        </div>
       </div>
-    </div>
-
+    </form>
     <a class="reset-password" routerLink="/password" href="">
       <span>Passwort vergessen?</span>
     </a>
@@ -63,7 +69,7 @@
     </button>
 
     <div class="login-buttons-div dFlex">
-      <button class="login-button" (click)="doLogin()">Anmelden</button>
+      <button class="login-button" (click)="onLoginClick()">Anmelden</button>
       <button class="guest-login-button" (click)="guestLogin()">
         Gäste-Login
       </button>

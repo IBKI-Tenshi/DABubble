@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { UserDataService } from '../../services/user_data.service';
+import { UserIdService } from '../../services/userId.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { AvatarService } from '../../services/avatar.service';
@@ -17,7 +17,7 @@ import { CreateUserComponent } from '../../overlay/create-user.component';
 export class AvatarSelectionComponent {
   constructor(
     private router: Router,
-    private userDataService: UserDataService,
+    private userDataService: UserIdService,
     private avatarService: AvatarService,
     private urlService: UrlService
   ) {}
@@ -28,9 +28,9 @@ export class AvatarSelectionComponent {
 
   selectedAvatar: string = '';
 
-  userName: string = '';
+  userName: string | null = '';
 
-  userId: string = '';
+  userId: string | null = '';
 
   avatarIndex: number = 0;
 
@@ -44,8 +44,10 @@ export class AvatarSelectionComponent {
   }
 
   initializeUserData(): void {
-    this.userName = this.userDataService.getName();
-    this.userId = this.userDataService.getUserId();
+    this.userName = localStorage.getItem('userName');
+    this.userId = localStorage.getItem('userId');
+    console.log(this.userName);
+    console.log(this.userId);
   }
 
   mySelectedAvatar() {
@@ -69,10 +71,7 @@ export class AvatarSelectionComponent {
   }
 
   async deleteData() {
-    this.userId = '';
-    this.userName = '';
-    await this.userDataService.deleteUserId();
-    await this.userDataService.deleteUserName();
+    this.userDataService.clear();
   }
 
   async showSuccessNote() {}

@@ -1,6 +1,19 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { Auth } from '@angular/fire/auth'; // used for authentication
 import { LoginService } from '../services/login.service';
-import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+  FormGroup,
+  FormBuilder,
+} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,23 +39,26 @@ import { GoogleAuth } from '../services/google.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  emailControl = new FormControl('', [Validators.required, Validators.email]);
-  passwordControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(6),
-  ]);
-
+  loginForm: FormGroup;
+  private auth = inject(Auth); // used for authentication
   isLoggingIn = false;
   loginErrorMail: string | null = null;
   loginErrorPassword: string | null = null;
+
   @ViewChild('googleButton', { static: true }) googleButton!: ElementRef;
 
   constructor(
     private loginService: LoginService,
     private snackBar: MatSnackBar,
     private googleLogin: GoogleAuth,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+    });
+  }
 
   ngOnInit(): void {
     this.setupGoogleLogin();
@@ -104,6 +120,36 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  async onLoginClick() {
+    if (this.isLoggingIn) return;
+    this.isLoggingIn = true;
+
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.isLoggingIn = false;
+      return;
+    }
+
+    const { email, password } = this.loginForm.value;
+
+    try {
+      const result = await this.loginService.logIn(email, password);
+
+      if (result.success) {
+        this.navigateAfterLogin();
+        console.log('Logged in!', result.uid);
+      } else {
+        this.handleLoginError(result.reason);
+      }
+    } catch (err) {
+      console.error('Unexpected error during login:', err);
+      this.showError('An unexpected error occurred');
+    } finally {
+      this.isLoggingIn = false;
+    }
+  }
+
+  /*
   async doLogin(): Promise<void> {
     this.resetLoginError();
 
@@ -151,6 +197,7 @@ export class LoginComponent implements OnInit {
 
     this.isLoggingIn = false;
   }
+*/
 
   async guestLogin(): Promise<void> {
     if (this.isLoggingIn) return;
@@ -174,13 +221,30 @@ export class LoginComponent implements OnInit {
 
   private navigateAfterLogin(): void {
     setTimeout(() => {
-      const isLoggedIn = this.loginService.isLoggedIn();
+      if (this.loginService.isLoggedIn()) {
+        this.router.navigate(['/directMessage/general']);
+      }
     }, 100);
   }
 
   private resetLoginError(): void {
     this.loginErrorMail = null;
     this.loginErrorPassword = null;
+  }
+
+  private handleLoginError(reason?: string): void {
+    switch (reason) {
+      case 'missing-credentials':
+        this.showError('Bitte gib E-Mail und Passwort ein.');
+        break;
+      case 'auth/wrong-password':
+        this.loginForm.get('password')?.setErrors({ wrong: true });
+        break;
+      default:
+        this.loginForm.get('email')?.setErrors({ invalid: true });
+        this.loginForm.get('password')?.setErrors({ invalid: true });
+        this.showError('Login fehlgeschlagen');
+    }
   }
 
   private showError(message: string): void {
