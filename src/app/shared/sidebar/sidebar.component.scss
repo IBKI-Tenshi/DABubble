@@ -1,6 +1,6 @@
 .sidebar {
-  height: 100vh;
-  margin: 0 30px;
+  height: 800px;
+  margin: 0 6px 0 12px;
   background-color: white;
   border-radius: 30px;
 }
@@ -20,20 +20,31 @@
 
 .new-message-button {}
 
-// .windowSetup {
-//   display: flex;
-//   flex-direction: column;
-// }
-
 .sidenav {
   width: 300px;
   display: block;
 }
 
 .menu-items {
+  height: 700px;
   list-style-type: none;
   padding: 0;
   margin: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f5f5f5;
+  z-index: 11;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 8px;
+  }
 
   li {
     display: flex;
@@ -75,10 +86,6 @@
     width: 40px;
   }
 }
-
-
-
-
 
 .add-channel-top-button {
   border-radius: 100px;
@@ -129,9 +136,6 @@
   height: 20px;
   width: 20px;
 }
-
-
-
 
 .dm-submenu {
   padding-left: 32px;

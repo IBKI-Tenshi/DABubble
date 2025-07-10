@@ -31,8 +31,8 @@
       </li>
 
       <ul *ngIf="showChannels" class="channel-submenu">
-        <li *ngFor="let channel of channels">
-          <a (click)="openChannelChat(channel)" class="dFlex_ac">
+        <li *ngFor="let channel of channels" (click)="openChannelChat(channel)">
+          <a class="dFlex_ac">
             <div class="tag-icon"></div>
             {{ channel }}
           </a>

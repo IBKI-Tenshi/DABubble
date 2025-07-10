@@ -1,103 +1,42 @@
 <div class="channel-container" [class.with-thread]="showThread">
-    <div class="channel-header">
-      <div class="channel-title">
-        <span class="hash">#</span>
-        <span class="channel-name">{{ channelName }}</span>
-        <button class="dropdown-button">
-          <mat-icon>keyboard_arrow_down</mat-icon>
-        </button>
-      </div>
-      
-      <div class="channel-members">
-        <div class="avatar-stack">
-          <img *ngFor="let member of channelMembers.slice(0, 3)" 
-               [src]="member.avatar" [alt]="member.name" class="member-avatar" />
-        </div>
-        <span *ngIf="channelMembers.length > 0" class="member-count">{{ channelMembers.length }}</span>
-        <button class="member-button">
-          <mat-icon>person_add</mat-icon>
-        </button>
-      </div>
+  <div class="channel-header">
+    <div class="channel-title">
+      <span class="hash">#</span>
+      <span class="channel-name">{{ channelName }}</span>
+      <button class="dropdown-button">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
     </div>
-  
-    <div class="messages-area">
-      <ng-container *ngIf="!hasMessages">
-        <div class="empty-message-view">
-          <div class="message-input-container">
-            <input 
-              type="text" 
-              class="message-input" 
-              [(ngModel)]="newMessageText" 
-              placeholder="Nachricht an #{{ channelName }}"
-              (keydown)="onKeyDown($event)">
-            <div class="input-actions">
-              <button class="emoji-btn">
-                <mat-icon>sentiment_satisfied_alt</mat-icon>
-              </button>
-              <button class="mention-btn">
-                <mat-icon>alternate_email</mat-icon>
-              </button>
-            </div>
-            <button 
-              class="send-btn" 
-              [disabled]="!newMessageText.trim()"
-              (click)="sendMessage()">
-              <mat-icon>send</mat-icon>
-            </button>
-          </div>
-        </div>
-      </ng-container>
-      
-      <ng-container *ngIf="hasMessages">
-        <ng-container *ngFor="let group of groupedMessages">
-          <div class="date-separator">
-            <div class="line"></div>
-            <div class="date-pill">{{ group.dateLabel }}</div>
-            <div class="line"></div>
-          </div>
-          
-          <div *ngFor="let message of group.messages" class="message-container">
-            <div class="message-avatar">
-              <img [src]="message.avatar || '/assets/img/dummy_pic.png'" alt="Avatar" class="avatar-img">
-            </div>
-            <div class="message-content" (click)="openThread(message)">
-              <div class="message-header">
-                <span class="sender-name">{{ message.senderId }}</span>
-                <span class="timestamp">{{ message.timestamp | date:'HH:mm' }} Uhr</span>
-              </div>
-              <div class="message-text">{{ message.text }}</div>
-              
-              <div *ngIf="message.reactions && message.reactions.length > 0" class="reactions">
-                <div *ngFor="let reaction of message.reactions" class="reaction-bubble" (click)="addReaction(reaction.emoji); $event.stopPropagation();">
-                  <span class="emoji">{{ reaction.emoji }}</span>
-                  <span class="count">{{ reaction.count }}</span>
-                </div>
-                <div class="reaction-bubble add-reaction" (click)="openReactionPicker(message); $event.stopPropagation();">
-                  <mat-icon>add_reaction</mat-icon>
-                </div>
-              </div>
-              
-              <div *ngIf="!message.reactions || message.reactions.length === 0" class="message-actions">
-                <button class="reaction-button" (click)="openReactionPicker(message); $event.stopPropagation();">
-                  <mat-icon>sentiment_satisfied_alt</mat-icon>
-                </button>
-              </div>
-              
-              <div *ngIf="message.threadRepliesCount && message.threadRepliesCount > 0" class="thread-link">
-                {{ message.threadRepliesCount }} {{ message.threadRepliesCount === 1 ? 'Antwort' : 'Antworten' }}
-                <span class="last-reply">Letzte Antwort: {{ getLastReplyTime(message) }}</span>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-  
+
+    <div class="channel-members">
+      <div class="avatar-stack">
+        <img
+          *ngFor="let member of channelMembers.slice(0, 3)"
+          [src]="member.avatar"
+          [alt]="member.name"
+          class="member-avatar"
+        />
+      </div>
+      <span *ngIf="channelMembers.length > 0" class="member-count">{{
+        channelMembers.length
+      }}</span>
+      <button class="member-button">
+        <mat-icon>person_add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="messages-area">
+    <ng-container *ngIf="!hasMessages">
+      <div class="empty-message-view">
         <div class="message-input-container">
-          <input 
-            type="text" 
-            class="message-input" 
-            [(ngModel)]="newMessageText" 
+          <input
+            type="text"
+            class="message-input"
+            [(ngModel)]="newMessageText"
             placeholder="Nachricht an #{{ channelName }}"
-            (keydown)="onKeyDown($event)">
+            (keydown)="onKeyDown($event)"
+          />
           <div class="input-actions">
             <button class="emoji-btn">
               <mat-icon>sentiment_satisfied_alt</mat-icon>
@@ -106,115 +45,269 @@
               <mat-icon>alternate_email</mat-icon>
             </button>
           </div>
-          <button 
-            class="send-btn" 
+          <button
+            class="send-btn"
             [disabled]="!newMessageText.trim()"
-            (click)="sendMessage()">
+            (click)="sendMessage()"
+          >
             <mat-icon>send</mat-icon>
           </button>
         </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="hasMessages">
+      <ng-container *ngFor="let group of groupedMessages">
+        <div>
+          <div class="date-separator">
+            <div class="line"></div>
+            <div class="date-pill">{{ group.dateLabel }}</div>
+            <div class="line"></div>
+          </div>
+
+          <div *ngFor="let message of group.messages" class="message-container">
+            <div class="message-avatar">
+              <img
+                [src]="message.avatar || '/assets/img/dummy_pic.png'"
+                alt="Avatar"
+                class="avatar-img"
+              />
+            </div>
+            <div class="message-content" (click)="openThread(message)">
+              <div class="message-header">
+                <span class="sender-name">{{ message.senderId }}</span>
+                <span class="timestamp"
+                  >{{ message.timestamp | date : "HH:mm" }} Uhr</span
+                >
+              </div>
+              <div class="message-text">{{ message.text }}</div>
+
+              <div
+                *ngIf="message.reactions && message.reactions.length > 0"
+                class="reactions"
+              >
+                <div
+                  *ngFor="let reaction of message.reactions"
+                  class="reaction-bubble"
+                  (click)="
+                    addReaction(reaction.emoji); $event.stopPropagation()
+                  "
+                >
+                  <span class="emoji">{{ reaction.emoji }}</span>
+                  <span class="count">{{ reaction.count }}</span>
+                </div>
+                <div
+                  class="reaction-bubble add-reaction"
+                  (click)="
+                    openReactionPicker(message); $event.stopPropagation()
+                  "
+                >
+                  <mat-icon>add_reaction</mat-icon>
+                </div>
+              </div>
+
+              <div
+                *ngIf="!message.reactions || message.reactions.length === 0"
+                class="message-actions"
+              >
+                <button
+                  class="reaction-button"
+                  (click)="
+                    openReactionPicker(message); $event.stopPropagation()
+                  "
+                >
+                  <mat-icon>sentiment_satisfied_alt</mat-icon>
+                </button>
+              </div>
+
+              <div
+                *ngIf="
+                  message.threadRepliesCount && message.threadRepliesCount > 0
+                "
+                class="thread-link"
+              >
+                {{ message.threadRepliesCount }}
+                {{ message.threadRepliesCount === 1 ? "Antwort" : "Antworten" }}
+                <span class="last-reply"
+                  >Letzte Antwort: {{ getLastReplyTime(message) }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
       </ng-container>
-    </div>
+
+      <div class="message-input-container">
+        <input
+          type="text"
+          class="message-input"
+          [(ngModel)]="newMessageText"
+          placeholder="Nachricht an #{{ channelName }}"
+          (keydown)="onKeyDown($event)"
+        />
+        <div class="input-actions">
+          <button class="emoji-btn">
+            <mat-icon>sentiment_satisfied_alt</mat-icon>
+          </button>
+          <button class="mention-btn">
+            <mat-icon>alternate_email</mat-icon>
+          </button>
+        </div>
+        <button
+          class="send-btn"
+          [disabled]="!newMessageText.trim()"
+          (click)="sendMessage()"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </ng-container>
   </div>
-  
-  <div class="thread-sidebar" *ngIf="showThread">
-    <div class="thread-header">
-      <span class="thread-title">Thread</span>
-      <span class="thread-channel"># {{ channelName }}</span>
-      <button class="close-button" (click)="closeThread()">×</button>
+</div>
+
+<div class="thread-sidebar" *ngIf="showThread">
+  <div class="thread-header">
+    <span class="thread-title">Thread</span>
+    <span class="thread-channel"># {{ channelName }}</span>
+    <button class="close-button" (click)="closeThread()">×</button>
+  </div>
+
+  <div class="thread-content">
+    <div *ngIf="activeThreadMessage" class="original-message">
+      <div class="message-avatar">
+        <img
+          [src]="activeThreadMessage.avatar || '/assets/img/dummy_pic.png'"
+          alt="Avatar"
+          class="avatar-img"
+        />
+      </div>
+      <div class="message-content">
+        <div class="message-header">
+          <span class="sender-name">{{ activeThreadMessage.senderId }}</span>
+          <span class="timestamp"
+            >{{ activeThreadMessage.timestamp | date : "HH:mm" }} Uhr</span
+          >
+        </div>
+        <div class="message-text">{{ activeThreadMessage.text }}</div>
+
+        <div
+          *ngIf="
+            activeThreadMessage.reactions &&
+            activeThreadMessage.reactions.length > 0
+          "
+          class="reactions"
+        >
+          <div
+            *ngFor="let reaction of activeThreadMessage.reactions"
+            class="reaction-bubble"
+            (click)="addReaction(reaction.emoji)"
+          >
+            <span class="emoji">{{ reaction.emoji }}</span>
+            <span class="count">{{ reaction.count }}</span>
+          </div>
+          <div
+            class="reaction-bubble add-reaction"
+            (click)="openReactionPicker(activeThreadMessage)"
+          >
+            <mat-icon>add_reaction</mat-icon>
+          </div>
+        </div>
+      </div>
     </div>
-  
-    <div class="thread-content">
-      <div *ngIf="activeThreadMessage" class="original-message">
+
+    <div class="reply-count">
+      {{ threadReplies.length }}
+      {{ threadReplies.length === 1 ? "Antwort" : "Antworten" }}
+    </div>
+
+    <div class="thread-replies">
+      <div *ngFor="let reply of threadReplies" class="reply-message">
         <div class="message-avatar">
-          <img [src]="activeThreadMessage.avatar || '/assets/img/dummy_pic.png'" alt="Avatar" class="avatar-img">
+          <img
+            [src]="reply.avatar || '/assets/img/dummy_pic.png'"
+            alt="Avatar"
+            class="avatar-img"
+          />
         </div>
         <div class="message-content">
           <div class="message-header">
-            <span class="sender-name">{{ activeThreadMessage.senderId }}</span>
-            <span class="timestamp">{{ activeThreadMessage.timestamp | date:'HH:mm' }} Uhr</span>
+            <span class="sender-name">{{ reply.senderId }}</span>
+            <span class="timestamp"
+              >{{ reply.timestamp | date : "HH:mm" }} Uhr</span
+            >
           </div>
-          <div class="message-text">{{ activeThreadMessage.text }}</div>
-          
-          <div *ngIf="activeThreadMessage.reactions && activeThreadMessage.reactions.length > 0" class="reactions">
-            <div *ngFor="let reaction of activeThreadMessage.reactions" class="reaction-bubble" (click)="addReaction(reaction.emoji)">
+          <div class="message-text">{{ reply.text }}</div>
+
+          <div
+            *ngIf="reply.reactions && reply.reactions.length > 0"
+            class="reactions"
+          >
+            <div
+              *ngFor="let reaction of reply.reactions"
+              class="reaction-bubble"
+              (click)="addReaction(reaction.emoji)"
+            >
               <span class="emoji">{{ reaction.emoji }}</span>
               <span class="count">{{ reaction.count }}</span>
             </div>
-            <div class="reaction-bubble add-reaction" (click)="openReactionPicker(activeThreadMessage)">
+            <div
+              class="reaction-bubble add-reaction"
+              (click)="openReactionPicker(reply)"
+            >
               <mat-icon>add_reaction</mat-icon>
             </div>
           </div>
-        </div>
-      </div>
-  
-      <div class="reply-count">
-        {{ threadReplies.length }} {{ threadReplies.length === 1 ? 'Antwort' : 'Antworten' }}
-      </div>
-  
-      <div class="thread-replies">
-        <div *ngFor="let reply of threadReplies" class="reply-message">
-          <div class="message-avatar">
-            <img [src]="reply.avatar || '/assets/img/dummy_pic.png'" alt="Avatar" class="avatar-img">
-          </div>
-          <div class="message-content">
-            <div class="message-header">
-              <span class="sender-name">{{ reply.senderId }}</span>
-              <span class="timestamp">{{ reply.timestamp | date:'HH:mm' }} Uhr</span>
-            </div>
-            <div class="message-text">{{ reply.text }}</div>
-            
-            <div *ngIf="reply.reactions && reply.reactions.length > 0" class="reactions">
-              <div *ngFor="let reaction of reply.reactions" class="reaction-bubble" (click)="addReaction(reaction.emoji)">
-                <span class="emoji">{{ reaction.emoji }}</span>
-                <span class="count">{{ reaction.count }}</span>
-              </div>
-              <div class="reaction-bubble add-reaction" (click)="openReactionPicker(reply)">
-                <mat-icon>add_reaction</mat-icon>
-              </div>
-            </div>
-            
-            <div *ngIf="!reply.reactions || reply.reactions.length === 0" class="message-actions">
-              <button class="reaction-button" (click)="openReactionPicker(reply)">
-                <mat-icon>sentiment_satisfied_alt</mat-icon>
-              </button>
-            </div>
+
+          <div
+            *ngIf="!reply.reactions || reply.reactions.length === 0"
+            class="message-actions"
+          >
+            <button class="reaction-button" (click)="openReactionPicker(reply)">
+              <mat-icon>sentiment_satisfied_alt</mat-icon>
+            </button>
           </div>
         </div>
       </div>
     </div>
-  
-    <div class="thread-input-container">
-      <input 
-        type="text" 
-        class="thread-input" 
-        [(ngModel)]="threadReplyText" 
-        placeholder="Antworten..."
-        (keydown)="onThreadKeyDown($event)">
-      <div class="input-actions">
-        <button class="emoji-btn">
-          <mat-icon>sentiment_satisfied_alt</mat-icon>
-        </button>
-        <button class="mention-btn">
-          <mat-icon>alternate_email</mat-icon>
-        </button>
-      </div>
-      <button 
-        class="send-btn" 
-        [disabled]="!threadReplyText.trim()"
-        (click)="sendThreadReply()">
-        <mat-icon>send</mat-icon>
+  </div>
+
+  <div class="thread-input-container">
+    <input
+      type="text"
+      class="thread-input"
+      [(ngModel)]="threadReplyText"
+      placeholder="Antworten..."
+      (keydown)="onThreadKeyDown($event)"
+    />
+    <div class="input-actions">
+      <button class="emoji-btn">
+        <mat-icon>sentiment_satisfied_alt</mat-icon>
+      </button>
+      <button class="mention-btn">
+        <mat-icon>alternate_email</mat-icon>
       </button>
     </div>
+    <button
+      class="send-btn"
+      [disabled]="!threadReplyText.trim()"
+      (click)="sendThreadReply()"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
   </div>
-  
-  <div *ngIf="showReactionPicker" class="emoji-picker">
-    <div class="emoji-picker-content">
-      <div class="emoji-grid">
-        <button *ngFor="let emoji of availableEmojis" class="emoji-button" (click)="addReaction(emoji)">
-          {{ emoji }}
-        </button>
-      </div>
-      <button class="close-picker" (click)="closeReactionPicker()">×</button>
+</div>
+
+<div *ngIf="showReactionPicker" class="emoji-picker">
+  <div class="emoji-picker-content">
+    <div class="emoji-grid">
+      <button
+        *ngFor="let emoji of availableEmojis"
+        class="emoji-button"
+        (click)="addReaction(emoji)"
+      >
+        {{ emoji }}
+      </button>
     </div>
+    <button class="close-picker" (click)="closeReactionPicker()">×</button>
   </div>
+</div>
