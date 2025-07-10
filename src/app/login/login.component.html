@@ -17,7 +17,7 @@
       >Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit
       verwendest.</span
     >
-    <form [formGroup]="loginForm">
+    <form class="input-form" [formGroup]="loginForm">
       <div class="input_div dFlex">
         <input
           class="input-field email"
@@ -63,7 +63,11 @@
     <!-- <div #googleBtn></div>
     <div #googleButton id="google-button"></div> -->
 
-    <button type="button" class="input-field dFlex_ac_jc">
+    <button
+      type="button"
+      class="input-field dFlex_ac_jc"
+      (click)="loginWithGoogle()"
+    >
       <img src="./assets/icons/google-logo.png" alt="Google" />
       Anmelden mit Google
     </button>
