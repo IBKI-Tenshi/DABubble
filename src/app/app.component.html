@@ -15,8 +15,8 @@
   </button>
 
   <div class="main-layout" *ngIf="isLoggedIn$ | async">
-    <ng-container *ngIf="showSidebar">
-      <app-sidebar></app-sidebar>
+    <ng-container *ngIf="showSidebar" class="sidebar-container">
+      <app-sidebar @fadeSlideSidebar></app-sidebar>
     </ng-container>
 
     <router-outlet></router-outlet>
