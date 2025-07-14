@@ -11,6 +11,7 @@ import { ChatNavigationService } from '../services/chat-navigation.service';
 import { AvatarService } from '../services/avatar.service';
 import { Subscription } from 'rxjs';
 import { UserDataService, UserProfile } from '../services/user_data.service';
+import { ChatPartnerService } from '../services/chat-partner.service';
 
 interface GroupedMessages {
   date: Date;
@@ -46,26 +47,70 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private chatNavigationService: ChatNavigationService,
     private avatarService: AvatarService,
-    private userService: UserDataService
+    private userService: UserDataService,
+    private chatPartnerService: ChatPartnerService 
   ) { }
 
   ngOnInit(): void {
     this.loadCurrentUser();
-
-    this.querySub = this.route.queryParams.subscribe(params => {
-      this.partnerName = params['name'] || 'Lara Lindt';
-      this.partnerAvatarUrl = params['avatar'] || '/assets/img/dummy_pic.png';
-    });
-
+  
     this.routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('chatId');
-      console.log('Route-Parameter erhalten:', params);
       if (id) {
-        console.log(`Chat-ID aus Route: ${id}`);
         this.chatId = id;
+        
+        const partner = this.chatPartnerService.getChatPartner(id);
+        if (partner) {
+          this.partnerName = partner.name;
+          this.partnerAvatarUrl = partner.avatar;
+        }
+        
+        this.loadChatInfo();
+        
         this.loadMessages();
       } else {
         console.error('Keine Chat-ID in den Route-Parametern gefunden!');
+      }
+    });
+    
+    this.querySub = this.route.queryParams.subscribe(params => {
+      if (params['name'] && params['avatar']) {
+        this.partnerName = params['name'];
+        this.partnerAvatarUrl = params['avatar'];
+        
+        if (this.chatId) {
+          this.chatPartnerService.setChatPartner(this.chatId, params['name'], params['avatar']);
+        }
+      }
+    });
+  }
+
+  loadChatInfo(): void {
+    this.firestore.getChatById(this.chatId).subscribe({
+      next: (chatData: any) => {
+        if (chatData && chatData.fields) {
+          const participants = chatData.fields.participants?.arrayValue?.values || [];
+          const participantNames = chatData.fields.participantNames?.arrayValue?.values || [];
+          
+          if (participants.length === 2 && participantNames.length === 2) {
+            const currentUserName = this.senderName;
+            const partnerNameObj = participantNames.find((p: any) => 
+              p.stringValue !== currentUserName
+            );
+
+            if (partnerNameObj) {
+              this.partnerName = partnerNameObj.stringValue;
+              this.chatPartnerService.setChatPartner(
+                this.chatId, 
+                this.partnerName, 
+                this.partnerAvatarUrl
+              );
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Fehler beim Laden der Chat-Informationen:', error);
       }
     });
   }
@@ -104,16 +149,12 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log(`Lade Nachrichten für Chat ${this.chatId}...`);
-
     this.messageSub = this.firestore.getChatMessages(this.chatId)
       .subscribe({
         next: (response: any) => {
-          console.log('Chat-Nachrichten erhalten:', response);
           const documents = response?.documents || [];
 
           if (documents.length === 0) {
-            console.log(`Keine Nachrichten für Chat ${this.chatId} gefunden.`);
           }
 
           this.messages = documents.map((doc: any) => {
@@ -132,7 +173,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
             };
           }).sort((a: Message, b: Message) => a.timestamp.getTime() - b.timestamp.getTime());
 
-          console.log(`${this.messages.length} Nachrichten für Chat ${this.chatId} geladen.`);
           this.groupMessagesByDate();
         },
         error: (error) => {
@@ -224,7 +264,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
       
       // An Server senden
       await this.firestore.addMessageToChat(this.chatId, newMessage);
-      console.log('Nachricht erfolgreich gesendet');
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
       

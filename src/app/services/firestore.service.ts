@@ -54,9 +54,9 @@ export class FirestoreService {
     return this.http.get(url);
   }
 
-  generateChatId(email1: string, email2: string): string {
-    const sortedEmails = [email1, email2].sort();
-    return `${sortedEmails[0]}_${sortedEmails[1]}`;
+  generateChatId(user1Id: string, user2Id: string): string {
+    const ids = [user1Id, user2Id].sort();
+    return btoa(`${ids[0]}_${ids[1]}`).replace(/=/g, '');
   }
 
   createChat(chatId: string, participants: string[], participantNames: string[]): Promise<any> {
