@@ -1,6 +1,4 @@
-// direct-message.component.ts
-
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +24,7 @@ interface GroupedMessages {
   templateUrl: './direct-message.component.html',
   styleUrls: ['./direct-message.component.scss']
 })
-export class DirectMessageComponent implements OnInit, OnDestroy {
+export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewChecked {
   messages: Message[] = [];
   groupedMessages: GroupedMessages[] = [];
   newMessageText: string = '';
@@ -36,6 +34,9 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
   partnerName: string = 'Lara Lindt';
   partnerAvatarUrl: string = '/assets/img/dummy_pic.png';
   isSending: boolean = false;
+
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  private needsToScroll = false;
 
   private routeSub!: Subscription;
   private querySub!: Subscription;
@@ -66,7 +67,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
         }
         
         this.loadChatInfo();
-        
         this.loadMessages();
       } else {
         console.error('Keine Chat-ID in den Route-Parametern gefunden!');
@@ -83,6 +83,22 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  ngAfterViewChecked() {
+    if (this.needsToScroll && this.messagesContainer) {
+      this.scrollToBottom();
+      this.needsToScroll = false; 
+    }
+  }
+
+  scrollToBottom(): void {
+    try {
+      const element = this.messagesContainer.nativeElement;
+      element.scrollTop = element.scrollHeight;
+    } catch (err) {
+      console.error('Fehler beim Scrollen:', err);
+    }
   }
 
   loadChatInfo(): void {
@@ -131,7 +147,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
     if (this.userSub) this.userSub.unsubscribe();
   }
 
-  // Hinzufügen der fehlenden getAvatarForUser-Methode
   getAvatarForUser(userId: string): string {
     if (userId === this.senderName) {
       return this.senderAvatar;
@@ -154,9 +169,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           const documents = response?.documents || [];
 
-          if (documents.length === 0) {
-          }
-
           this.messages = documents.map((doc: any) => {
             const senderId = doc.fields.senderId.stringValue;
             return {
@@ -174,6 +186,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
           }).sort((a: Message, b: Message) => a.timestamp.getTime() - b.timestamp.getTime());
 
           this.groupMessagesByDate();
+          
+          if (documents.length > 0) {
+            this.needsToScroll = true;
+          }
         },
         error: (error) => {
           console.error(`Fehler beim Laden der Nachrichten für Chat ${this.chatId}:`, error);
@@ -232,7 +248,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
       groupedObj[dateStr].messages.push(message);
     }
     
-    // In Array umwandeln und nach Datum sortieren
     this.groupedMessages = Object.values(groupedObj).sort(
       (a, b) => a.date.getTime() - b.date.getTime()
     );
@@ -256,21 +271,19 @@ export class DirectMessageComponent implements OnInit, OnDestroy {
     this.newMessageText = '';
 
     try {
-      // Lokale Anzeige aktualisieren
       const tempId = Date.now().toString();
       const tempMessage = { ...newMessage, id: tempId };
+      
       this.messages.push(tempMessage);
       this.groupMessagesByDate();
       
-      // An Server senden
+      this.needsToScroll = true;
+      
       await this.firestore.addMessageToChat(this.chatId, newMessage);
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
       
-      // Bei Fehler: Text wiederherstellen
       this.newMessageText = messageText;
-      
-      // Fehlerhafte Nachricht entfernen (tempId nicht definiert, daher nicht nötig)
       
       alert('Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.');
     } finally {

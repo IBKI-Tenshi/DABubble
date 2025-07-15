@@ -69,7 +69,8 @@ export class FirestoreService {
   }
 
   private formatChatForFirestore(participants: string[], participantNames: string[]) {
-    const displayName = `Chat zwischen ${participantNames.join(' und ')}`;
+    const displayName = `Chat mit ${participantNames.join(' und ')}`;
+    
     return {
       fields: {
         participants: { 
