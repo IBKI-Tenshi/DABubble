@@ -1,9 +1,10 @@
 :host {
     display: flex;
     width: 100%;
-    height: 730px;
+    height: 760px;
     overflow: hidden;
-      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .channel-container {
@@ -13,7 +14,7 @@
     background-color: #fff;
     border-radius: 18px;
     margin: 0 12px;
-    
+
     &.with-thread {
       width: calc(100% - 350px);
     }

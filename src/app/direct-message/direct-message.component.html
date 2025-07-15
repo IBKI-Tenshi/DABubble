@@ -1,90 +1,140 @@
 <div class="direct-message-container">
-    <!-- Header mit Chatpartner -->
-    <div class="dm-header">
-      <div class="user-info">
-        <img [src]="partnerAvatarUrl" alt="Avatar" class="user-avatar" />
-        <span class="user-name">{{ partnerName }}</span>
-      </div>
-    </div>
-  
-    <!-- Chat Content Area -->
-    <div class="chat-content">
-      <!-- Bei leeren Nachrichten: Profil-Info anzeigen -->
-      <ng-container *ngIf="messages.length === 0">
-        <!-- Profile Information -->
-        <div class="user-profile">
-          <img [src]="partnerAvatarUrl" class="profile-avatar" alt="{{ partnerName }}" />
-          <h2 class="profile-name">{{ partnerName }}</h2>
-        </div>
-        
-        <div class="chat-privacy-info">
-          Diese Unterhaltung findet nur zwischen <span class="mention">{{ '@' + partnerName }}</span> und dir statt.
-        </div>
-      </ng-container>
-  
-      <!-- Nachrichten anzeigen, wenn vorhanden -->
-      <div class="messages-container" *ngIf="messages.length > 0">
-        <ng-container *ngFor="let group of groupedMessages">
-          <!-- Datum als Trenner -->
-          <div class="date-separator">
-            <div class="line"></div>
-            <div class="date-pill">{{ group.dateLabel }}</div>
-            <div class="line"></div>
-          </div>
-          
-          <!-- Nachrichten für dieses Datum -->
-          <div *ngFor="let message of group.messages" 
-               class="message-item"
-               [class.outgoing-message]="message.senderId === senderName">
-            <div class="message-avatar">
-              <img [src]="message.avatar || (message.senderId === senderName ? senderAvatar : partnerAvatarUrl)" 
-                   alt="Avatar" class="avatar-img">
-            </div>
-            <div class="message-content">
-              <div class="message-header">
-                <span class="sender-name">{{ message.senderId }}</span>
-                <span class="timestamp">{{ message.timestamp | date:'HH:mm' }} Uhr</span>
-              </div>
-              <div class="message-text">{{ message.text }}</div>
-              
-              <!-- Reactions (if any) -->
-              <div *ngIf="message.reactions && message.reactions.length > 0" class="reactions">
-                <div *ngFor="let reaction of message.reactions" class="reaction-tag">
-                  <span class="emoji">{{ reaction.emoji }}</span>
-                  <span class="count">{{ reaction.count }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      
-      <!-- Message Input Area (immer anzeigen) -->
-      <div class="message-input-area">
-        <div class="input-container">
-          <input 
-            type="text" 
-            class="message-input" 
-            [(ngModel)]="newMessageText" 
-            placeholder="Nachricht an {{ partnerName }}"
-            (keydown)="onKeyDown($event)" />
-          
-          <div class="input-actions">
-            <button class="emoji-button" type="button">
-              <mat-icon>sentiment_satisfied_alt</mat-icon>
-            </button>
-            <button class="mention-button" type="button">
-              <mat-icon>alternate_email</mat-icon>
-            </button>
-          </div>
-          <button 
-            class="send-button" 
-            type="button" 
-            [disabled]="!newMessageText.trim()"
-            (click)="sendMessage()">
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
-        </div>
-      </div>
+  <!-- Header mit Chatpartner -->
+  <div class="dm-header">
+    <div class="user-info">
+      <img [src]="partnerAvatarUrl" alt="Avatar" class="user-avatar" />
+      <span class="user-name">{{ partnerName }}</span>
     </div>
   </div>
+
+  <!-- Chat Content Area -->
+  <div class="chat-content">
+    <!-- Bei leeren Nachrichten: Profil-Info anzeigen -->
+    <ng-container *ngIf="messages.length === 0">
+      <!-- Profile Information -->
+      <div class="user-profile">
+        <img
+          [src]="partnerAvatarUrl"
+          class="profile-avatar"
+          alt="{{ partnerName }}"
+        />
+        <h2 class="profile-name">{{ partnerName }}</h2>
+      </div>
+
+      <div class="chat-privacy-info">
+        Diese Unterhaltung findet nur zwischen
+        <span class="mention">{{ "@" + partnerName }}</span> und dir statt.
+      </div>
+    </ng-container>
+
+    <!-- Nachrichten anzeigen, wenn vorhanden -->
+    <div class="messages-container" *ngIf="messages.length > 0">
+      <ng-container *ngFor="let group of groupedMessages">
+        <!-- Datum als Trenner -->
+        <div class="date-separator">
+          <div class="line"></div>
+          <div class="date-pill">{{ group.dateLabel }}</div>
+          <div class="line"></div>
+        </div>
+
+        <!-- Nachrichten für dieses Datum -->
+        <div
+          *ngFor="let message of group.messages"
+          class="message-item"
+          [class.outgoing-message]="message.senderId === senderName"
+        >
+          <div class="message-avatar">
+            <img
+              [src]="
+                message.avatar ||
+                (message.senderId === senderName
+                  ? senderAvatar
+                  : partnerAvatarUrl)
+              "
+              alt="Avatar"
+              class="avatar-img"
+            />
+          </div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="sender-name">{{ message.senderId }}</span>
+              <span class="timestamp"
+                >{{ message.timestamp | date : "HH:mm" }} Uhr</span
+              >
+            </div>
+            <div class="message-text">{{ message.text }}</div>
+
+            <!-- Reactions (if any) -->
+            <div
+              *ngIf="message.reactions && message.reactions.length > 0"
+              class="reactions"
+            >
+              <div
+                *ngFor="let reaction of message.reactions"
+                class="reaction-tag"
+              >
+                <span class="emoji">{{ reaction.emoji }}</span>
+                <span class="count">{{ reaction.count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Message Input Area (immer anzeigen) -->
+    <!-- <div class="message-input-area">
+      <div class="input-container">
+        <input
+          type="text"
+          class="message-input"
+          [(ngModel)]="newMessageText"
+          placeholder="Nachricht an {{ partnerName }}"
+          (keydown)="onKeyDown($event)"
+        />
+
+        <div class="input-actions">
+          <button class="emoji-button" type="button">
+            <mat-icon>sentiment_satisfied_alt</mat-icon>
+          </button>
+          <button class="mention-button" type="button">
+            <mat-icon>alternate_email</mat-icon>
+          </button>
+        </div>
+        <button
+          class="send-button"
+          type="button"
+          [disabled]="!newMessageText.trim()"
+          (click)="sendMessage()"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div> -->
+
+    <div class="message-input-container">
+      <input
+        type="text"
+        class="message-input"
+        [(ngModel)]="newMessageText"
+        placeholder="Nachricht an #{{ partnerName }}"
+        (keydown)="onKeyDown($event)"
+      />
+      <div class="input-actions">
+        <button class="emoji-btn">
+          <mat-icon>sentiment_satisfied_alt</mat-icon>
+        </button>
+        <button class="mention-btn">
+          <mat-icon>alternate_email</mat-icon>
+        </button>
+      </div>
+      <button
+        class="send-btn"
+        [disabled]="!newMessageText.trim()"
+        (click)="sendMessage()"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
