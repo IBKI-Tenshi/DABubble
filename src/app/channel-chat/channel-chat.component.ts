@@ -38,6 +38,7 @@ interface Reaction {
   templateUrl: './channel-chat.component.html',
   styleUrls: ['./channel-chat.component.scss']
 })
+
 export class ChannelChatComponent implements OnInit, OnDestroy {
   messages: Message[] = [];
   groupedMessages: GroupedMessages[] = [];
@@ -59,12 +60,16 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
   isSendingReply: boolean = false;
   hasMessages: boolean = false;
   
+  showChannelDescriptionModal = false;
   availableEmojis: string[] = ['👍', '❤️', '😂', '😮', '😢', '👏', '🎉', '🤔'];
 
   private routeSub!: Subscription;
   private messageSub!: Subscription;
   private threadSub!: Subscription;
   private userSub!: Subscription;
+memberCount: any;
+channelCreator: any;
+channelDescription: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -172,6 +177,12 @@ export class ChannelChatComponent implements OnInit, OnDestroy {
     ];
     this.hasMessages = true;
   }
+
+    closeChannelInfoModal() {
+    this.showChannelDescriptionModal = false;
+    
+  }
+  
   
   groupMessagesByDate(): void {
     const groupedObj: { [key: string]: GroupedMessages } = {};

@@ -19,6 +19,7 @@ import { collection } from 'firebase/firestore';
 import { collectionData } from '@angular/fire/firestore';
 import { ChatPartnerService } from '../../services/chat-partner.service';
 
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -32,7 +33,7 @@ import { ChatPartnerService } from '../../services/chat-partner.service';
     MatButtonModule,
     MatDialogModule,
     MatDrawer,
-    AddChannelComponent
+    AddChannelComponent,
 ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
