@@ -22,7 +22,7 @@
         />
 
         <img src="/assets/icons/channels.svg" alt="" />
-        Channels
+        <div style="font-size: 18px">Channels</div>
         <button class="add-channel-top-button">
           <mat-icon (click)="$event.stopPropagation(); addChannel()"
             >add</mat-icon
@@ -54,7 +54,7 @@
           alt=""
         />
         <img src="./assets/icons/sidebar/accont_circle.svg" alt="" />
-        Direktnachrichten
+        <div style="font-size: 18px">Direktnachrichten</div>
       </li>
 
       <ul *ngIf="showDMs" class="dm-submenu">
