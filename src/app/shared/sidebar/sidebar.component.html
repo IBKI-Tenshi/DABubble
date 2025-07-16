@@ -53,6 +53,7 @@
           "
           alt=""
         />
+        <img src="./assets/icons/sidebar/accont_circle.svg" alt="" />
         Direktnachrichten
       </li>
 
@@ -71,11 +72,11 @@
           </div>
         </li>
 
-        <li *ngFor="let user of users">
-          <a
-            (click)="openChatWithUser(user.email, user.name, user.avatar)"
-            class="dFlex_ac"
-          >
+        <li
+          *ngFor="let user of users"
+          (click)="openChatWithUser(user.email, user.name, user.avatar)"
+        >
+          <a class="dFlex_ac">
             <img
               class="user-avatar"
               [src]="user.avatar"

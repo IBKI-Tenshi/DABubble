@@ -2,7 +2,7 @@
   height: 760px;
   margin: 0 0px 0 12px;
   background-color: white;
-  border-radius: 30px;
+  border-radius: 12px;
 }
 
 .devspace-header {
@@ -21,7 +21,7 @@
 .new-message-button {}
 
 .sidenav {
-  width: 300px;
+  width: 366px;
   display: block;
 }
 
@@ -34,6 +34,7 @@
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f5f5f5;
   z-index: 11;
+  font-weight: 700;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -105,7 +106,7 @@
 
 
 .channel-submenu {
-  padding-left: 32px;
+  padding-left: 54px;
   list-style: none;
 
   li {
@@ -113,6 +114,7 @@
     display: flex;
     align-items: center;
     padding: 4px 0;
+    font-weight: 300;
   }
 
   .add-channel {}
@@ -138,19 +140,21 @@
 }
 
 .dm-submenu {
-  padding-left: 32px;
+  padding-left:54px;
   list-style: none;
+  font-size: 18px;
 
   li {
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 4px 0;
+    padding: 32px 0;
+    font-weight: 400;
   }
 
   .user-avatar {
-    width: 24px;
-    height: 24px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     margin-right: 8px;
   }
@@ -168,9 +172,12 @@
   }
   .status-container {
     position: relative;
+    margin-right: 9px;
+    display: flex;
+
     .profilePic {
-      width: 32px;
-      height: 32px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       object-fit: cover;
     }
