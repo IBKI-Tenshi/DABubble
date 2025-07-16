@@ -161,7 +161,6 @@
     
     &:not(.outgoing-message) {
       .message-content {
-        background-color: #ECEEFE;
         color: #000;
         border-radius: 30px 30px 30px 10px;
         margin-right: 80px;
@@ -174,15 +173,14 @@
   }
   
   .avatar-img {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
   }
   
   .message-content {
     flex: 1;
-    padding: 15px 25px;
     border: none;
     box-shadow: none;
   }
@@ -196,13 +194,15 @@
   
   .sender-name {
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
+    white-space: nowrap;
   }
   
   .timestamp {
     color: #686868;
     font-size: 14px;
     font-weight: 400;
+    white-space: nowrap;
   }
   
   .message-text {
@@ -210,6 +210,10 @@
     line-height: 1.4;
     word-wrap: break-word;
     white-space: pre-wrap;
+    background-color: lightgray;
+    padding: 12px 20px;
+    border-radius: 0px 30px 30px 30px;
+    background-color: #ECEEFE;
   }
   
   /* Message Input Area */
