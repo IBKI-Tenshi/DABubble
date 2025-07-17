@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, Router } from '@angular/router';
 import { UserDataService } from '../../services/user_data.service';
 import { UrlService } from '../../services/url.service';
 import { CreateUserComponent } from '../../overlay/create-user.component';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-password-email',
@@ -21,6 +23,7 @@ import { CreateUserComponent } from '../../overlay/create-user.component';
   styleUrls: ['./password-email.component.scss'],
 })
 export class PasswordEmailComponent {
+  private auth: Auth;
   @Input() disabled: boolean = false;
   showOverlay: boolean = false;
 
@@ -38,6 +41,7 @@ export class PasswordEmailComponent {
     private userDataService: UserDataService
   ) {
     this.BASE_URL = this.urlService.BASE_URL;
+    this.auth = inject(Auth);
   }
 
   toggleConfirm(): void {
@@ -128,8 +132,15 @@ export class PasswordEmailComponent {
   async preparePasswordResetFlow(userId: string): Promise<void> {
     this.emailExists = true;
     this.userDataService.setUserId(userId);
-    this.toggleConfirm();
-    await this.openDialog();
-    this.router.navigate(['/passwordReset']);
+
+    // 🔥 Send reset email here
+    try {
+      await sendPasswordResetEmail(this.auth, this.contactData.email);
+      this.toggleConfirm();
+      await this.openDialog();
+      this.router.navigate(['/passwordReset']);
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+    }
   }
 }
