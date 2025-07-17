@@ -198,10 +198,8 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   groupMessagesByDate(): void {
-    // Nachrichten nach Datum gruppieren
     const groupedObj: { [key: string]: GroupedMessages } = {};
     
-    // Wenn keine Nachrichten vorhanden sind
     if (this.messages.length === 0) {
       this.groupedMessages = [];
       return;
@@ -209,11 +207,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     
     for (const message of this.messages) {
       const date = new Date(message.timestamp);
-      date.setHours(0, 0, 0, 0); // Nur Datum ohne Zeit
+      date.setHours(0, 0, 0, 0);
       
       const dateStr = date.toISOString();
       
-      // Datumsbezeichnung erstellen
       let dateLabel: string;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -226,14 +223,12 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       } else if (date.getTime() === yesterday.getTime()) {
         dateLabel = 'Gestern';
       } else {
-        // Format: Dienstag, 14 Januar - mit nativer JavaScript-Methode
         const options: Intl.DateTimeFormatOptions = { 
           weekday: 'long', 
           day: 'numeric', 
           month: 'long' 
         };
         dateLabel = date.toLocaleDateString('de-DE', options);
-        // Erster Buchstabe groß (falls nötig)
         dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
       }
       
@@ -266,7 +261,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       reactions: []
     };
     
-    // Text zwischenspeichern und Feld leeren
     const messageText = this.newMessageText;
     this.newMessageText = '';
 

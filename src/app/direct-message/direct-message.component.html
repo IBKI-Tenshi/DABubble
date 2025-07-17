@@ -19,11 +19,11 @@
           alt="{{ partnerName }}"
         />
         <h2 class="profile-name">{{ partnerName }}</h2>
-      </div>
-
-      <div class="chat-privacy-info">
-        Diese Unterhaltung findet nur zwischen
-        <span class="mention">{{ "@" + partnerName }}</span> und dir statt.
+        
+        <div class="chat-privacy-info">
+          Diese Unterhaltung findet nur zwischen
+          <span class="mention">{{ "@" + partnerName }}</span> und dir statt.
+        </div>
       </div>
     </ng-container>
 
@@ -87,29 +87,31 @@
       </ng-container>
     </div>
 
+    <!-- Message Input Area -->
     <div class="message-input-container">
       <input
         type="text"
         class="message-input"
         [(ngModel)]="newMessageText"
-        placeholder="Nachricht an #{{ partnerName }}"
+        placeholder="Nachricht an {{ partnerName }}"
         (keydown)="onKeyDown($event)"
       />
       <div class="input-actions">
-        <button class="emoji-btn">
+        <button class="emoji-btn" type="button">
           <mat-icon>sentiment_satisfied_alt</mat-icon>
         </button>
-        <button class="mention-btn">
+        <button class="mention-btn" type="button">
           <mat-icon>alternate_email</mat-icon>
         </button>
+        <button
+          class="send-btn"
+          type="button"
+          [disabled]="!newMessageText.trim()"
+          (click)="sendMessage()"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
       </div>
-      <button
-        class="send-btn"
-        [disabled]="!newMessageText.trim()"
-        (click)="sendMessage()"
-      >
-        <mat-icon>send</mat-icon>
-      </button>
     </div>
   </div>
 </div>
