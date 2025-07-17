@@ -12,7 +12,7 @@
     background-color: #fff;
     border-radius: 12px;
     margin: 0 12px;
-    overflow: hidden;
+    // overflow: hidden;
   }
   
   /* Header */
@@ -54,6 +54,7 @@
     background-color: #fff;
     border-radius: 18px;
     padding: 0 16px 16px;
+    overflow: hidden;
   }
   
   /* User Profile (Empty State) */
@@ -104,7 +105,9 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
+    max-height: calc(100vh - 280px);
+
   }
   
   /* Date Separator */
