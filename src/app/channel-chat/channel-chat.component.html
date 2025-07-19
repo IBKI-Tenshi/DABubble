@@ -339,139 +339,48 @@
           <!-- } -->
         </div>
 
-        <h4>Beschreibung</h4>
-        <p>
-          {{
-            "Dieser Channel ist für alles rund um #" +
-              channelName +
-              " vorgesehen. Hier kannst du zusammen mit deinem Team Meetings abhalten, Dokumente teilen und Entscheidungen treffen."
-          }}
-        </p>
-
-        @if (false) {
-        <button class="edit-button"><span>Bearbeiten</span></button>
-        }
-
-        <!-- <div class="channel-stats">
-          <div class="stat-item clickable members-stat-item">
-            <div class="stat-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <div class="view-more">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </div>
+        <div class="channel-description-creator">
+          <div>
+            <h4>Beschreibung</h4>
+            <button class="edit-button"><span>Bearbeiten</span></button>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                ></path>
-              </svg>
-            </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </div>
-          </div>
-        </div>
+          <p>
+            {{
+              "Dieser Channel ist für alles rund um #" +
+                channelName +
+                " vorgesehen. Hier kannst du zusammen mit deinem Team Meetings abhalten, Dokumente teilen und Entscheidungen treffen."
+            }}
+          </p>
 
-        <h4>Erstellt von</h4>
-        <div class="creator-info">
-          <span>{{ "Noah Braun" }}</span>
+          @if (false) {
+          <button class="edit-button"><span>Bearbeiten</span></button>
+          }
+
+          <hr class="divider" />
+
+          <h4>Erstellt von</h4>
+          <div class="creator-info">
+            <span>{{ "Noah Braun" }}</span>
+          </div>
         </div>
       </div>
 
-      
       <div class="members-list-container">
         <div class="members-header">
-          <button class="back-button">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            Zurück
-          </button>
+          <div class="members-list"></div>
         </div>
-
-        <div class="members-list"></div>
       </div>
-    </div>
-    <div class="modal-footer">
-      @if (channelId !== '1') {
-      <button class="channel-leave-button">
-        <span>Channel verlassen</span>
-      </button>
-      }
-      <button class="close-button">
-        <span>Schließen</span>
-      </button>
-    </div>
-  </div> -->
-        <!-- </div>  -->
+      <div class="modal-footer">
+        @if (channelId !== '1') {
+        <button class="channel-leave-button">
+          <span>Channel verlassen</span>
+        </button>
+        }
       </div>
     </div>
   </div>
+  <!-- </div>
+    </div>
+  </div>
+</div> -->
 </div>

@@ -16,7 +16,7 @@ export const routes: Routes = [
   { path: 'avatarSelection', component: AvatarSelectionComponent },
   { path: 'directMessage', component: DirectMessageComponent },
   { path: 'directMessage/:chatId', component: DirectMessageComponent },
-  { path: '', component: LoginComponent },
+  // { path: '', component: LoginComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: 'impressum', component: ImprintComponent },
   { path: 'password', component: PasswordEmailComponent },
