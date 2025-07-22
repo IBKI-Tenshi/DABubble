@@ -75,6 +75,7 @@
         <li
           *ngFor="let user of users"
           (click)="openChatWithUser(user.email, user.name, user.avatar)"
+          [ngClass]="{'active': activeChat === generateChatId(currentUserEmail, user.email)}"
         >
           <a class="dFlex_ac">
             <img
