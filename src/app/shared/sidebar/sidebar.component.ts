@@ -34,7 +34,7 @@ import { ChatPartnerService } from '../../services/chat-partner.service';
     MatDialogModule,
     MatDrawer,
     AddChannelComponent,
-],
+  ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -48,6 +48,7 @@ export class SidebarComponent implements OnInit {
   currentUserName: string = '';
   currentUserImage: string = '/assets/img/dummy_pic.png';
   isOnline: boolean = true;
+  activeChat: string = '';
   channels: any[] = [];
   private subscription: Subscription = new Subscription();
 
@@ -57,7 +58,7 @@ export class SidebarComponent implements OnInit {
     private userService: UserDataService,
     private router: Router,
     private chatNavigationService: ChatNavigationService,
-    private chatPartnerService: ChatPartnerService, 
+    private chatPartnerService: ChatPartnerService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -106,6 +107,12 @@ export class SidebarComponent implements OnInit {
     });
   }
 
+  generateChatId(email1: string, email2: string): string {
+
+    return [email1, email2].sort().join('_');
+
+  }
+
   toggleChannels() {
     this.showChannels = !this.showChannels;
   }
@@ -120,27 +127,27 @@ export class SidebarComponent implements OnInit {
     console.log(22);
   }
 
-    onChannelAdded(newChannelName: string) {
+  onChannelAdded(newChannelName: string) {
 
-       this.firestore.createChannel(newChannelName).then(() => {
+    this.firestore.createChannel(newChannelName).then(() => {
       this.channels.push(newChannelName);
-    }).catch((error) => {});
+    }).catch((error) => { });
   }
 
   async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
     const currentUser = await firstValueFrom(this.userService.user$);
     const currentUserName = currentUser?.name || 'Unbekannt';
-  
+
     const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
-  
+
     this.chatPartnerService.setChatPartner(chatId, otherName, otherAvatar);
-  
+
     try {
       await firstValueFrom(this.firestore.getChatById(chatId));
       this.navigateToChat(chatId);
     } catch (getError) {
       const status = (getError as { status?: number })?.status;
-  
+
       if (status === 404) {
         try {
           await this.firestore.createChat(

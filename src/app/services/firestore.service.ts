@@ -173,6 +173,20 @@ export class FirestoreService {
     return firstValueFrom(this.http.patch(url, updateData));
   }
 
+  async updateMessageText(chatId: string, messageId: string, newText: string): Promise<any> {
+    // Update the text of a specific message in Firestore
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}`;
+    
+    const updateData = {
+      fields: {
+        text: { stringValue: newText }
+      }
+    };
+    
+    return firstValueFrom(this.http.patch(url, updateData));
+  }
+
   async updateMessageReactions(chatId: string, messageId: string, reactions: any[]): Promise<any> {
     const url = `${this.urlService.BASE_URL}/chats/${chatId}/messages/${messageId}`;
     
