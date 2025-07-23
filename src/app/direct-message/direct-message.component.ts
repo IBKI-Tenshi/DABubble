@@ -56,6 +56,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   showEmojiPickerForMessage: string | null = null;
   showEmojiPickerForReaction: string | null = null;
   showEmojiPickerForInput: boolean = false;
+  expandedReactions: { [key: string]: boolean } = {};
+  readonly MAX_DESKTOP_REACTIONS = 20;
+  readonly MAX_MOBILE_REACTIONS = 7;
+  isMobile = false;
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('emojiPicker') private emojiPicker!: ElementRef;
@@ -65,6 +69,9 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   private querySub!: Subscription;
   private messageSub!: Subscription;
   private userSub!: Subscription;
+  private refreshReactionsDisplay(): void {
+    this.expandedReactions = {};
+  }
 
   constructor(
     private firestore: FirestoreService,
@@ -72,44 +79,53 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     private chatNavigationService: ChatNavigationService,
     private avatarService: AvatarService,
     private userService: UserDataService,
-    private chatPartnerService: ChatPartnerService 
+    private chatPartnerService: ChatPartnerService
+    
   ) { }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.emojiPicker?.nativeElement?.contains(event.target as Node)) {
-      this.showEmojiPickerForMessage = null;
-      this.showEmojiPickerForReaction = null;
-      this.showEmojiPickerForInput = false;
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    if (this.isMobile) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.add-reaction') && !target.closest('.emoji-picker-container')) {
+        this.showEmojiPickerForMessage = null;
+        this.showEmojiPickerForReaction = null;
+        this.showEmojiPickerForInput = false;
+      }
     }
   }
 
   ngOnInit(): void {
     this.loadCurrentUser();
-  
+    this.checkScreenSize();
+
+    window.addEventListener('resize', () => {
+      this.checkScreenSize();
+    });
+
     this.routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('chatId');
       if (id) {
         this.chatId = id;
-        
+
         const partner = this.chatPartnerService.getChatPartner(id);
         if (partner) {
           this.partnerName = partner.name;
           this.partnerAvatarUrl = partner.avatar;
         }
-        
+
         this.loadChatInfo();
         this.loadMessages();
       } else {
         console.error('Keine Chat-ID in den Route-Parametern gefunden!');
       }
     });
-    
+
     this.querySub = this.route.queryParams.subscribe(params => {
       if (params['name'] && params['avatar']) {
         this.partnerName = params['name'];
         this.partnerAvatarUrl = params['avatar'];
-        
+
         if (this.chatId) {
           this.chatPartnerService.setChatPartner(this.chatId, params['name'], params['avatar']);
         }
@@ -120,7 +136,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   ngAfterViewChecked() {
     if (this.needsToScroll && this.messagesContainer) {
       this.scrollToBottom();
-      this.needsToScroll = false; 
+      this.needsToScroll = false;
     }
   }
 
@@ -139,18 +155,18 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
         if (chatData && chatData.fields) {
           const participants = chatData.fields.participants?.arrayValue?.values || [];
           const participantNames = chatData.fields.participantNames?.arrayValue?.values || [];
-          
+
           if (participants.length === 2 && participantNames.length === 2) {
             const currentUserName = this.senderName;
-            const partnerNameObj = participantNames.find((p: any) => 
+            const partnerNameObj = participantNames.find((p: any) =>
               p.stringValue !== currentUserName
             );
 
             if (partnerNameObj) {
               this.partnerName = partnerNameObj.stringValue;
               this.chatPartnerService.setChatPartner(
-                this.chatId, 
-                this.partnerName, 
+                this.chatId,
+                this.partnerName,
                 this.partnerAvatarUrl
               );
             }
@@ -190,91 +206,93 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     if (this.messageSub) {
       this.messageSub.unsubscribe();
     }
-
+  
     if (!this.chatId) {
       console.error('Keine Chat-ID vorhanden!');
       return;
     }
-
-    this.messageSub = this.firestore.getChatMessages(this.chatId)
-      .subscribe({
-        next: (response: any) => {
-          const documents = response?.documents || [];
-
-          this.messages = documents.map((doc: any) => {
-            const fields = doc.fields || {};
-          
-            const senderId = fields.senderId?.stringValue || 'Unbekannt';
-            const text = fields.text?.stringValue || '';
-            const timestampStr = fields.timestamp?.timestampValue;
-            const timestamp = timestampStr ? new Date(timestampStr) : new Date();
-            const avatar = fields.avatar?.stringValue || this.getAvatarForUser(senderId);
-          
-            const rawReactions = fields.reactions?.arrayValue?.values || [];
-            const reactions = rawReactions.map((r: any): Reaction => {
-              const reactionFields = r?.mapValue?.fields || {};
-              const emoji = reactionFields.emoji?.stringValue || '';
-              const count = parseInt(reactionFields.count?.integerValue || '0', 10);
-              const users = reactionFields.users?.arrayValue?.values?.map((u: any) => u?.stringValue) || [];
-              return { emoji, count, users };
-            });
-          
-            return {
-              id: doc.name.split('/').pop(),
-              senderId,
-              text,
-              timestamp,
-              avatar,
-              reactions
-            };
-          }).sort((a: { timestamp: { getTime: () => number; }; }, b: { timestamp: { getTime: () => number; }; }) => a.timestamp.getTime() - b.timestamp.getTime());
-          this.groupMessagesByDate();
-          
-          if (documents.length > 0) {
-            this.needsToScroll = true;
-          }
-        },
-        error: (error) => {
-          console.error(`Fehler beim Laden der Nachrichten für Chat ${this.chatId}:`, error);
+  
+    this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe({
+      next: (response: any) => {
+        const documents = response?.documents || [];
+  
+        this.messages = documents.map((doc: any) => {
+          const fields = doc.fields || {};
+  
+          const senderId = fields.senderId?.stringValue || 'Unbekannt';
+          const text = fields.text?.stringValue || '';
+          const timestampStr = fields.timestamp?.timestampValue;
+          const timestamp = timestampStr ? new Date(timestampStr) : new Date();
+          const avatar = fields.avatar?.stringValue || this.getAvatarForUser(senderId);
+  
+          const rawReactions = fields.reactions?.arrayValue?.values || [];
+          const reactions = rawReactions.map((r: any): Reaction => {
+            const reactionFields = r?.mapValue?.fields || {};
+            const emoji = reactionFields.emoji?.stringValue || '';
+            const count = parseInt(reactionFields.count?.integerValue || '0', 10);
+            const users = reactionFields.users?.arrayValue?.values?.map((u: any) => u?.stringValue) || [];
+            return { emoji, count, users };
+          });
+  
+          return {
+            id: doc.name.split('/').pop(),
+            senderId,
+            text,
+            timestamp,
+            avatar,
+            reactions
+          };
+        }).sort((a: { timestamp: { getTime: () => number; }; }, b: { timestamp: { getTime: () => number; }; }) => a.timestamp.getTime() - b.timestamp.getTime());
+  
+        this.groupMessagesByDate();
+        this.refreshReactionsDisplay();
+  
+        if (documents.length > 0) {
+          this.needsToScroll = true;
         }
-      });
+      },
+      error: (error) => {
+        console.error(`Fehler beim Laden der Nachrichten für Chat ${this.chatId}:`, error);
+      }
+    });
   }
+  
 
   groupMessagesByDate(): void {
     const groupedObj: { [key: string]: GroupedMessages } = {};
-    
+
     if (this.messages.length === 0) {
       this.groupedMessages = [];
       return;
     }
-    
+
     for (const message of this.messages) {
       const date = new Date(message.timestamp);
       date.setHours(0, 0, 0, 0);
-      
+
       const dateStr = date.toISOString();
-      
+
       let dateLabel: string;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
-      
+
       if (date.getTime() === today.getTime()) {
         dateLabel = 'Heute';
       } else if (date.getTime() === yesterday.getTime()) {
         dateLabel = 'Gestern';
       } else {
-        const options: Intl.DateTimeFormatOptions = { 
-          weekday: 'long', 
-          day: 'numeric', 
-          month: 'long' 
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
         };
         dateLabel = date.toLocaleDateString('de-DE', options);
         dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
       }
-      
+
       if (!groupedObj[dateStr]) {
         groupedObj[dateStr] = {
           date: date,
@@ -282,10 +300,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
           messages: []
         };
       }
-      
+
       groupedObj[dateStr].messages.push(message);
     }
-    
+
     this.groupedMessages = Object.values(groupedObj).sort(
       (a, b) => a.date.getTime() - b.date.getTime()
     );
@@ -295,7 +313,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     if (this.isSending || !this.newMessageText.trim()) return;
 
     this.isSending = true;
-    
+
     const newMessage: Message = {
       text: this.newMessageText,
       senderId: this.senderName,
@@ -303,31 +321,31 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       avatar: this.senderAvatar,
       reactions: []
     };
-    
+
     const messageText = this.newMessageText;
     this.newMessageText = '';
 
     try {
       const tempId = Date.now().toString();
       const tempMessage = { ...newMessage, id: tempId };
-      
+
       this.messages.push(tempMessage);
       this.groupMessagesByDate();
-      
+
       this.needsToScroll = true;
-      
+
       await this.firestore.addMessageToChat(this.chatId, newMessage);
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
-      
+
       this.newMessageText = messageText;
-      
+
       alert('Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.');
     } finally {
       this.isSending = false;
     }
   }
-  
+
   onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -366,13 +384,13 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
     try {
       await this.firestore.updateMessageText(this.chatId, messageId, this.editingMessageText);
-      
+
       const messageIndex = this.messages.findIndex(m => m.id === messageId);
       if (messageIndex !== -1) {
         this.messages[messageIndex].text = this.editingMessageText;
         this.groupMessagesByDate();
       }
-      
+
       this.cancelEditing();
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Nachricht:', error);
@@ -411,25 +429,25 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   async addReaction(messageId: string, event: any): Promise<void> {
     try {
       const emoji = event.emoji.native;
-      
+
       const messageIndex = this.messages.findIndex(m => m.id === messageId);
       if (messageIndex === -1) return;
-      
+
       const message = this.messages[messageIndex];
 
       const reactionIndex = message.reactions.findIndex(r => r.emoji === emoji);
-      
+
       if (reactionIndex !== -1) {
 
         const reaction = message.reactions[reactionIndex];
         const userIndex = reaction.users.indexOf(this.senderName);
-        
+
         if (userIndex !== -1) {
           reaction.users.splice(userIndex, 1);
           reaction.count--;
-          
+
           if (reaction.count === 0) {
-  
+
             message.reactions.splice(reactionIndex, 1);
           }
         } else {
@@ -444,10 +462,42 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
         });
       }
       await this.firestore.updateMessageReactions(this.chatId, messageId, message.reactions);
-      
+
       this.showEmojiPickerForReaction = null;
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Reaktion:', error);
     }
+  }
+
+  checkScreenSize(): void {
+    this.isMobile = window.innerWidth <= 768;
+  }
+
+  getVisibleReactions(message: Message): Reaction[] {
+    if (!message.reactions || message.reactions.length === 0) return [];
+    
+    const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
+    
+    if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
+      return message.reactions;
+    }
+    
+    return message.reactions.slice(0, maxVisible);
+  }
+
+  getHiddenReactionsCount(message: Message): number {
+    if (!message.reactions || message.reactions.length === 0) return 0;
+    
+    const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
+    
+    if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
+      return 0;
+    }
+    
+    return message.reactions.length - maxVisible;
+  }
+  
+  toggleReactionsExpansion(messageId: string): void {
+    this.expandedReactions[messageId] = !this.expandedReactions[messageId];
   }
 }
