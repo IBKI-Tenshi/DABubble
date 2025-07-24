@@ -1,9 +1,29 @@
+:host {
+  display: flex;
+  width: 100%;
+  height: 760px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Main Container Styles */
 .direct-message-container {
+  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background-color: white;
+  background-color: #fff;
+  border-radius: 18px;
+  margin: 0 12px;
+
+  &.with-thread {
+    width: calc(100% - 350px);
+  }
+
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+
 }
 
 /* Header Styles */
@@ -11,12 +31,15 @@
   padding: 12px 16px;
   border-bottom: 1px solid #e8e8e8;
   background-color: white;
-  
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+
+
   .user-info {
     display: flex;
     align-items: center;
     gap: 12px;
-    
+
     .user-avatar {
       width: 40px;
       height: 40px;
@@ -24,7 +47,7 @@
       object-fit: cover;
       cursor: pointer;
     }
-    
+
     .user-name {
       font-weight: 600;
       font-size: 16px;
@@ -39,6 +62,8 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+
+  justify-content: flex-end;
 }
 
 /* Messages Container */
@@ -46,16 +71,16 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background-color: #ddd;
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb:hover {
     background-color: #ccc;
   }
@@ -66,13 +91,13 @@
   display: flex;
   align-items: center;
   margin: 24px 0;
-  
+
   .line {
     flex: 1;
     height: 1px;
     background-color: #e8e8e8;
   }
-  
+
   .date-pill {
     padding: 6px 16px;
     background-color: white;
@@ -90,7 +115,7 @@
   display: flex;
   margin-bottom: 20px;
   position: relative;
-  
+
   /* Hover Toolbar */
   .message-hover-toolbar {
     position: absolute;
@@ -102,11 +127,11 @@
     display: none;
     padding: 0;
     z-index: 100;
-    
+
     .toolbar-buttons {
       display: flex;
       align-items: center;
-      
+
       button {
         background: none;
         border: none;
@@ -120,12 +145,12 @@
         justify-content: center;
         border-radius: 50%;
         margin: 0 2px;
-        
+
         &:hover {
           background-color: #f5f5f5;
           color: #797ef3;
         }
-        
+
         &.active {
           color: #797ef3;
         }
@@ -136,7 +161,7 @@
           width: 18px;
         }
       }
-      
+
       .divider {
         width: 1px;
         height: 20px;
@@ -145,15 +170,15 @@
       }
     }
   }
-  
+
   &:hover .message-hover-toolbar {
     display: flex;
   }
-  
+
   /* Message Content */
   .message-avatar {
     margin-right: 12px;
-    
+
     .avatar-img {
       width: 40px;
       height: 40px;
@@ -162,32 +187,32 @@
       cursor: pointer;
     }
   }
-  
+
   .message-content {
     flex: 1;
     max-width: calc(100% - 52px);
-    
+
     .message-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 4px;
-      
+
       .sender-name {
         font-weight: 600;
         font-size: 15px;
         cursor: pointer;
-        
+
         &:hover {
           text-decoration: underline;
         }
       }
-      
+
       .timestamp {
         font-size: 12px;
         color: #888;
       }
     }
-    
+
     .message-text {
       background-color: #f1f2ff;
       border-radius: 0 12px 12px 12px;
@@ -199,33 +224,33 @@
       max-width: 100%;
     }
   }
-  
+
   /* Outgoing Messages (vom aktuellen Benutzer) */
   &.outgoing-message {
     flex-direction: row-reverse;
-    
+
     .message-hover-toolbar {
       right: 0;
       left: auto;
     }
-    
+
     .message-avatar {
       margin-right: 0;
       margin-left: 12px;
     }
-    
+
     .message-content {
       .message-header {
         flex-direction: row-reverse;
       }
-      
+
       .message-text {
         background-color: #797ef3;
         color: white;
         border-radius: 12px 0 12px 12px;
         float: right;
       }
-      
+
       .reactions {
         justify-content: flex-end;
       }
@@ -241,23 +266,23 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   min-width: 180px;
-  
+
   .menu-item {
     padding: 8px 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    
+
     &:hover {
       background-color: #f5f5f5;
     }
-    
+
     .menu-icon {
       color: #555;
       font-size: 16px;
     }
-    
+
     .menu-text {
       font-size: 14px;
     }
@@ -272,7 +297,7 @@
   margin-top: 8px;
   align-items: center;
   min-height: 26px;
-  
+
   .reaction-bubble {
     display: flex;
     align-items: center;
@@ -284,36 +309,37 @@
     cursor: pointer;
     font-size: 14px;
     height: 24px;
-    
+
     &:hover {
       background-color: #f5f5f5;
     }
-    
+
     &.selected {
       background-color: #eceefe;
       border-color: #797ef3;
     }
-    
+
     .emoji {
       font-size: 16px;
     }
-    
+
     .count {
       font-size: 13px;
     }
-    
-    &.more-reactions, &.show-less {
+
+    &.more-reactions,
+    &.show-less {
       color: #666;
       font-size: 12px;
-      
+
       &:hover {
         color: #797ef3;
       }
     }
-    
+
     &.add-reaction {
       color: #797ef3;
-      
+
       mat-icon {
         font-size: 16px;
         height: 16px;
@@ -330,7 +356,7 @@
   padding: 8px;
   background-color: #fff;
   width: 100%;
-  
+
   .edit-input {
     width: 100%;
     min-height: 60px;
@@ -340,43 +366,44 @@
     font-size: 15px;
     font-family: inherit;
   }
-  
+
   .edit-actions {
     display: flex;
     justify-content: space-between;
     margin-top: 8px;
-    
+
     .edit-emoji-button {
       background: none;
       border: none;
       color: #797ef3;
       cursor: pointer;
     }
-    
+
     .edit-buttons {
       display: flex;
       gap: 8px;
-      
-      .cancel-button, .save-button {
+
+      .cancel-button,
+      .save-button {
         padding: 6px 12px;
         border-radius: 4px;
         border: none;
         font-size: 14px;
         cursor: pointer;
       }
-      
+
       .cancel-button {
         background-color: #f5f5f5;
-        
+
         &:hover {
           background-color: #e8e8e8;
         }
       }
-      
+
       .save-button {
         background-color: #797ef3;
         color: white;
-        
+
         &:hover {
           background-color: darken(#797ef3, 10%);
         }
@@ -392,7 +419,7 @@
   align-items: center;
   justify-content: center;
   margin-top: 60px;
-  
+
   .profile-avatar {
     width: 100px;
     height: 100px;
@@ -400,20 +427,20 @@
     object-fit: cover;
     margin-bottom: 16px;
   }
-  
+
   .profile-name {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 8px;
   }
-  
+
   .chat-privacy-info {
     font-size: 15px;
     color: #666;
     max-width: 400px;
     text-align: center;
     line-height: 1.5;
-    
+
     .mention {
       color: #797ef3;
     }
@@ -428,7 +455,10 @@
   border-top: 1px solid #e8e8e8;
   background-color: white;
   position: relative;
-  
+
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+
   .message-input {
     flex: 1;
     border: 1px solid #e0e0e0;
@@ -436,42 +466,42 @@
     padding: 8px 16px;
     font-size: 15px;
     outline: none;
-    
+
     &:focus {
       border-color: #797ef3;
     }
   }
-  
+
   .input-actions {
     display: flex;
     margin-left: 8px;
     gap: 4px;
-    
+
     button {
       background: none;
       border: none;
       color: #797ef3;
       cursor: pointer;
       padding: 4px;
-      
+
       &:hover {
         color: darken(#797ef3, 10%);
       }
     }
   }
-  
+
   .send-btn {
     background: none;
     border: none;
     color: #797ef3;
     cursor: pointer;
     margin-left: 8px;
-    
+
     &:disabled {
       color: #ccc;
       cursor: not-allowed;
     }
-    
+
     &:not(:disabled):hover {
       color: darken(#797ef3, 10%);
     }
@@ -485,16 +515,16 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: white;
-  
+
   &.emoji-picker-for-input {
     bottom: 60px;
     right: 16px;
   }
-  
+
   &.emoji-picker-for-message {
     bottom: 40px;
   }
-  
+
   &.emoji-picker-for-reaction {
     bottom: 30px;
     left: 0;
