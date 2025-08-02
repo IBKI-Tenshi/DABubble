@@ -3,7 +3,12 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
-import { Auth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from '@angular/fire/auth';
+import {
+  Auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+} from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 import { UserDataService } from './user_data.service';
@@ -221,7 +226,7 @@ export class LoginService {
     this.userDataService.loadUser(googleUserId);
 
     setTimeout(() => {
-      this.router.navigate(['/directMessage/general']);
+      this.router.navigate(['/directMessage']);
     }, 100);
   }
 }
