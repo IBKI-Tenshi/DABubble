@@ -1,9 +1,9 @@
 .main-layout {
   display: flex;
   justify-content: flex-start;
+  height: 100%;
   padding-bottom: 16px;
 }
-
 
 .toggle-sidebar-button {
   position: absolute;
@@ -20,27 +20,31 @@
   border-radius: 0 0 30px 30px;
   cursor: pointer;
   z-index: 1000;
-  box-shadow: -6px 6px 13px -1px rgba(0,0,0,0.6);
+  box-shadow: -6px 6px 13px -1px rgba(0, 0, 0, 0.6);
 
   font-size: 20px;
   font-weight: 500;
   gap: 8px;
 
-  >img{
+  >img {
     height: 16px;
     width: 16px;
     transform: rotate(+90deg);
   }
 }
 
-
-
 @media (orientation: portrait) {
 
 
   app-sidebar {
-  width: 100%;
-  margin: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  .main-layout {
+    padding-bottom: 0;
+    height: 100%;
   }
 
 }

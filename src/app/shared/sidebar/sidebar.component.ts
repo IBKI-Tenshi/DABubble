@@ -164,6 +164,7 @@ export class SidebarComponent implements OnInit {
       }
     }
   }
+  
   private navigateToChat(chatId: string) {
     this.router.navigate(['/directMessage', chatId]);
   }

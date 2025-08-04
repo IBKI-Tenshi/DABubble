@@ -530,3 +530,16 @@
     left: 0;
   }
 }
+
+
+@media (orientation: portrait) {
+
+  :host{
+    height: 100%;
+  }
+
+  .direct-message-container {
+    margin: 0;
+  }
+
+}

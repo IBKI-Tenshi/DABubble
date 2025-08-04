@@ -3,11 +3,9 @@
 html,
 body {
   height: 100%;
+  margin: 0;
+  padding: 0;
   background-color: #eceefe;
-  // max-width: 1440px;
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
 }
 
 .mat-h1,
@@ -18,8 +16,8 @@ body {
   font: 700 46px / 32px "Nunito", sans-serif !important;
 }
 
-body{
- max-width: 1440px;
+body {
+  max-width: 1440px;
 }
 
 html,
@@ -143,4 +141,20 @@ a {
 
 .text-gray {
   color: #686868;
+}
+
+
+
+@media (orientation: portrait) {
+
+  html,
+  body {
+    // height: 100vh;
+  }
+
+  .windowSetup {
+    height: 100%;
+  }
+
+
 }

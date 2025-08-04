@@ -141,7 +141,7 @@
 }
 
 .dm-submenu {
-  padding-left:54px;
+  padding-left: 54px;
   list-style: none;
   font-size: 18px;
 
@@ -166,11 +166,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
+
   span {
     font-weight: 500;
     color: #222;
     margin-right: 16px;
   }
+
   .status-container {
     position: relative;
     margin-right: 9px;
@@ -182,6 +184,7 @@
       border-radius: 50%;
       object-fit: cover;
     }
+
     .status-circle {
       position: absolute;
       bottom: 2px;
@@ -190,9 +193,11 @@
       height: 10px;
       border-radius: 50%;
       border: 2px solid white;
+
       &.online {
         background-color: #44b700;
       }
+
       &.offline {
         background-color: #9e9e9e;
       }
@@ -204,12 +209,10 @@
 
 
   .sidebar {
-    // display: block;
-  width: 100%;
-  margin: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
   }
 
+
 }
-
-
-
