@@ -22,10 +22,12 @@ export class ReactionToolsComponent {
   @Input() messageText: string = '';
   @Output() onEdit = new EventEmitter<{ messageId: string, messageText: string }>();
   @Output() onReaction = new EventEmitter<any>();
+  @Output() onDelete = new EventEmitter<string>();
   @ViewChild('emojiPicker') emojiPickerRef: ElementRef | undefined;
 
   showPicker: boolean = false;
   showOptions: boolean = false;
+  showMenu: boolean = false;
 
   emojiCategories: string[] = [
     'people',
@@ -40,11 +42,13 @@ export class ReactionToolsComponent {
     event.stopPropagation();
     this.showPicker = !this.showPicker;
     this.showOptions = false;
+    this.showMenu = false;
   }
 
   triggerEdit() {
     this.onEdit.emit({ messageId: this.messageId, messageText: this.messageText });
     this.showOptions = false;
+    this.showMenu = false;
   }
 
   addReaction(event: any) {
@@ -52,10 +56,32 @@ export class ReactionToolsComponent {
     this.showPicker = false;
   }
 
+  addQuickReaction(emoji: string) {
+    const emojiData = {
+      emoji: {
+        native: emoji
+      }
+    };
+    this.onReaction.emit(emojiData);
+  }
+
   toggleOptions(event: MouseEvent) {
     event.stopPropagation();
     this.showOptions = !this.showOptions;
     this.showPicker = false;
+    this.showMenu = false;
+  }
+
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.showMenu = !this.showMenu;
+    this.showPicker = false;
+    this.showOptions = false;
+  }
+
+  deleteMessage() {
+    this.onDelete.emit(this.messageId);
+    this.showMenu = false;
   }
 
   @HostListener('document:click', ['$event'])
@@ -67,6 +93,10 @@ export class ReactionToolsComponent {
     
     if (this.showOptions) {
       this.showOptions = false;
+    }
+
+    if (this.showMenu) {
+      this.showMenu = false;
     }
   }
 }

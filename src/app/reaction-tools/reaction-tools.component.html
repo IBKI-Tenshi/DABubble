@@ -1,27 +1,46 @@
 <div class="reaction-tools-wrapper" [ngClass]="{ 'own': isOwn }">
-    <div class="icon smiley" (click)="togglePicker($event)"></div>
-    <div class="icon edit" *ngIf="isOwn" (click)="toggleOptions($event)"></div>
-  
-    <!-- Emoji Picker -->
-    <div *ngIf="showPicker" class="emoji-picker-container" [class.right-aligned]="!isOwn" #emojiPicker
-         (click)="$event.stopPropagation()">
-      <emoji-mart
-        [style]="{width: '280px'}"
-        [i18n]="{search: 'Suchen', categories: {people: 'Smileys', nature: 'Natur', foods: 'Essen', activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'}}"
-        title="Emoji auswählen"
-        [darkMode]="false"
-        [set]="'apple'"
-        [enableFrequentEmojiSort]="true"
-        [showPreview]="false"
-        [emojiSize]="20"
-        [perLine]="7"
-        [include]="emojiCategories"
-        (emojiClick)="addReaction($event)">
-      </emoji-mart>
-    </div>
-  
-    <!-- Edit Option -->
-    <div *ngIf="showOptions" class="edit-option" (click)="triggerEdit()">
-      Nachricht bearbeiten
-    </div>
+  <!-- Predefined Quick Reactions -->
+  <div class="quick-reactions">
+    <div class="quick-emoji" (click)="addQuickReaction('✅')" title="Grüner Haken">✅</div>
+    <div class="quick-emoji" (click)="addQuickReaction('👍')" title="Daumen hoch">👍</div>
+    <div class="quick-emoji" (click)="addQuickReaction('🔄')" title="Wiederholen">🔄</div>
   </div>
+
+  <!-- More Emojis Icon -->
+  <div class="icon more-emojis" (click)="togglePicker($event)" title="Weitere Emojis"></div>
+  
+  <!-- Edit Icon (only for own messages) -->
+  <div class="icon edit" *ngIf="isOwn" (click)="toggleOptions($event)" title="Bearbeiten"></div>
+  
+  <!-- Three Dots Menu (only for own messages) -->
+  <div class="icon menu" *ngIf="isOwn" (click)="toggleMenu($event)" title="Mehr Optionen">⋯</div>
+
+  <!-- Emoji Picker -->
+  <div *ngIf="showPicker" class="emoji-picker-container" [class.right-aligned]="!isOwn" #emojiPicker
+       (click)="$event.stopPropagation()">
+    <emoji-mart
+      [style]="{width: '280px'}"
+      [i18n]="{search: 'Suchen', categories: {people: 'Smileys', nature: 'Natur', foods: 'Essen', activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'}}"
+      title="Emoji auswählen"
+      [darkMode]="false"
+      [set]="'apple'"
+      [enableFrequentEmojiSort]="true"
+      [showPreview]="false"
+      [emojiSize]="20"
+      [perLine]="7"
+      [include]="emojiCategories"
+      (emojiClick)="addReaction($event)">
+    </emoji-mart>
+  </div>
+
+  <!-- Edit Option -->
+  <div *ngIf="showOptions" class="edit-option" (click)="triggerEdit()">
+    Nachricht bearbeiten
+  </div>
+
+  <!-- Menu Options -->
+  <div *ngIf="showMenu" class="menu-options">
+    <div class="menu-item" (click)="triggerEdit()">Bearbeiten</div>
+    <div class="menu-item" (click)="deleteMessage()">Löschen</div>
+  </div>
+</div>
