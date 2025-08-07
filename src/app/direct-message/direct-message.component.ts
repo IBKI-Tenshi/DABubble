@@ -10,7 +10,8 @@ import { Subscription } from 'rxjs';
 import { UserDataService, UserProfile } from '../services/user_data.service';
 import { ChatPartnerService } from '../services/chat-partner.service';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
-import { ReactionToolsComponent } from "../reaction-tools/reaction-tools.component";
+import { ReactionToolsComponent } from '../reaction-tools/reaction-tools.component';
+import { ReactionBubbleComponent } from '../reaction-bubble/reaction-bubble.component';
 
 interface Message {
   id?: string;
@@ -36,7 +37,14 @@ interface GroupedMessages {
 @Component({
   selector: 'app-direct-message',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, PickerComponent, ReactionToolsComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    MatIconModule, 
+    PickerComponent, 
+    ReactionToolsComponent,
+    ReactionBubbleComponent
+  ],
   templateUrl: './direct-message.component.html',
   styleUrls: ['./direct-message.component.scss']
 })
@@ -80,7 +88,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     private avatarService: AvatarService,
     private userService: UserDataService,
     private chatPartnerService: ChatPartnerService
-    
   ) { }
 
   @HostListener('touchstart', ['$event'])
@@ -256,7 +263,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       }
     });
   }
-  
 
   groupMessagesByDate(): void {
     const groupedObj: { [key: string]: GroupedMessages } = {};
@@ -438,7 +444,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       const reactionIndex = message.reactions.findIndex(r => r.emoji === emoji);
 
       if (reactionIndex !== -1) {
-
         const reaction = message.reactions[reactionIndex];
         const userIndex = reaction.users.indexOf(this.senderName);
 
@@ -447,7 +452,6 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
           reaction.count--;
 
           if (reaction.count === 0) {
-
             message.reactions.splice(reactionIndex, 1);
           }
         } else {
