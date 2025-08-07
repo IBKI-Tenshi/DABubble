@@ -80,8 +80,8 @@ export class ReactionBubbleComponent {
       visible: true,
       emoji: this.reaction.emoji,
       users: [...this.reaction.users],
-      x: rect.left + (rect.width / 2),
-      y: rect.top - 15
+      x: rect.right + 95, 
+      y: rect.top + 8
     };
   }
 

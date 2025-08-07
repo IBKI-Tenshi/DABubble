@@ -154,4 +154,19 @@
     border: none;
     font-family: inherit;
   }
+  
+  .emoji-mart-emoji {
+    display: inline-block !important;
+    visibility: visible !important;
+  }
+  
+  .emoji-mart-category {
+    display: block !important;
+  }
+  
+  .emoji-mart-scroll {
+    height: auto !important;
+    max-height: 200px;
+    overflow-y: auto;
+  }
 }

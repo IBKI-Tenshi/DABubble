@@ -15,11 +15,10 @@
   <!-- Three Dots Menu (only for own messages) -->
   <div class="icon menu" *ngIf="isOwn" (click)="toggleMenu($event)" title="Mehr Optionen">⋯</div>
 
-  <!-- Emoji Picker -->
   <div *ngIf="showPicker" class="emoji-picker-container" [class.right-aligned]="!isOwn" #emojiPicker
        (click)="$event.stopPropagation()">
     <emoji-mart
-      [style]="{width: '280px'}"
+      [style]="{width: '320px', height: '350px'}"
       [i18n]="{search: 'Suchen', categories: {people: 'Smileys', nature: 'Natur', foods: 'Essen', activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'}}"
       title="Emoji auswählen"
       [darkMode]="false"
@@ -27,7 +26,7 @@
       [enableFrequentEmojiSort]="true"
       [showPreview]="false"
       [emojiSize]="20"
-      [perLine]="7"
+      [perLine]="8"
       [include]="emojiCategories"
       (emojiClick)="addReaction($event)">
     </emoji-mart>
