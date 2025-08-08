@@ -134,6 +134,13 @@
                   (click)="toggleReactionsExpansion(message.id!)">
                   <span>Weniger anzeigen</span>
                 </div>
+                
+                <!-- Neu: Add Reaction Button -->
+                <div class="reaction-bubble add-reaction-button" 
+                    (click)="showReactionPicker(message.id!)">
+                  <span class="emoji-icon">😊</span>
+                  <span class="plus-icon">+</span>
+                </div>
 
                 <!-- Emoji Picker for reaction -->
                 <div *ngIf="showEmojiPickerForReaction === message.id"
@@ -141,8 +148,16 @@
                   <emoji-mart (emojiClick)="addReaction(message.id!, $event)"></emoji-mart>
                 </div>
               </div>
-            </div>
-          </div> 
+              
+              <div *ngIf="!message.reactions || message.reactions.length === 0" class="reactions">
+                <div class="reaction-bubble add-reaction-button" 
+                     (click)="showReactionPicker(message.id!)">
+                  <span class="emoji-icon">😊</span>
+                  <span class="plus-icon">+</span>
+                </div>
+              </div>
+              </div>
+            </div> 
         </ng-container>
       </div> 
 

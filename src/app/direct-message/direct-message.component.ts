@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -68,6 +68,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   readonly MAX_DESKTOP_REACTIONS = 20;
   readonly MAX_MOBILE_REACTIONS = 7;
   isMobile = false;
+  closePickerOnOutsideClick: any;
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('emojiPicker') private emojiPicker!: ElementRef;
@@ -87,7 +88,8 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     private chatNavigationService: ChatNavigationService,
     private avatarService: AvatarService,
     private userService: UserDataService,
-    private chatPartnerService: ChatPartnerService
+    private chatPartnerService: ChatPartnerService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   @HostListener('touchstart', ['$event'])
@@ -503,5 +505,23 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   
   toggleReactionsExpansion(messageId: string): void {
     this.expandedReactions[messageId] = !this.expandedReactions[messageId];
+  }
+
+  showReactionPicker(messageId: string) {
+    this.showEmojiPickerForReaction = messageId;
+    this.showEmojiPickerForInput = false;
+    this.showEmojiPickerForMessage = null;
+    
+    setTimeout(() => {
+      document.addEventListener('click', this.closePickerOnOutsideClick = (event: any) => {
+        const picker = document.querySelector('.emoji-picker-for-reaction');
+        if (picker && !picker.contains(event.target) && 
+            !event.target.closest('.add-reaction-button')) {
+          this.showEmojiPickerForReaction = null;
+          document.removeEventListener('click', this.closePickerOnOutsideClick);
+          this.cdr.detectChanges();
+        }
+      });
+    }, 0);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef, ViewChild, Renderer2, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { PickerComponent } from '@ctrl/ngx-emoji-mart';
   templateUrl: './reaction-tools.component.html',
   styleUrls: ['./reaction-tools.component.scss']
 })
-export class ReactionToolsComponent {
+export class ReactionToolsComponent implements AfterViewInit {
   @Input() isOwn: boolean = false;
   @Input() messageId: string = '';
   @Input() messageText: string = '';
@@ -28,6 +28,7 @@ export class ReactionToolsComponent {
   showPicker: boolean = false;
   showOptions: boolean = false;
   showMenu: boolean = false;
+  shouldShowPickerOnTop: boolean = false;
 
   emojiCategories: string[] = [
     'people',
@@ -38,11 +39,65 @@ export class ReactionToolsComponent {
     'symbols'
   ];
 
+  constructor(private renderer: Renderer2, private elementRef: ElementRef) {}
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.fixEmojiPicker();
+    }, 100);
+  }
+
+  private fixEmojiPicker() {
+    if (this.emojiPickerRef?.nativeElement) {
+      const searchInput = this.emojiPickerRef.nativeElement.querySelector('.emoji-mart-search input');
+      
+      if (searchInput) {
+        this.renderer.listen(searchInput, 'input', (event) => {
+          const noResultsElement = this.emojiPickerRef?.nativeElement.querySelector('.emoji-mart-no-results');
+          
+          if (noResultsElement) {
+            if (event.target.value) {
+              this.renderer.addClass(noResultsElement, 'has-search-results');
+            } else {
+              this.renderer.removeClass(noResultsElement, 'has-search-results');
+            }
+          }
+        });
+
+        const noResultsElement = this.emojiPickerRef.nativeElement.querySelector('.emoji-mart-no-results');
+        if (noResultsElement) {
+          this.renderer.removeClass(noResultsElement, 'has-search-results');
+        }
+      }
+    }
+  }
+
   togglePicker(event: MouseEvent) {
     event.stopPropagation();
-    this.showPicker = !this.showPicker;
+    
+    if (!this.showPicker) {
+      this.checkAvailableSpace();
+    } else {
+      this.showPicker = false;
+      this.showOptions = false;
+      this.showMenu = false;
+      return;
+    }
+    
+    this.showPicker = true;
     this.showOptions = false;
     this.showMenu = false;
+    
+    setTimeout(() => {
+      this.fixEmojiPicker();
+    }, 100);
+  }
+
+  checkAvailableSpace() {
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    const availableSpaceBelow = window.innerHeight - rect.bottom;
+    const requiredSpace = 350;
+    this.shouldShowPickerOnTop = availableSpaceBelow < requiredSpace;
   }
 
   triggerEdit() {
