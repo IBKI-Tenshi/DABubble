@@ -70,7 +70,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   readonly MAX_MOBILE_REACTIONS = 7;
   isMobile = false;
   closePickerOnOutsideClick: any;
-  emojiCategories: string[] = ['smileys', 'animals', 'food', 'activities', 'travel', 'objects', 'symbols', 'flags'];
+  emojiCategories: string[] = ['people', 'nature', 'foods', 'activity', 'objects', 'symbols', 'places', 'flags'];
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('emojiPicker') private emojiPicker!: ElementRef;
@@ -536,8 +536,12 @@ onScrollReposition() {
     this.showEmojiPickerForInput = false;
     this.pickerAnchors[messageId] = anchorEl;
   
-    setTimeout(() => this.positionReactionPicker(messageId), 0);
+    setTimeout(() => {
+      this.positionReactionPicker(messageId);
+      this.activateFirstCategory();
+    }, 0);
   }
+  
   
   @HostListener('document:click')
   closePickersOnOutsideClickDoc() {
@@ -589,5 +593,12 @@ onScrollReposition() {
         }
       });
     }, 0);
+  }
+
+  private activateFirstCategory(): void {
+    const pickerEl = this.reactionPickers.first?.nativeElement;
+    if (!pickerEl) return;
+    const firstAnchor = pickerEl.querySelector('.emoji-mart-anchor') as HTMLElement | null;
+    firstAnchor?.click();
   }
 }
