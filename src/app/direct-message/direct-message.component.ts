@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, ElementRef, AfterViewChecked, HostListener, ChangeDetectorRef, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,10 +38,10 @@ interface GroupedMessages {
   selector: 'app-direct-message',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    MatIconModule, 
-    PickerComponent, 
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    PickerComponent,
     ReactionToolsComponent,
     ReactionBubbleComponent
   ],
@@ -52,6 +52,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   messages: Message[] = [];
   groupedMessages: GroupedMessages[] = [];
   newMessageText: string = '';
+  pickerTopAligned: { [key: string]: boolean } = {};
   senderName: string = 'Frederik Beck';
   senderAvatar: string = '/assets/img/dummy_pic.png';
   chatId: string = '';
@@ -69,9 +70,12 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   readonly MAX_MOBILE_REACTIONS = 7;
   isMobile = false;
   closePickerOnOutsideClick: any;
+  emojiCategories: string[] = ['smileys', 'animals', 'food', 'activities', 'travel', 'objects', 'symbols', 'flags'];
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('emojiPicker') private emojiPicker!: ElementRef;
+  @ViewChildren('reactionPicker') reactionPickers!: QueryList<ElementRef<HTMLElement>>;
+  private pickerAnchors: Record<string, HTMLElement> = {};
   private needsToScroll = false;
 
   private routeSub!: Subscription;
@@ -93,16 +97,30 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   ) { }
 
   @HostListener('touchstart', ['$event'])
-  onTouchStart(event: TouchEvent) {
-    if (this.isMobile) {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.add-reaction') && !target.closest('.emoji-picker-container')) {
-        this.showEmojiPickerForMessage = null;
-        this.showEmojiPickerForReaction = null;
-        this.showEmojiPickerForInput = false;
-      }
+onTouchStart(event: TouchEvent) {
+  if (this.isMobile) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.add-reaction-button') && !target.closest('.emoji-picker-container')) {
+      this.showEmojiPickerForMessage = null;
+      this.showEmojiPickerForReaction = null;
+      this.showEmojiPickerForInput = false;
     }
   }
+}
+
+  @HostListener('window:resize')
+onResizeReposition() {
+  if (this.showEmojiPickerForReaction) {
+    this.positionReactionPicker(this.showEmojiPickerForReaction);
+  }
+}
+
+@HostListener('window:scroll')
+onScrollReposition() {
+  if (this.showEmojiPickerForReaction) {
+    this.positionReactionPicker(this.showEmojiPickerForReaction);
+  }
+}
 
   ngOnInit(): void {
     this.loadCurrentUser();
@@ -215,25 +233,25 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     if (this.messageSub) {
       this.messageSub.unsubscribe();
     }
-  
+
     if (!this.chatId) {
       console.error('Keine Chat-ID vorhanden!');
       return;
     }
-  
+
     this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe({
       next: (response: any) => {
         const documents = response?.documents || [];
-  
+
         this.messages = documents.map((doc: any) => {
           const fields = doc.fields || {};
-  
+
           const senderId = fields.senderId?.stringValue || 'Unbekannt';
           const text = fields.text?.stringValue || '';
           const timestampStr = fields.timestamp?.timestampValue;
           const timestamp = timestampStr ? new Date(timestampStr) : new Date();
           const avatar = fields.avatar?.stringValue || this.getAvatarForUser(senderId);
-  
+
           const rawReactions = fields.reactions?.arrayValue?.values || [];
           const reactions = rawReactions.map((r: any): Reaction => {
             const reactionFields = r?.mapValue?.fields || {};
@@ -242,7 +260,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
             const users = reactionFields.users?.arrayValue?.values?.map((u: any) => u?.stringValue) || [];
             return { emoji, count, users };
           });
-  
+
           return {
             id: doc.name.split('/').pop(),
             senderId,
@@ -252,10 +270,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
             reactions
           };
         }).sort((a: { timestamp: { getTime: () => number; }; }, b: { timestamp: { getTime: () => number; }; }) => a.timestamp.getTime() - b.timestamp.getTime());
-  
+
         this.groupMessagesByDate();
         this.refreshReactionsDisplay();
-  
+
         if (documents.length > 0) {
           this.needsToScroll = true;
         }
@@ -481,42 +499,90 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   getVisibleReactions(message: Message): Reaction[] {
     if (!message.reactions || message.reactions.length === 0) return [];
-    
+
     const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
-    
+
     if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
       return message.reactions;
     }
-    
+
     return message.reactions.slice(0, maxVisible);
   }
 
   getHiddenReactionsCount(message: Message): number {
     if (!message.reactions || message.reactions.length === 0) return 0;
-    
+
     const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
-    
+
     if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
       return 0;
     }
-    
+
     return message.reactions.length - maxVisible;
   }
-  
+
   toggleReactionsExpansion(messageId: string): void {
     this.expandedReactions[messageId] = !this.expandedReactions[messageId];
   }
+
+  toggleReactionPicker(messageId: string, anchorEl: HTMLElement, evt: MouseEvent) {
+    evt.stopPropagation();
+    if (this.showEmojiPickerForReaction === messageId) {
+      this.showEmojiPickerForReaction = null;
+      return;
+    }
+    this.showEmojiPickerForReaction = messageId;
+    this.showEmojiPickerForMessage = null;
+    this.showEmojiPickerForInput = false;
+    this.pickerAnchors[messageId] = anchorEl;
+  
+    setTimeout(() => this.positionReactionPicker(messageId), 0);
+  }
+  
+  @HostListener('document:click')
+  closePickersOnOutsideClickDoc() {
+    if (this.showEmojiPickerForReaction) {
+      this.showEmojiPickerForReaction = null;
+    }
+  }
+  
+  private positionReactionPicker(messageId: string) {
+    const anchorEl = this.pickerAnchors[messageId];
+    const pickerEl = this.reactionPickers.first?.nativeElement;
+    if (!anchorEl || !pickerEl) return;
+  
+    const a = anchorEl.getBoundingClientRect();
+  
+    const pickerW = pickerEl.offsetWidth  || 320;
+    const pickerH = pickerEl.offsetHeight || 320;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const GAP = 8;
+  
+    let left = a.left + (a.width / 2) - (pickerW / 2);
+    left = Math.max(GAP, Math.min(left, vw - pickerW - GAP));
+  
+    let top = a.top - pickerH - GAP;
+    if (top < GAP && (vh - a.bottom) > (pickerH + GAP)) {
+      top = a.bottom + GAP;
+    }
+  
+    pickerEl.style.position = 'fixed';
+    pickerEl.style.left = `${Math.round(left)}px`;
+    pickerEl.style.top  = `${Math.round(top)}px`;
+  }
+  
 
   showReactionPicker(messageId: string) {
     this.showEmojiPickerForReaction = messageId;
     this.showEmojiPickerForInput = false;
     this.showEmojiPickerForMessage = null;
-    
+
     setTimeout(() => {
       document.addEventListener('click', this.closePickerOnOutsideClick = (event: any) => {
         const picker = document.querySelector('.emoji-picker-for-reaction');
-        if (picker && !picker.contains(event.target) && 
-            !event.target.closest('.add-reaction-button')) {
+        if (picker && !picker.contains(event.target) &&
+          !event.target.closest('.add-reaction-button')) {
           this.showEmojiPickerForReaction = null;
           document.removeEventListener('click', this.closePickerOnOutsideClick);
           this.cdr.detectChanges();

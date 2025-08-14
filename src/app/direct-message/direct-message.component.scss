@@ -374,6 +374,28 @@
   }
 }
 
+.reaction-bubble.add-reaction-button {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  border-radius: 50%;
+  background-image: url('/assets/icons/chat/reaction.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 32px;
+  .emoji-icon, .plus-icon { display: none; }
+
+  &:hover {
+    background-image: url('/assets/icons/chat/reaction-hover.svg');
+    border-color: #999;
+    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  }
+}
+
 /* Edit Container */
 .edit-container {
   border: 1px solid #e0e0e0;
@@ -550,10 +572,11 @@
   }
 
   &.emoji-picker-for-reaction {
-    bottom: 30px;
-    left: 0;
-    max-height: 350px;
+    position: fixed; 
+    z-index: 2000;
+    border-radius: 16px;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
   }
 }
 
@@ -570,7 +593,8 @@
 /* Emoji Picker Styling */
 :host ::ng-deep emoji-mart {
   .emoji-mart {
-    border: none;
+    border: none !important;
+    box-shadow: none !important;
     font-family: inherit;
     padding: 0 !important;
   }

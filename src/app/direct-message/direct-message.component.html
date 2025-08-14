@@ -10,7 +10,7 @@
 
   <!-- Messages Area -->
   <div class="chat-content">
-    <!-- Bei leeren Nachrichten: Profil-Info anzeigen -->
+    <!-- Empty State -->
     <ng-container *ngIf="messages.length === 0">
       <div class="user-profile">
         <img [src]="partnerAvatarUrl" class="profile-avatar" alt="{{ partnerName }}" />
@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <!-- Message Input für leeren Zustand -->
+      <!-- Input bei leerem Verlauf -->
       <div class="message-input-container">
         <input type="text" class="message-input" [(ngModel)]="newMessageText"
           placeholder="Nachricht an {{ partnerName }}" (keydown)="onKeyDown($event)" />
@@ -39,41 +39,34 @@
       </div>
     </ng-container>
 
-    <!-- Nachrichten anzeigen, wenn vorhanden -->
+    <!-- Nachrichtenliste -->
     <ng-container *ngIf="messages.length > 0">
       <div class="messages-container" #messagesContainer>
         <ng-container *ngFor="let group of groupedMessages">
-          <!-- Datum als Trenner -->
+          <!-- Datum -->
           <div class="date-separator">
             <div class="line"></div>
             <div class="date-pill">{{ group.dateLabel }}</div>
             <div class="line"></div>
           </div>
 
-          <!-- Nachrichten für dieses Datum -->
-          <div *ngFor="let message of group.messages"
-            class="message-item"
-            [class.outgoing-message]="message.senderId === senderName"
-            (mouseover)="onMessageHover(message.id!)"
+          <!-- Nachrichten des Datums -->
+          <div *ngFor="let message of group.messages" class="message-item"
+            [class.outgoing-message]="message.senderId === senderName" (mouseover)="onMessageHover(message.id!)"
             (mouseleave)="onMessageLeave()">
-            
-            <!-- ✅ HOVER TOOLS -->
-            <app-reaction-tools *ngIf="hoveredMessageId === message.id"
-              [isOwn]="isOwnMessage(message)"
-              [messageId]="message.id!"
-              [messageText]="message.text"
-              (onEdit)="startEditing(message.id!, message.text)"
+            <!-- Hover-Tools -->
+            <app-reaction-tools *ngIf="hoveredMessageId === message.id" [isOwn]="isOwnMessage(message)"
+              [messageId]="message.id!" [messageText]="message.text" (onEdit)="startEditing(message.id!, message.text)"
               (onReaction)="addReaction(message.id!, $event)">
             </app-reaction-tools>
 
-            <!-- Avatar + Message -->
+            <!-- Avatar -->
             <div class="message-avatar">
-              <img [src]="message.avatar || getAvatarForUser(message.senderId)"
-                alt="Avatar"
-                class="avatar-img"
+              <img [src]="message.avatar || getAvatarForUser(message.senderId)" alt="Avatar" class="avatar-img"
                 (click)="openProfileView(message.senderId, getAvatarForUser(message.senderId))" />
             </div>
 
+            <!-- Inhalt -->
             <div class="message-content">
               <div class="message-header">
                 <span class="sender-name"
@@ -83,16 +76,15 @@
                 <span class="timestamp">{{ message.timestamp | date : "HH:mm" }} Uhr</span>
               </div>
 
-              <!-- Normal message view -->
+              <!-- Normal -->
               <ng-container *ngIf="message.id !== editingMessageId">
                 <div class="message-text">{{ message.text }}</div>
               </ng-container>
 
-              <!-- Edit message view -->
+              <!-- Edit -->
               <ng-container *ngIf="message.id === editingMessageId">
                 <div class="edit-container">
-                  <textarea class="edit-input"
-                    [(ngModel)]="editingMessageText"
+                  <textarea class="edit-input" [(ngModel)]="editingMessageText"
                     placeholder="Nachricht bearbeiten..."></textarea>
 
                   <div class="edit-actions">
@@ -102,72 +94,85 @@
 
                     <div class="edit-buttons">
                       <button class="cancel-button" (click)="cancelEditing()">Abbrechen</button>
-                      <button class="save-button" (click)="saveEditedMessage(message.id!)">Speichern</button>
+                      <button class="save-button" (click)="saveEditedMessage(message.id!)">
+                        Speichern
+                      </button>
                     </div>
                   </div>
 
-                  <!-- Emoji Picker for editing -->
+                  <!-- Emoji Picker beim Edit -->
                   <div *ngIf="showEmojiPickerForMessage === message.id"
                     class="emoji-picker-container emoji-picker-for-message">
-                    <emoji-mart (emojiClick)="addEmojiToMessage($event)"></emoji-mart>
+                    <emoji-mart [style]="{ width: '320px', height: '320px', padding: '0' }" [i18n]="{
+                        search: 'Suchen',
+                        categories: {
+                          people: 'Smileys', nature: 'Natur', foods: 'Essen',
+                          activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'
+                        },
+                        notfound: 'Keine Emojis gefunden',
+                        searchResults: 'Suchergebnisse'
+                      }" title="Emoji auswählen" [darkMode]="false" [set]="'apple'" [include]="emojiCategories"
+                      [showPreview]="false" [emojiSize]="20" [perLine]="8" [recent]="[]"
+                      [enableFrequentEmojiSort]="false" [autoFocus]="false" [custom]="[]"
+                      (emojiClick)="addEmojiToMessage($event)">
+                    </emoji-mart>
                   </div>
                 </div>
               </ng-container>
 
-              <!-- Reactions -->
-              <div *ngIf="message.reactions && message.reactions.length > 0" class="reactions">
-                <app-reaction-bubble 
-                  *ngFor="let reaction of getVisibleReactions(message)"
-                  [reaction]="reaction"
+              <!-- Reactions (nur wenn vorhanden) -->
+              <div *ngIf="message.reactions && message.reactions.length > 0" class="reactions"
+                [attr.data-mid]="message.id">
+                <!-- sichtbare Reaktionen -->
+                <app-reaction-bubble *ngFor="let reaction of getVisibleReactions(message)" [reaction]="reaction"
                   [currentUser]="senderName"
                   (reactionClick)="addReaction(message.id!, {emoji: {native: $event.emoji}})">
                 </app-reaction-bubble>
 
-                <div *ngIf="getHiddenReactionsCount(message) > 0"
-                  class="reaction-bubble more-reactions"
+                <!-- +X weitere -->
+                <div *ngIf="getHiddenReactionsCount(message) > 0" class="reaction-bubble more-reactions"
                   (click)="toggleReactionsExpansion(message.id!)">
                   <span>+{{ getHiddenReactionsCount(message) }} weitere</span>
                 </div>
 
-                <div *ngIf="expandedReactions[message.id!] && message.reactions.length > (isMobile ? MAX_MOBILE_REACTIONS : MAX_DESKTOP_REACTIONS)"
-                  class="reaction-bubble show-less"
-                  (click)="toggleReactionsExpansion(message.id!)">
+                <!-- Weniger anzeigen -->
+                <div
+                  *ngIf="expandedReactions[message.id!] && message.reactions.length > (isMobile ? MAX_MOBILE_REACTIONS : MAX_DESKTOP_REACTIONS)"
+                  class="reaction-bubble show-less" (click)="toggleReactionsExpansion(message.id!)">
                   <span>Weniger anzeigen</span>
                 </div>
-                
-                <!-- Neu: Add Reaction Button -->
-                <div class="reaction-bubble add-reaction-button" 
-                    (click)="showReactionPicker(message.id!)">
-                  <span class="emoji-icon">😊</span>
-                  <span class="plus-icon">+</span>
+
+                <div class="reaction-bubble add-reaction-button" #addBtn
+                  (click)="toggleReactionPicker(message.id!, addBtn, $event)">
                 </div>
 
-                <!-- Emoji Picker for reaction -->
-                <div *ngIf="showEmojiPickerForReaction === message.id"
-                  class="emoji-picker-container emoji-picker-for-reaction">
-                  <emoji-mart (emojiClick)="addReaction(message.id!, $event)"></emoji-mart>
+                <!-- Emoji Picker (Overlay/fixed, an den Button geankert) -->
+                <div *ngIf="showEmojiPickerForReaction === message.id" #reactionPicker
+                  class="emoji-picker-container emoji-picker-for-reaction" (click)="$event.stopPropagation()">
+                  <emoji-mart [style]="{ width: '320px', height: '320px', padding: '0' }" [i18n]="{
+                    search: 'Suchen',
+                    categories: {
+                      people: 'Smileys', nature: 'Natur', foods: 'Essen',
+                      activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'
+                    },
+                    notfound: 'Keine Emojis gefunden',
+                    searchResults: 'Suchergebnisse'
+                  }" title="Emoji auswählen" [darkMode]="false" [set]="'apple'" [include]="emojiCategories"
+                    [showPreview]="false" [emojiSize]="20" [perLine]="8" [recent]="[]" [enableFrequentEmojiSort]="false"
+                    [autoFocus]="false" [custom]="[]" (emojiClick)="addReaction(message.id!, $event)">
+                  </emoji-mart>
                 </div>
               </div>
-              
-              <div *ngIf="!message.reactions || message.reactions.length === 0" class="reactions">
-                <div class="reaction-bubble add-reaction-button" 
-                     (click)="showReactionPicker(message.id!)">
-                  <span class="emoji-icon">😊</span>
-                  <span class="plus-icon">+</span>
-                </div>
-              </div>
-              </div>
-            </div> 
+              <!-- Keine Reactions: nichts rendern (Add via Hover-Tools) -->
+            </div>
+          </div>
         </ng-container>
-      </div> 
+      </div>
 
-      <!-- Message Input Area -->
+      <!-- Input Area -->
       <div class="message-input-container">
-        <input type="text"
-          class="message-input"
-          [(ngModel)]="newMessageText"
-          placeholder="Nachricht an {{ partnerName }}"
-          (keydown)="onKeyDown($event)" />
+        <input type="text" class="message-input" [(ngModel)]="newMessageText"
+          placeholder="Nachricht an {{ partnerName }}" (keydown)="onKeyDown($event)" />
         <div class="input-actions">
           <button class="emoji-btn" type="button" (click)="toggleEmojiPickerForInput()">
             <mat-icon>sentiment_satisfied_alt</mat-icon>
@@ -176,17 +181,27 @@
             <mat-icon>alternate_email</mat-icon>
           </button>
         </div>
-        <button class="send-btn" type="button"
-          [disabled]="!newMessageText.trim()"
-          (click)="sendMessage()">
+        <button class="send-btn" type="button" [disabled]="!newMessageText.trim()" (click)="sendMessage()">
           <mat-icon>send</mat-icon>
         </button>
       </div>
     </ng-container>
 
-    <!-- Emoji Picker for input -->
-    <div *ngIf="showEmojiPickerForInput" class="emoji-picker-container emoji-picker-for-input" #emojiPicker>
-      <emoji-mart (emojiClick)="addEmojiToInput($event)"></emoji-mart>
+    <!-- Emoji Picker für Eingabefeld -->
+    <div *ngIf="showEmojiPickerForInput" class="emoji-picker-container emoji-picker-for-input" #emojiPicker
+      (click)="$event.stopPropagation()">
+      <emoji-mart [style]="{ width: '320px', height: '320px', padding: '0' }" [i18n]="{
+          search: 'Suchen',
+          categories: {
+            people: 'Smileys', nature: 'Natur', foods: 'Essen',
+            activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole'
+          },
+          notfound: 'Keine Emojis gefunden',
+          searchResults: 'Suchergebnisse'
+        }" title="Emoji auswählen" [darkMode]="false" [set]="'apple'" [include]="emojiCategories" [showPreview]="false"
+        [emojiSize]="20" [perLine]="8" [recent]="[]" [enableFrequentEmojiSort]="false" [autoFocus]="false" [custom]="[]"
+        (emojiClick)="addEmojiToInput($event)">
+      </emoji-mart>
     </div>
   </div>
 </div>
