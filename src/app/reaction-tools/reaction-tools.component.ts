@@ -21,7 +21,7 @@ export class ReactionToolsComponent implements AfterViewInit {
 
   @Output() onEdit = new EventEmitter<{ messageId: string; messageText: string }>();
   @Output() onReaction = new EventEmitter<any>();
-  @Output() onDm = new EventEmitter<void>();            // <— new: open DM click
+  @Output() onDm = new EventEmitter<void>();  
   @ViewChild('emojiPicker') emojiPickerRef?: ElementRef;
 
   showPicker = false;
@@ -38,8 +38,7 @@ export class ReactionToolsComponent implements AfterViewInit {
     setTimeout(() => this.fixEmojiPicker(), 100);
   }
 
-  // ——— UI actions ———
-  openDm() {                       // <— exists & matches template
+  openDm() {                  
     this.onDm.emit();
     this.showMenu = false;
   }
@@ -56,13 +55,13 @@ export class ReactionToolsComponent implements AfterViewInit {
     }
   }
 
-  toggleMenu(evt: MouseEvent) {    // <— exists & matches template
+  toggleMenu(evt: MouseEvent) { 
     evt.stopPropagation();
     this.showMenu = !this.showMenu;
     this.showPicker = false;
   }
 
-  triggerEdit() {                  // <— menu action
+  triggerEdit() {             
     this.onEdit.emit({ messageId: this.messageId, messageText: this.messageText });
     this.showMenu = false;
   }
@@ -76,7 +75,6 @@ export class ReactionToolsComponent implements AfterViewInit {
     this.onReaction.emit({ emoji: { native: emoji } });
   }
 
-  // ——— helpers ———
   private checkAvailableSpace() {
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
     const availableBelow = window.innerHeight - rect.bottom;
@@ -102,11 +100,9 @@ export class ReactionToolsComponent implements AfterViewInit {
 
   @HostListener('document:click', ['$event'])
   closeOnOutsideClick(event: Event) {
-    // Close emoji picker if click outside
     if (this.showPicker && this.emojiPickerRef && !this.emojiPickerRef.nativeElement.contains(event.target)) {
       this.showPicker = false;
     }
-    // Close 3-dots menu on any outside click
     if (this.showMenu) this.showMenu = false;
   }
 }

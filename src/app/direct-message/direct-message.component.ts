@@ -62,7 +62,6 @@ interface GroupedMessages {
 export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewChecked {
   messages: Message[] = [];
   groupedMessages: GroupedMessages[] = [];
-
   newMessageText: string = '';
   pickerTopAligned: { [key: string]: boolean } = {};
   senderName: string = 'Frederik Beck';
@@ -103,7 +102,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private pickerAnchors: Record<string, HTMLElement> = {};
   private needsToScroll = false;
-
+  public reactionPickerPos: Record<string, { left: number; top: number }> = {};
   private routeSub!: Subscription;
   private querySub!: Subscription;
   private messageSub!: Subscription;
@@ -560,19 +559,18 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   toggleReactionPicker(messageId: string, anchorEl: HTMLElement, evt: MouseEvent) {
     evt.stopPropagation();
+  
     if (this.showEmojiPickerForReaction === messageId) {
       this.showEmojiPickerForReaction = null;
       return;
     }
-    this.showEmojiPickerForReaction = messageId;
+  
     this.showEmojiPickerForMessage = null;
     this.showEmojiPickerForInput = false;
+  
     this.pickerAnchors[messageId] = anchorEl;
-
-    setTimeout(() => {
-      this.positionReactionPicker(messageId);
-      this.activateFirstCategory();
-    }, 0);
+    this.positionReactionPicker(messageId);
+    this.showEmojiPickerForReaction = messageId;
   }
 
   @HostListener('document:click')
@@ -584,35 +582,25 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private positionReactionPicker(messageId: string) {
     const anchorEl = this.pickerAnchors[messageId];
-    const pickerEl = this.reactionPickers.first?.nativeElement;
-    if (!anchorEl || !pickerEl) return;
-
+    if (!anchorEl) return;
+  
     const a = anchorEl.getBoundingClientRect();
-
-    const pickerW = pickerEl.offsetWidth || 320;
-    const pickerH = pickerEl.offsetHeight || 320;
+    const pickerW = 320;
+    const pickerH = 320;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const GAP = 8;
-
+  
     let left = a.left + (a.width / 2) - (pickerW / 2);
     left = Math.max(GAP, Math.min(left, vw - pickerW - GAP));
-
+  
     let top = a.top - pickerH - GAP;
     if (top < GAP && (vh - a.bottom) > (pickerH + GAP)) {
       top = a.bottom + GAP;
     }
-
-    pickerEl.style.position = 'fixed';
-    pickerEl.style.left = `${Math.round(left)}px`;
-    pickerEl.style.top = `${Math.round(top)}px`;
-  }
-
-  private activateFirstCategory(): void {
-    const pickerEl = this.reactionPickers.first?.nativeElement;
-    if (!pickerEl) return;
-    const firstAnchor = pickerEl.querySelector('.emoji-mart-anchor') as HTMLElement | null;
-    firstAnchor?.click();
+  
+    this.reactionPickerPos[messageId] = { left: Math.round(left), top: Math.round(top) };
+    this.cdr.detectChanges(); 
   }
 
   openProfileView(userName: string, avatarUrl: string): void {
