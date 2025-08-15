@@ -1,47 +1,50 @@
 <div class="reaction-tools-wrapper" [ngClass]="{ 'own': isOwn }">
-  <!-- Predefined Quick Reactions -->
+  <!-- Quick reactions -->
   <div class="quick-reactions">
     <div class="quick-emoji" (click)="addQuickReaction('✅')" title="Grüner Haken">✅</div>
     <div class="quick-emoji" (click)="addQuickReaction('👍')" title="Daumen hoch">👍</div>
   </div>
 
-  <!-- More Emojis Icon -->
+  <!-- Emoji picker button -->
   <div class="icon more-emojis" (click)="togglePicker($event)" title="Weitere Emojis"></div>
 
-  <!-- Edit Icon (only for own messages) -->
-  <div class="icon edit" *ngIf="isOwn" (click)="toggleOptions($event)" title="Bearbeiten"></div>
+  <!-- DM button -->
+  <div class="icon dm" (click)="openDm()" title="Direktnachricht"></div>
 
-  <!-- Three Dots Menu (only for own messages) -->
-  <div class="icon menu" *ngIf="isOwn" (click)="toggleMenu($event)" title="Mehr Optionen">⋯</div>
+  <!-- 3-dots menu (own messages only) -->
+  <div class="icon menu" *ngIf="isOwn" (click)="toggleMenu($event)" title="Mehr Optionen"></div>
 
-  <div *ngIf="showPicker" class="emoji-picker-container" [class.right-aligned]="!isOwn"
-    [class.top-aligned]="shouldShowPickerOnTop" #emojiPicker (click)="$event.stopPropagation()">
-    <emoji-mart [style]="{width: '320px', height: '320px', padding: '0'}" [i18n]="{
-         search: 'Suchen', 
-         categories: {
-           people: 'Smileys', 
-           nature: 'Natur', 
-           foods: 'Essen', 
-           activity: 'Aktivitäten', 
-           objects: 'Objekte', 
-           symbols: 'Symbole'
-         },
-         notfound: 'Keine Emojis gefunden',
-         searchResults: 'Suchergebnisse'
-       }" title="Emoji auswählen" [darkMode]="false" [set]="'apple'" [enableFrequentEmojiSort]="false"
-      [showPreview]="false" [emojiSize]="20" [perLine]="8" [include]="emojiCategories" [autoFocus]="false" [custom]="[]"
+  <!-- Emoji picker -->
+  <div *ngIf="showPicker"
+       class="emoji-picker-container"
+       [class.right-aligned]="!isOwn"
+       [class.top-aligned]="shouldShowPickerOnTop"
+       #emojiPicker
+       (click)="$event.stopPropagation()">
+    <emoji-mart
+      [style]="{ width: '320px', height: '320px', padding: '0' }"
+      [i18n]="{
+        search: 'Suchen',
+        categories: { people: 'Smileys', nature: 'Natur', foods: 'Essen', activity: 'Aktivitäten', objects: 'Objekte', symbols: 'Symbole' },
+        notfound: 'Keine Emojis gefunden',
+        searchResults: 'Suchergebnisse'
+      }"
+      title="Emoji auswählen"
+      [darkMode]="false"
+      [set]="'apple'"
+      [enableFrequentEmojiSort]="false"
+      [showPreview]="false"
+      [emojiSize]="20"
+      [perLine]="8"
+      [include]="emojiCategories"
+      [autoFocus]="false"
+      [custom]="[]"
       (emojiClick)="addReaction($event)">
     </emoji-mart>
   </div>
 
-  <!-- Edit Option -->
-  <div *ngIf="showOptions" class="edit-option" (click)="triggerEdit()">
-    Nachricht bearbeiten
-  </div>
-
-  <!-- Menu Options -->
+  <!-- 3-dots dropdown -->
   <div *ngIf="showMenu" class="menu-options">
-    <div class="menu-item" (click)="triggerEdit()">Bearbeiten</div>
-    <div class="menu-item" (click)="deleteMessage()">Löschen</div>
+    <div class="menu-item" (click)="triggerEdit()">Nachricht bearbeiten</div>
   </div>
 </div>

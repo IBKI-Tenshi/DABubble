@@ -1,4 +1,7 @@
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef, ViewChild, Renderer2, AfterViewInit } from '@angular/core';
+import {
+  Component, Input, Output, EventEmitter, HostListener,
+  ElementRef, ViewChild, Renderer2, AfterViewInit
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,104 +10,60 @@ import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 @Component({
   selector: 'app-reaction-tools',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatIconModule,
-    PickerComponent
-  ],
+  imports: [CommonModule, FormsModule, MatIconModule, PickerComponent],
   templateUrl: './reaction-tools.component.html',
   styleUrls: ['./reaction-tools.component.scss']
 })
 export class ReactionToolsComponent implements AfterViewInit {
-  @Input() isOwn: boolean = false;
-  @Input() messageId: string = '';
-  @Input() messageText: string = '';
-  @Output() onEdit = new EventEmitter<{ messageId: string, messageText: string }>();
-  @Output() onReaction = new EventEmitter<any>();
-  @Output() onDelete = new EventEmitter<string>();
-  @ViewChild('emojiPicker') emojiPickerRef: ElementRef | undefined;
+  @Input() isOwn = false;
+  @Input() messageId = '';
+  @Input() messageText = '';
 
-  showPicker: boolean = false;
-  showOptions: boolean = false;
-  showMenu: boolean = false;
-  shouldShowPickerOnTop: boolean = false;
+  @Output() onEdit = new EventEmitter<{ messageId: string; messageText: string }>();
+  @Output() onReaction = new EventEmitter<any>();
+  @Output() onDm = new EventEmitter<void>();            // <— new: open DM click
+  @ViewChild('emojiPicker') emojiPickerRef?: ElementRef;
+
+  showPicker = false;
+  showMenu = false;
+  shouldShowPickerOnTop = false;
 
   emojiCategories: string[] = [
-    'people',
-    'nature',
-    'foods',
-    'activity',
-    'objects',
-    'symbols',
-    'places', 
-    'flags'
+    'people', 'nature', 'foods', 'activity', 'objects', 'symbols', 'places', 'flags'
   ];
 
   constructor(private renderer: Renderer2, private elementRef: ElementRef) {}
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.fixEmojiPicker();
-    }, 100);
+    setTimeout(() => this.fixEmojiPicker(), 100);
   }
 
-  private fixEmojiPicker() {
-    if (this.emojiPickerRef?.nativeElement) {
-      const searchInput = this.emojiPickerRef.nativeElement.querySelector('.emoji-mart-search input');
-      
-      if (searchInput) {
-        this.renderer.listen(searchInput, 'input', (event) => {
-          const noResultsElement = this.emojiPickerRef?.nativeElement.querySelector('.emoji-mart-no-results');
-          
-          if (noResultsElement) {
-            if (event.target.value) {
-              this.renderer.addClass(noResultsElement, 'has-search-results');
-            } else {
-              this.renderer.removeClass(noResultsElement, 'has-search-results');
-            }
-          }
-        });
-
-        const noResultsElement = this.emojiPickerRef.nativeElement.querySelector('.emoji-mart-no-results');
-        if (noResultsElement) {
-          this.renderer.removeClass(noResultsElement, 'has-search-results');
-        }
-      }
-    }
+  // ——— UI actions ———
+  openDm() {                       // <— exists & matches template
+    this.onDm.emit();
+    this.showMenu = false;
   }
 
-  togglePicker(event: MouseEvent) {
-    event.stopPropagation();
-    
+  togglePicker(evt: MouseEvent) {
+    evt.stopPropagation();
     if (!this.showPicker) {
       this.checkAvailableSpace();
+      this.showPicker = true;
+      this.showMenu = false;
+      setTimeout(() => this.fixEmojiPicker(), 100);
     } else {
       this.showPicker = false;
-      this.showOptions = false;
-      this.showMenu = false;
-      return;
     }
-    
-    this.showPicker = true;
-    this.showOptions = false;
-    this.showMenu = false;
-    
-    setTimeout(() => {
-      this.fixEmojiPicker();
-    }, 100);
   }
 
-  checkAvailableSpace() {
-    const rect = this.elementRef.nativeElement.getBoundingClientRect();
-    const availableSpaceBelow = window.innerHeight - rect.bottom;
-    const requiredSpace = 350;
-    this.shouldShowPickerOnTop = availableSpaceBelow < requiredSpace;
+  toggleMenu(evt: MouseEvent) {    // <— exists & matches template
+    evt.stopPropagation();
+    this.showMenu = !this.showMenu;
+    this.showPicker = false;
   }
 
-  triggerEdit() {
+  triggerEdit() {                  // <— menu action
     this.onEdit.emit({ messageId: this.messageId, messageText: this.messageText });
-    this.showOptions = false;
     this.showMenu = false;
   }
 
@@ -114,46 +73,40 @@ export class ReactionToolsComponent implements AfterViewInit {
   }
 
   addQuickReaction(emoji: string) {
-    const emojiData = {
-      emoji: {
-        native: emoji
-      }
-    };
-    this.onReaction.emit(emojiData);
+    this.onReaction.emit({ emoji: { native: emoji } });
   }
 
-  toggleOptions(event: MouseEvent) {
-    event.stopPropagation();
-    this.showOptions = !this.showOptions;
-    this.showPicker = false;
-    this.showMenu = false;
+  // ——— helpers ———
+  private checkAvailableSpace() {
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    const availableBelow = window.innerHeight - rect.bottom;
+    this.shouldShowPickerOnTop = availableBelow < 350;
   }
 
-  toggleMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.showMenu = !this.showMenu;
-    this.showPicker = false;
-    this.showOptions = false;
-  }
+  private fixEmojiPicker() {
+    if (!this.emojiPickerRef?.nativeElement) return;
+    const picker = this.emojiPickerRef.nativeElement as HTMLElement;
+    const input = picker.querySelector('.emoji-mart-search input') as HTMLInputElement | null;
 
-  deleteMessage() {
-    this.onDelete.emit(this.messageId);
-    this.showMenu = false;
+    if (input) {
+      this.renderer.listen(input, 'input', (e: any) => {
+        const noRes = picker.querySelector('.emoji-mart-no-results') as HTMLElement | null;
+        if (!noRes) return;
+        if (e.target.value) this.renderer.addClass(noRes, 'has-search-results');
+        else this.renderer.removeClass(noRes, 'has-search-results');
+      });
+      const noRes = picker.querySelector('.emoji-mart-no-results') as HTMLElement | null;
+      if (noRes) this.renderer.removeClass(noRes, 'has-search-results');
+    }
   }
 
   @HostListener('document:click', ['$event'])
   closeOnOutsideClick(event: Event) {
-    if (this.showPicker && this.emojiPickerRef && 
-        !this.emojiPickerRef.nativeElement.contains(event.target)) {
+    // Close emoji picker if click outside
+    if (this.showPicker && this.emojiPickerRef && !this.emojiPickerRef.nativeElement.contains(event.target)) {
       this.showPicker = false;
     }
-    
-    if (this.showOptions) {
-      this.showOptions = false;
-    }
-
-    if (this.showMenu) {
-      this.showMenu = false;
-    }
+    // Close 3-dots menu on any outside click
+    if (this.showMenu) this.showMenu = false;
   }
 }

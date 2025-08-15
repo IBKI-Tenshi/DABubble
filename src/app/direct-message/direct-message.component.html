@@ -54,11 +54,16 @@
           <div *ngFor="let message of group.messages" class="message-item"
             [class.outgoing-message]="message.senderId === senderName" (mouseover)="onMessageHover(message.id!)"
             (mouseleave)="onMessageLeave()">
-            <!-- Hover-Tools -->
-            <app-reaction-tools *ngIf="hoveredMessageId === message.id" [isOwn]="isOwnMessage(message)"
-              [messageId]="message.id!" [messageText]="message.text" (onEdit)="startEditing(message.id!, message.text)"
-              (onReaction)="addReaction(message.id!, $event)">
-            </app-reaction-tools>
+            <app-reaction-tools
+            *ngIf="hoveredMessageId === message.id"
+            [isOwn]="isOwnMessage(message)"
+            [messageId]="message.id!"
+            [messageText]="message.text"
+            (onEdit)="startEditing(message.id!, message.text)"
+            (onReaction)="addReaction(message.id!, $event)"
+            (onDm)="goToDM(message.senderId)">
+          </app-reaction-tools>
+          
 
             <!-- Avatar -->
             <div class="message-avatar">

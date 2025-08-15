@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { FirestoreService } from '../services/firestore.service';
 import { UserDataService } from '../services/user_data.service';
+import { ChatPartnerService } from '../services/chat-partner.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatNavigationService {
@@ -10,8 +11,9 @@ export class ChatNavigationService {
   refresh$ = this.refreshSubject.asObservable();
 
   constructor(
+    private fs: FirestoreService,
     private router: Router,
-    private firestore: FirestoreService,
+    private partners: ChatPartnerService,
     private userData: UserDataService
   ) {}
 
@@ -23,26 +25,19 @@ export class ChatNavigationService {
     await this.router.navigate(['/directMessage']);
   }
 
-  async openDirectMessageWith(otherUserName: string): Promise<void> {
-    const me = this.userData.getName();
-    if (!otherUserName || !me) {
+  
+  async openDirectMessageWith(targetName: string, targetAvatar?: string) {
+    const me = this.userData.getName() || localStorage.getItem('slack_clone_user_name') || 'Unbekannt';
+    const names = [me, targetName];
 
-      await this.openDMRoot();
-      return;
-    }
+    let chatId = await this.fs.findDirectChatByParticipants(names);
+    if (!chatId) chatId = await this.fs.createDirectChat(names);
 
-    if (otherUserName === me) {
-      await this.openDMRoot();
-      return;
-    }
-    const chatId = await this.ensureDirectChat([me, otherUserName]);
-    await this.router.navigate(['/directMessage', chatId]);
-  }
+    // Partner-Daten cachen (Self-DM => Partner = ich selbst)
+    const partnerName = targetName || me;
+    const avatar = targetAvatar || this.userData.getProfileImage() || '/assets/img/dummy_pic.png';
+    this.partners.setChatPartner(chatId, partnerName, avatar);
 
-  private async ensureDirectChat(participantNames: string[]): Promise<string> {
-    const existing = await this.firestore.findDirectChatByParticipants(participantNames);
-    if (existing) return existing;
-
-    return await this.firestore.createDirectChat(participantNames);
+    await this.router.navigate(['/directMessage', chatId], { queryParams: { name: partnerName, avatar } });
   }
 }

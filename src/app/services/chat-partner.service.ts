@@ -45,4 +45,14 @@ export class ChatPartnerService {
       }
     }
   }
+  
+  remove(chatId: string) {
+    this.chatPartners.delete(chatId);
+    this.savePartners();
+  }
+  
+  clearAll() {
+    this.chatPartners.clear();
+    localStorage.removeItem('slack_clone_chat_partners');
+  }
 }
