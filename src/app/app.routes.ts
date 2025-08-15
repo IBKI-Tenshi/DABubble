@@ -1,3 +1,4 @@
+import { LoginBlockGuard } from './guards/login-block.guard';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { UserAccountComponent } from './create-account/user-account/user-account.component';
@@ -11,17 +12,16 @@ import { ChannelChatComponent } from './channel-chat/channel-chat.component';
 
 
 export const routes: Routes = [
-  { path: 'a', component: LoginComponent },
+  { path: '', component: LoginComponent, canActivate: [LoginBlockGuard] },
+  { path: 'a', component: LoginComponent, canActivate: [LoginBlockGuard] },
   { path: 'accountCreation', component: UserAccountComponent },
   { path: 'avatarSelection', component: AvatarSelectionComponent },
-  { path: 'directMessage', component: DirectMessageComponent },
   { path: 'directMessage/:chatId', component: DirectMessageComponent },
-  { path: '', component: LoginComponent },
+  { path: 'directMessage', component: DirectMessageComponent },
+  { path: 'channelChat/:channelId', component: ChannelChatComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: 'impressum', component: ImprintComponent },
   { path: 'password', component: PasswordEmailComponent },
   { path: 'passwordReset', component: PasswordResetComponent },
-  { path: 'channelChat/:channelId', component: ChannelChatComponent },
-  
   { path: '**', redirectTo: '' },
 ];

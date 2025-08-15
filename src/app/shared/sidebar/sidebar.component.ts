@@ -73,7 +73,7 @@ export class SidebarComponent implements OnInit {
   }
 
   loadCurrentUser() {
-    this.subscription = this.userService.user$.subscribe((user: UserProfile | null) => {
+    this.subscription = this.userService.user$.subscribe((user: UserProfile | null | undefined) => {
       if (user) {
         this.currentUserEmail = user.email || '';
         this.currentUserName = user.name || 'Unbekannt';

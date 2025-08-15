@@ -5,11 +5,16 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
-
+import { APP_INITIALIZER } from '@angular/core';
+import { UserDataService } from './services/user_data.service';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
 import { getAuth, provideAuth } from '@angular/fire/auth';
+
+export function initUser(user: UserDataService) {
+  return () => user.init();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,5 +35,6 @@ export const appConfig: ApplicationConfig = {
     ),
     provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),
+    { provide: APP_INITIALIZER, useFactory: initUser, deps: [UserDataService], multi: true },
   ],
 };

@@ -11,13 +11,11 @@ export interface UserProfile {
   isGuest: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserDataService {
-  private userSubject = new BehaviorSubject<UserProfile | null>(null);
-  public user$ = this.userSubject.asObservable();
+  private userSubject = new BehaviorSubject<UserProfile | null | undefined>(undefined);
 
+  public user$ = this.userSubject.asObservable();
   private avatarPaths = [
     '/assets/img/avatar/avatar_1.png',
     '/assets/img/avatar/avatar_2.png',
@@ -29,69 +27,60 @@ export class UserDataService {
 
   constructor(private urlService: UrlService) {}
 
+   init(): void {
+    const id = localStorage.getItem('slack_clone_user_id');
+    if (!id) {
+      this.userSubject.next(null); 
+      return;
+    }
+    this.loadUser(id);               
+  }
+
   get currentUser(): UserProfile | null {
-    return this.userSubject.getValue();
+    const user = this.userSubject.getValue();
+    return user === undefined ? null : user;
   }
 
   async loadUser(userId?: string): Promise<void> {
     const id = userId || localStorage.getItem('slack_clone_user_id');
-    
-    if (!id) {
-      console.log('Kein Benutzer-ID gefunden, kann Benutzer nicht laden');
-      return;
-    }
-    
+    if (!id) { this.userSubject.next(null); return; }
+
     try {
-      const response = await fetch(`${this.urlService.BASE_URL}/users/${id}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const userData = await response.json();
-      
-      if (!userData?.fields) {
-        console.error('Keine Felder in Benutzerdaten gefunden');
-        return;
-      }
-      
-      const profileIndex = parseInt(userData.fields.profile?.integerValue || '0');
-      const profileImage = this.getAvatarPath(profileIndex);
-      const isGuest = userData.fields.isGuest?.booleanValue || id === 'guest';
-      
+      const res = await fetch(`${this.urlService.BASE_URL}/users/${id}`);
+      if (!res.ok) throw new Error(String(res.status));
+      const userData = await res.json();
+      if (!userData?.fields) { this.userSubject.next(null); return; }
+
+      const profileIndex = parseInt(userData.fields.profile?.integerValue || '0', 10);
       const user: UserProfile = {
-        id: id,
+        id,
         name: userData.fields.name?.stringValue || 'Unbekannt',
         email: userData.fields.email?.stringValue || '',
-        profileImage: profileImage,
+        profileImage: this.getAvatarPath(profileIndex),
         profile: profileIndex,
-        isGuest: isGuest
+        isGuest: userData.fields.isGuest?.booleanValue || id === 'guest',
       };
-      
+
       this.userSubject.next(user);
-      
-      // Lokalen Speicher aktualisieren
-      if (isGuest) {
+      if (user.isGuest) {
         localStorage.setItem('slack_clone_guest_name', user.name);
-        localStorage.setItem('slack_clone_guest_profile_index', profileIndex.toString());
+        localStorage.setItem('slack_clone_guest_profile_index', String(profileIndex));
       } else {
         localStorage.setItem('slack_clone_user_name', user.name);
-        localStorage.setItem('slack_clone_user_profile_index', profileIndex.toString());
+        localStorage.setItem('slack_clone_user_profile_index', String(profileIndex));
         localStorage.setItem('slack_clone_user_email', user.email);
       }
       localStorage.setItem('slack_clone_user_id', id);
-      
-      console.log('Benutzer geladen:', user);
-    } catch (error) {
-      console.error('Fehler beim Laden des Benutzers:', error);
+    } catch (e) {
+      console.error('loadUser failed', e);
+      this.userSubject.next(null);
     }
   }
 
-  // Gast-Profil direkt aus Firestore laden
   async loadGuestProfile(): Promise<void> {
     await this.loadUser('guest');
   }
 
-  // Avatar aktualisieren (funktioniert für Gast und normale Benutzer)
   async updateAvatar(avatarIndex: number): Promise<boolean> {
     const currentUser = this.currentUser;
     if (!currentUser) {
@@ -100,11 +89,9 @@ export class UserDataService {
     }
 
     try {
-      // Für Gäste UND normale Benutzer: Firestore aktualisieren
       const success = await this.updateProfile({ profile: avatarIndex });
       
       if (success && currentUser.isGuest) {
-        // Zusätzlich lokalen Speicher für Gäste aktualisieren
         localStorage.setItem('slack_clone_guest_profile_index', avatarIndex.toString());
       }
       

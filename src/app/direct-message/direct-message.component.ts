@@ -207,7 +207,7 @@ onScrollReposition() {
   }
 
   loadCurrentUser(): void {
-    this.userSub = this.userService.user$.subscribe((user: UserProfile | null) => {
+    this.userSub = this.userService.user$.subscribe((user: UserProfile | null | undefined) => {
       if (user) {
         this.senderName = user.name || 'Frederik Beck';
         this.senderAvatar = user.profileImage || '/assets/img/dummy_pic.png';
