@@ -69,7 +69,7 @@ export class LoginComponent implements OnInit {
   loginWithGoogle() {
     this.loginService.loginWithGoogle()
       .then(() => {
-        this.router.navigate(['/directMessage/general']); 
+        this.router.navigate(['/channelChat', 'test_channel']); 
       })
       .catch(err => console.error('Fehler beim Login:', err));
   }

@@ -93,7 +93,8 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     private avatarService: AvatarService,
     private userService: UserDataService,
     private chatPartnerService: ChatPartnerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private chatNav: ChatNavigationService
   ) { }
 
   @HostListener('touchstart', ['$event'])
@@ -600,5 +601,9 @@ onScrollReposition() {
     if (!pickerEl) return;
     const firstAnchor = pickerEl.querySelector('.emoji-mart-anchor') as HTMLElement | null;
     firstAnchor?.click();
+  }
+
+  goToDM(userName: string) {
+    this.chatNav.openDirectMessageWith(userName);
   }
 }

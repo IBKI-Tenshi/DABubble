@@ -36,7 +36,9 @@ export class ReactionToolsComponent implements AfterViewInit {
     'foods',
     'activity',
     'objects',
-    'symbols'
+    'symbols',
+    'places', 
+    'flags'
   ];
 
   constructor(private renderer: Renderer2, private elementRef: ElementRef) {}

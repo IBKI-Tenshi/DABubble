@@ -157,125 +157,171 @@ export class FirestoreService {
   }
 
   async updateThreadRepliesCount(messageId: string): Promise<any> {
-    // Zuerst aktuelle Antworten zählen
     const threadResponse = await firstValueFrom(this.getThreadMessages(messageId));
     const documents = threadResponse?.documents || [];
     const count = documents.length;
-    
-    const url = `${this.urlService.BASE_URL}/messages/${messageId}`;
-    
+  
+    const url = `${this.urlService.BASE_URL}/messages/${messageId}?updateMask.fieldPaths=threadRepliesCount`;
+  
     const updateData = {
       fields: {
-        threadRepliesCount: { integerValue: count }
+        threadRepliesCount: { integerValue: String(count) }
       }
     };
-    
+  
     return firstValueFrom(this.http.patch(url, updateData));
   }
 
   async updateMessageText(chatId: string, messageId: string, newText: string): Promise<any> {
-    // Update the text of a specific message in Firestore
     const encodedChatId = encodeURIComponent(chatId);
-    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}`;
-    
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}?updateMask.fieldPaths=text`;
+  
     const updateData = {
       fields: {
         text: { stringValue: newText }
       }
     };
-    
+  
     return firstValueFrom(this.http.patch(url, updateData));
   }
 
   async updateMessageReactions(chatId: string, messageId: string, reactions: any[]): Promise<any> {
-    const url = `${this.urlService.BASE_URL}/chats/${chatId}/messages/${messageId}`;
-    
-    const reactionsArray = reactions.map(reaction => ({
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}?updateMask.fieldPaths=reactions`;
+  
+    const reactionsArray = reactions.map(r => ({
       mapValue: {
         fields: {
-          emoji: { stringValue: reaction.emoji },
-          count: { integerValue: reaction.count.toString() },
-          users: { 
-            arrayValue: { 
-              values: reaction.users.map((user: string) => ({ stringValue: user })) 
-            } 
+          emoji: { stringValue: r.emoji },
+          count: { integerValue: String(r.count) },
+          users: {
+            arrayValue: { values: r.users.map((u: string) => ({ stringValue: u })) }
           }
         }
       }
     }));
-    
+  
     const updateData = {
       fields: {
-        reactions: { 
-          arrayValue: { 
-            values: reactionsArray 
-          } 
-        }
+        reactions: { arrayValue: { values: reactionsArray } }
       }
     };
-    
+  
     return firstValueFrom(this.http.patch(url, updateData));
   }
 
   async updateChannelMessage(channelId: string, messageId: string, updateData: any): Promise<any> {
-    const url = `${this.urlService.BASE_URL}/channels/${channelId}/messages/${messageId}`;
-    
+    let url = `${this.urlService.BASE_URL}/channels/${channelId}/messages/${messageId}`;
     const firestoreData: any = { fields: {} };
-    
+    const masks: string[] = [];
+  
     if (updateData.reactions) {
-      const reactionsArray = updateData.reactions.map((reaction: any) => ({
+      const reactionsArray = updateData.reactions.map((r: any) => ({
         mapValue: {
           fields: {
-            emoji: { stringValue: reaction.emoji },
-            count: { integerValue: reaction.count.toString() },
-            users: { 
-              arrayValue: { 
-                values: reaction.users.map((user: string) => ({ stringValue: user })) 
-              } 
+            emoji: { stringValue: r.emoji },
+            count: { integerValue: String(r.count) },
+            users: {
+              arrayValue: { values: r.users.map((u: string) => ({ stringValue: u })) }
             }
           }
         }
       }));
-      
-      firestoreData.fields.reactions = { 
-        arrayValue: { 
-          values: reactionsArray 
-        } 
-      };
+      firestoreData.fields.reactions = { arrayValue: { values: reactionsArray } };
+      masks.push('reactions');
     }
-    
+  
+    if (masks.length) {
+      url += `?` + masks.map(m => `updateMask.fieldPaths=${encodeURIComponent(m)}`).join('&');
+    }
+  
     return firstValueFrom(this.http.patch(url, firestoreData));
   }
   
   async updateThreadReply(threadId: string, replyId: string, updateData: any): Promise<any> {
-    const url = `${this.urlService.BASE_URL}/messages/${threadId}/thread/${replyId}`;
-    
+    let url = `${this.urlService.BASE_URL}/messages/${threadId}/thread/${replyId}`;
     const firestoreData: any = { fields: {} };
-    
+    const masks: string[] = [];
+  
     if (updateData.reactions) {
-      const reactionsArray = updateData.reactions.map((reaction: any) => ({
+      const reactionsArray = updateData.reactions.map((r: any) => ({
         mapValue: {
           fields: {
-            emoji: { stringValue: reaction.emoji },
-            count: { integerValue: reaction.count.toString() },
-            users: { 
-              arrayValue: { 
-                values: reaction.users.map((user: string) => ({ stringValue: user })) 
-              } 
+            emoji: { stringValue: r.emoji },
+            count: { integerValue: String(r.count) },
+            users: {
+              arrayValue: { values: r.users.map((u: string) => ({ stringValue: u })) }
             }
           }
         }
       }));
-      
-      firestoreData.fields.reactions = { 
-        arrayValue: { 
-          values: reactionsArray 
-        } 
-      };
+      firestoreData.fields.reactions = { arrayValue: { values: reactionsArray } };
+      masks.push('reactions');
     }
-    
+  
+    if (masks.length) {
+      url += `?` + masks.map(m => `updateMask.fieldPaths=${encodeURIComponent(m)}`).join('&');
+    }
+  
     return firstValueFrom(this.http.patch(url, firestoreData));
   }
+
+  async findDirectChatByParticipants(participantNames: string[]): Promise<string | null> {
+    const me = participantNames[0];
+    const query = {
+      structuredQuery: {
+        from: [{ collectionId: 'chats' }],
+        where: {
+          compositeFilter: {
+            op: 'AND',
+            filters: [
+              { fieldFilter: { field: { fieldPath: 'isDirect' }, op: 'EQUAL', value: { booleanValue: true } } },
+              { fieldFilter: { field: { fieldPath: 'participants' }, op: 'ARRAY_CONTAINS', value: { stringValue: me } } },
+            ]
+          }
+        },
+        limit: 20
+      }
+    };
   
+    const res = await fetch(`${this.urlService.BASE_URL}:runQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(query)
+    });
+  
+    const rows = await res.json();
+    const other = participantNames[1];
+    for (const r of rows) {
+      const doc = r?.document;
+      if (!doc?.fields) continue;
+      const parts = doc.fields.participants?.arrayValue?.values?.map((v: any) => v.stringValue) || [];
+      const isSame = parts.length === 2 && parts.includes(me) && parts.includes(other);
+      if (isSame) return doc.name.split('/').pop();
+    }
+    return null;
+  }
+  
+  async createDirectChat(participantNames: string[]): Promise<string> {
+    const body = {
+      fields: {
+        isDirect: { booleanValue: true },
+        participants: { arrayValue: { values: participantNames.map(n => ({ stringValue: n })) } },
+        participantNames: { arrayValue: { values: participantNames.map(n => ({ stringValue: n })) } },
+        createdAt: { timestampValue: new Date().toISOString() },
+        lastMessageAt: { timestampValue: new Date().toISOString() }
+      }
+    };
+  
+    const res = await fetch(`${this.urlService.BASE_URL}/chats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  
+    const doc = await res.json();
+    return doc.name.split('/').pop();
+  }
 }
+
 
