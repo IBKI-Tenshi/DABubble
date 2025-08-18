@@ -64,9 +64,33 @@ export class LoginService {
     }
   }
 
-  loginWithGoogle() {
+  loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(this.auth, provider);
+
+    return signInWithPopup(this.auth, provider)
+      .then(async (credential) => {
+        const user = credential.user;
+        // Prefer a real, verifiable Firebase ID token over a fabricated string
+        const idToken = await user.getIdToken();
+        const timestamp = Date.now();
+
+        this.saveTokens(
+          'google',
+          idToken,
+          user.uid,
+          user.email || '',
+          timestamp
+        );
+        await this.userDataService.loadUser(user.uid);
+
+        setTimeout(() => {
+          this.router.navigate(['/directMessage/general']);
+        }, 100);
+      })
+      .catch((err) => {
+        console.error('Google sign-in failed:', err);
+        throw err;
+      });
   }
 
   private checkToken(): boolean {

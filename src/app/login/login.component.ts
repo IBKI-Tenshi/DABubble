@@ -67,11 +67,11 @@ export class LoginComponent implements OnInit {
   }
 
   loginWithGoogle() {
-    this.loginService.loginWithGoogle()
-      .then(() => {
-        this.router.navigate(['/channelChat', 'test_channel']); 
-      })
-      .catch(err => console.error('Fehler beim Login:', err));
+    this.loginService
+      .loginWithGoogle()
+      .catch((err) =>
+        this.snackBar.open('Fehler beim Google-Login', 'OK', { duration: 3000 })
+      );
   }
 
   private setupGoogleLogin(): void {
