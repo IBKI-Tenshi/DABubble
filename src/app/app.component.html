@@ -1,9 +1,6 @@
-
-
 <app-intro *ngIf="!(isLoggedIn$ | async)"></app-intro>
 
 <div class="windowSetup" *ngIf="isLoggedIn$ | async">
-
   <app-header></app-header>
 
   <!-- button ausgeblendet im Portrait-modus -->
@@ -27,7 +24,6 @@
     <!-- Router-Outlet nur anzeigen, wenn Sidebar im Portrait-Modus -->
     <router-outlet *ngIf="!isMobilePortrait || !showSidebar"></router-outlet>
   </div>
-
 </div>
 
 <div *ngIf="!(isLoggedIn$ | async)">

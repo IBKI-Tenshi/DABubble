@@ -9,12 +9,22 @@
         class="searchInput"
         matInput
         type="search"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
         placeholder="Space durchsuchen"
       />
       <button matSuffix mat-icon-button aria-label="Search">
         <mat-icon>search</mat-icon>
       </button>
+
+      <div class="searchResults">
+        <ul *ngIf="searchTerm.trim()">
+          <li *ngFor="let channel of filteredChannels">{{ channel.name }}</li>
+          <li *ngIf="filteredChannels.length === 0">Keine Kanäle gefunden</li>
+        </ul>
+      </div>
     </div>
+
     <div class="actual_user dFlex_ac" [matMenuTriggerFor]="profileMenu">
       <span class="profileSpan">{{ userName }}</span>
       <div class="status-container">

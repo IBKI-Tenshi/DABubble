@@ -4,6 +4,8 @@ import { UrlService } from './url.service';
 import { Observable } from 'rxjs';
 import { Message, ThreadReply } from '../models/message.model';
 import { firstValueFrom } from 'rxjs';
+import { collection, Firestore } from 'firebase/firestore';
+import { collectionData } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +13,7 @@ import { firstValueFrom } from 'rxjs';
 export class FirestoreService {
   constructor(
     private http: HttpClient,
-    private urlService: UrlService
+    private urlService: UrlService,
   ) { }
 
   getAllUsers(): Observable<any> {
@@ -23,6 +25,11 @@ export class FirestoreService {
     const url = `${this.urlService.BASE_URL}/channels`;
     return this.http.get<any[]>(url);
   }
+
+  // getAllChannelsCollectionData(): Observable<any[]> {
+  //   const channelsCollection = collection(this.firestore, 'channels');
+  //   return collectionData(channelsCollection, { idField: 'id' }) as Observable<any[]>;
+  // }
 
   getAllChats(): Observable<any> {
     const url = `${this.urlService.BASE_URL}/chats`;

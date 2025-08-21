@@ -11,7 +11,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LoginService } from '../../services/login.service';
 import { UserDataService } from '../../services/user_data.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { FirestoreService } from '../../services/firestore.service';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +27,8 @@ import { Subscription } from 'rxjs';
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    FormsModule
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -35,6 +38,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userEmail: string = '';
   userImage: string = '/assets/img/dummy_pic.png';
   isGuestUser: boolean = true;
+  channels: any[] = [];
+searchTerm: string = '';
+filteredChannels: any[] = [];
+
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -42,11 +49,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginService: LoginService,
     private userDataService: UserDataService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private firestoreService: FirestoreService,
   ) {
   }
 
   ngOnInit() {
+this.firestoreService.getAllChannels().subscribe(data => {
+  this.channels = data.map((doc: any) => doc.name);
+  this.filteredChannels = this.channels;
+  console.log('Channels loaded:', this.channels);
+});
+
+
+
     this.subscription = this.userDataService.user$.subscribe(user => {
       setTimeout(() => {
         this.updateUserData(user);
@@ -54,6 +70,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }, 0);
     });
   }
+
+onSearchChange() {
+  if (!this.searchTerm.trim()) {
+    // wenn leer → nichts anzeigen
+    this.filteredChannels = [];
+    return;
+  }
+
+  this.filteredChannels = this.channels.filter(channel =>
+    channel.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
+    console.log(this.filteredChannels)
+    
+  );
+}
 
   private initializeUserData() {
     this.isGuestUser = localStorage.getItem('guest_token') !== null;

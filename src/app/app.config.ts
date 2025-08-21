@@ -10,6 +10,7 @@ import { UserDataService } from './services/user_data.service';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
+
 import { getAuth, provideAuth } from '@angular/fire/auth';
 
 export function initUser(user: UserDataService) {
@@ -38,3 +39,7 @@ export const appConfig: ApplicationConfig = {
     { provide: APP_INITIALIZER, useFactory: initUser, deps: [UserDataService], multi: true },
   ],
 };
+function provideForms(): import("@angular/core").Provider | import("@angular/core").EnvironmentProviders {
+  throw new Error('Function not implemented.');
+}
+
