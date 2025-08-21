@@ -2,13 +2,13 @@ import {
   Component,
   ElementRef,
   OnInit,
+  AfterViewInit,
   ViewChild,
   inject,
 } from '@angular/core';
-import { Auth } from '@angular/fire/auth'; // used for authentication
+import { Auth } from '@angular/fire/auth';
 import { LoginService } from '../services/login.service';
 import {
-  FormControl,
   Validators,
   ReactiveFormsModule,
   FormGroup,
@@ -20,8 +20,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { GoogleAuth } from '../services/google.service';
+
+// TS hint for the global loaded by Google Identity script
+declare const google: any;
 
 @Component({
   selector: 'app-login',
@@ -38,20 +41,20 @@ import { GoogleAuth } from '../services/google.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   loginForm: FormGroup;
-  private auth = inject(Auth); // used for authentication
+  private auth = inject(Auth);
   isLoggingIn = false;
   loginErrorMail: string | null = null;
   loginErrorPassword: string | null = null;
 
-  @ViewChild('googleButton', { static: true }) googleButton!: ElementRef;
+  // Ensure the template contains an element like: <div #googleButton></div>
+  @ViewChild('googleButton', { static: false }) googleButton!: ElementRef;
 
   constructor(
     private loginService: LoginService,
     private snackBar: MatSnackBar,
     private googleLogin: GoogleAuth,
-    private router: Router,
     private fb: FormBuilder
   ) {
     this.loginForm = this.fb.group({
@@ -61,31 +64,84 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.setupGoogleLogin();
-    this.setupAnimations();
-    this.checkLoginStatus();
-  }
-
-  loginWithGoogle() {
-    this.loginService
-      .loginWithGoogle()
-      .catch((err) =>
-        this.snackBar.open('Fehler beim Google-Login', 'OK', { duration: 3000 })
-      );
-  }
-
-  private setupGoogleLogin(): void {
+    // Initialize Google auth (registers the callback, loads script, etc.)
     this.googleLogin.initializeGoogleAuth(
       this.handleCredentialResponse.bind(this)
     );
 
-    google.accounts.id.renderButton(this.googleButton.nativeElement, {
-      type: 'standard',
-      theme: 'outline',
-      size: 'large',
-      width: 300,
-    });
+    this.setupAnimations();
+    this.checkLoginStatus(); // pure check; no side-effects
   }
+
+  ngAfterViewInit(): void {
+    // Render the Google button once the view exists and the script is ready
+    this.tryRenderGoogleButton();
+  }
+
+  // --- Google ---------------------------------------------------------------
+
+  loginWithGoogle() {
+    this.loginService
+      .loginWithGoogle()
+      .catch(() =>
+        this.snackBar.open('Fehler beim Google-Login', 'OK', { duration: 3000 })
+      );
+  }
+
+  private tryRenderGoogleButton(): void {
+    const render = () => {
+      try {
+        google.accounts.id.renderButton(this.googleButton.nativeElement, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          width: 300,
+        });
+      } catch {
+        this.snackBar.open(
+          'Google Login konnte nicht initialisiert werden.',
+          'OK',
+          { duration: 3000 }
+        );
+      }
+    };
+
+    // If the script is ready, render immediately
+    const g = (window as any).google;
+    if (g?.accounts?.id?.renderButton && this.googleButton?.nativeElement) {
+      render();
+      return;
+    }
+
+    // Otherwise, poll briefly for readiness
+    let tries = 0;
+    const maxTries = 50;
+    const iv = setInterval(() => {
+      const gg = (window as any).google;
+      if (gg?.accounts?.id?.renderButton && this.googleButton?.nativeElement) {
+        clearInterval(iv);
+        render();
+      } else if (++tries >= maxTries) {
+        clearInterval(iv);
+        // Optional: inform user that Google button could not be shown
+        // (The regular email/password and guest flows still work.)
+      }
+    }, 100);
+  }
+
+  private handleCredentialResponse(
+    response: google.accounts.id.CredentialResponse
+  ): void {
+    try {
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      // Service handles token save, profile load, and navigation
+      this.loginService.googleLoginWithCredential(response.credential, payload);
+    } catch {
+      this.snackBar.open('Ungültige Google-Antwort.', 'OK', { duration: 3000 });
+    }
+  }
+
+  // --- UI helpers -----------------------------------------------------------
 
   private setupAnimations(): void {
     const hasAnimated = sessionStorage.getItem('animation');
@@ -93,26 +149,6 @@ export class LoginComponent implements OnInit {
       this.runStartupAnimation();
       sessionStorage.setItem('animation', 'true');
     }
-  }
-
-  private checkLoginStatus(): void {
-    const tokenInStorage =
-      localStorage.getItem('slack_clone_user_token') !== null ||
-      localStorage.getItem('slack_clone_google_token') !== null ||
-      localStorage.getItem('slack_clone_guest_token') !== null;
-
-    const isLoggedInStatus = this.loginService.isLoggedIn();
-
-    if (!tokenInStorage && !isLoggedInStatus) {
-      this.loginService.logout();
-    }
-  }
-
-  private handleCredentialResponse(
-    response: google.accounts.id.CredentialResponse
-  ): void {
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    this.loginService.googleLoginWithCredential(response.credential, payload);
   }
 
   private runStartupAnimation(): void {
@@ -128,6 +164,20 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  private checkLoginStatus(): void {
+    // Pure read; do not call logout() here
+    const hasToken =
+      !!localStorage.getItem('slack_clone_user_token') ||
+      !!localStorage.getItem('slack_clone_google_token') ||
+      !!localStorage.getItem('slack_clone_guest_token');
+
+    const isLoggedIn = this.loginService.isLoggedInSync();
+    // Intentionally no side effects; route guards decide access
+    // (You could show UI changes based on hasToken/isLoggedIn if needed)
+  }
+
+  // --- Email/password login -------------------------------------------------
+
   async onLoginClick() {
     if (this.isLoggingIn) return;
     this.isLoggingIn = true;
@@ -142,10 +192,9 @@ export class LoginComponent implements OnInit {
 
     try {
       const result = await this.loginService.logIn(email, password);
-
       if (result.success) {
-        this.navigateAfterLogin();
         console.log('Logged in!', result.uid);
+        // Navigation handled by the service
       } else {
         this.handleLoginError(result.reason);
       }
@@ -157,55 +206,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  /*
-  async doLogin(): Promise<void> {
-    this.resetLoginError();
-
-    if (this.isLoggingIn) {
-      return;
-    }
-
-    this.emailControl.markAsTouched();
-    this.passwordControl.markAsTouched();
-
-    const email = this.emailControl.value || '';
-    const password = this.passwordControl.value || '';
-
-    if (this.emailControl.invalid || this.passwordControl.invalid) {
-      return;
-    }
-
-    this.isLoggingIn = true;
-
-    try {
-      const result = await this.loginService.logIn(email, password);
-
-      if (!result.success) {
-        switch (result.reason) {
-          case 'missing-credentials':
-            this.showError('Bitte gib E-Mail und Passwort ein.');
-            break;
-          case 'auth/wrong-password':
-            this.passwordControl.markAsTouched();
-            this.passwordControl.setErrors({ wrong: true });
-            break;
-          default:
-            this.passwordControl.markAsTouched();
-            this.passwordControl.setErrors({ invalid: true });
-            this.emailControl.markAsTouched();
-            this.emailControl.setErrors({ invalid: true });
-        }
-        return;
-      }
-
-      this.navigateAfterLogin();
-    } catch (error) {
-      this.showError('Login fehlgeschlagen');
-    }
-
-    this.isLoggingIn = false;
-  }
-*/
+  // --- Guest login ----------------------------------------------------------
 
   async guestLogin(): Promise<void> {
     if (this.isLoggingIn) return;
@@ -213,13 +214,10 @@ export class LoginComponent implements OnInit {
 
     try {
       const user = await this.loginService.signInAsGuest();
-
-      if (user && user.uid) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        this.navigateAfterLogin();
-      } else {
+      if (!user?.uid) {
         this.showError('Gast-Login fehlgeschlagen');
       }
+      // Navigation handled by the service
     } catch (error) {
       this.showError('Gast-Login fehlgeschlagen');
     } finally {
@@ -227,13 +225,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  private navigateAfterLogin(): void {
-    setTimeout(() => {
-      if (this.loginService.isLoggedIn()) {
-        this.router.navigate(['/directMessage/general']);
-      }
-    }, 100);
-  }
+  // --- Errors ---------------------------------------------------------------
 
   private resetLoginError(): void {
     this.loginErrorMail = null;
