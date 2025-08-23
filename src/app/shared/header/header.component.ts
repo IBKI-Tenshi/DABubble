@@ -57,7 +57,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.firestoreService.getAllChats().subscribe((docs) => {
       this.channels = docs.map((doc) => doc.name);
       this.filteredChannels = this.channels;
-      console.log('Channels loaded:', this.channels);
     });
 
     this.subscription = this.userDataService.user$.subscribe((user) => {

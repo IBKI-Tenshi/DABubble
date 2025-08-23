@@ -390,4 +390,11 @@ export class FirestoreService {
     const doc = await res.json();
     return doc.name.split('/').pop();
   }
+
+  async ensureChatDoc(chatId: string, body: any = {}): Promise<void> {
+    const encoded = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats?documentId=${encoded}`;
+    const payload = { fields: body.fields ?? {} };
+    await firstValueFrom(this.http.post(url, payload));
+  }
 }

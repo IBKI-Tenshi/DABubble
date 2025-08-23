@@ -8,7 +8,7 @@ import {
   AfterViewChecked,
   HostListener,
   ChangeDetectorRef,
-  QueryList
+  QueryList,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -54,12 +54,14 @@ interface GroupedMessages {
     MatIconModule,
     PickerComponent,
     ReactionToolsComponent,
-    ReactionBubbleComponent
+    ReactionBubbleComponent,
   ],
   templateUrl: './direct-message.component.html',
-  styleUrls: ['./direct-message.component.scss']
+  styleUrls: ['./direct-message.component.scss'],
 })
-export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class DirectMessageComponent
+  implements OnInit, OnDestroy, AfterViewChecked
+{
   messages: Message[] = [];
   groupedMessages: GroupedMessages[] = [];
   newMessageText: string = '';
@@ -93,12 +95,14 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     'objects',
     'symbols',
     'places',
-    'flags'
+    'flags',
   ];
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('emojiPicker') private emojiPicker!: ElementRef;
-  @ViewChildren('reactionPicker') reactionPickers!: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren('reactionPicker') reactionPickers!: QueryList<
+    ElementRef<HTMLElement>
+  >;
 
   private pickerAnchors: Record<string, HTMLElement> = {};
   private needsToScroll = false;
@@ -124,7 +128,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   onTouchStart(event: TouchEvent) {
     if (this.isMobile) {
       const target = event.target as HTMLElement;
-      if (!target.closest('.add-reaction-button') && !target.closest('.emoji-picker-container')) {
+      if (
+        !target.closest('.add-reaction-button') &&
+        !target.closest('.emoji-picker-container')
+      ) {
         this.showEmojiPickerForMessage = null;
         this.showEmojiPickerForReaction = null;
         this.showEmojiPickerForInput = false;
@@ -150,38 +157,44 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   ngOnInit(): void {
     this.checkScreenSize();
     window.addEventListener('resize', () => this.checkScreenSize());
-  
-    this.readySub = combineLatest([this.userService.user$, this.route.paramMap]).pipe(
-      filter(([u, p]) => !!u && !!p.get('chatId')),
-      tap(() => {
-        this.messages = [];
-        this.groupedMessages = [];
-        this.hoveredMessageId = null;
-        this.editingMessageId = null;
-        this.showEmojiPickerForInput = false;
-        this.showEmojiPickerForMessage = null;
-        this.showEmojiPickerForReaction = null;
-      })
-    ).subscribe(([user, params]) => {
-      this.senderName   = user!.name || this.senderName;
-      this.senderAvatar = user!.profileImage || this.senderAvatar;
-      this.chatId = params.get('chatId')!;
-  
-      const cached = this.chatPartnerService.getChatPartner(this.chatId);
-      if (cached) {
-        this.partnerName = cached.name;
-        this.partnerAvatarUrl = cached.avatar;
-      }
-  
-      this.loadChatInfo();  
-      this.loadMessages();
-    });
-  
-    this.querySub = this.route.queryParams.subscribe(params => {
-      if (params['name'])  this.partnerName = params['name'];
+
+    this.readySub = combineLatest([this.userService.user$, this.route.paramMap])
+      .pipe(
+        filter(([u, p]) => !!u && !!p.get('chatId')),
+        tap(() => {
+          this.messages = [];
+          this.groupedMessages = [];
+          this.hoveredMessageId = null;
+          this.editingMessageId = null;
+          this.showEmojiPickerForInput = false;
+          this.showEmojiPickerForMessage = null;
+          this.showEmojiPickerForReaction = null;
+        })
+      )
+      .subscribe(([user, params]) => {
+        this.senderName = user!.name || this.senderName;
+        this.senderAvatar = user!.profileImage || this.senderAvatar;
+        this.chatId = params.get('chatId')!;
+
+        const cached = this.chatPartnerService.getChatPartner(this.chatId);
+        if (cached) {
+          this.partnerName = cached.name;
+          this.partnerAvatarUrl = cached.avatar;
+        }
+
+        this.loadChatInfo();
+        this.loadMessages();
+      });
+
+    this.querySub = this.route.queryParams.subscribe((params) => {
+      if (params['name']) this.partnerName = params['name'];
       if (params['avatar']) this.partnerAvatarUrl = params['avatar'];
       if (this.chatId && (params['name'] || params['avatar'])) {
-        this.chatPartnerService.setChatPartner(this.chatId, this.partnerName, this.partnerAvatarUrl);
+        this.chatPartnerService.setChatPartner(
+          this.chatId,
+          this.partnerName,
+          this.partnerAvatarUrl
+        );
       }
     });
   }
@@ -233,27 +246,29 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   loadChatInfo(): void {
     if (!this.chatId) return;
-  
+
     this.firestore.getChatById(this.chatId).subscribe({
       next: (chatData: any) => {
         const f = chatData?.fields;
         if (!f) return;
-  
+
         // Namen aus dem Dokument lesen
         const names: string[] =
-          f.participantNames?.arrayValue?.values?.map((v: any) => v?.stringValue).filter(Boolean) || [];
-  
+          f.participantNames?.arrayValue?.values
+            ?.map((v: any) => v?.stringValue)
+            .filter(Boolean) || [];
+
         // Partner bestimmen:
         // - normal: der, der nicht ich bin
         // - Self-DM: dann bin ich selbst der "Partner"
-        let partner = names.find(n => n === this.senderName ? false : true);
+        let partner = names.find((n) => (n === this.senderName ? false : true));
         if (!partner) partner = this.senderName;
-  
+
         // Niemals "Unbekannt" anzeigen
         if (!partner || partner === 'Unbekannt') partner = this.senderName;
-  
+
         this.partnerName = partner;
-  
+
         // Avatar bevorzugt aus Cache, sonst sinnvolle Defaults
         const cached = this.chatPartnerService.getChatPartner(this.chatId);
         if (cached?.avatar) {
@@ -265,29 +280,49 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
           // Fallback – bleibt bis Sidebar/QueryParam später ein Avatar setzt
           this.partnerAvatarUrl ||= '/assets/img/dummy_pic.png';
         }
-  
+
         // Merken, damit beim nächsten Öffnen nichts flackert
-        this.chatPartnerService.setChatPartner(this.chatId, this.partnerName, this.partnerAvatarUrl);
+        this.chatPartnerService.setChatPartner(
+          this.chatId,
+          this.partnerName,
+          this.partnerAvatarUrl
+        );
       },
-      error: (error) => {
+      error: async (error) => {
         console.error('Fehler beim Laden der Chat-Informationen:', error);
-      }
-    });
-  }
-  
-  loadCurrentUser(): void {
-    this.userSub = this.userService.user$.subscribe((user: UserProfile | null | undefined) => {
-      if (user) {
-        const prev = this.senderName;
-        this.senderName   = user.name || 'Frederik Beck';
-        this.senderAvatar = user.profileImage || '/assets/img/dummy_pic.png';
-        if (this.chatId && prev !== this.senderName) {
+        if (error?.status === 404) {
+          // Create a minimal doc and retry
+          await this.firestore.ensureChatDoc(this.chatId, {
+            fields: {
+              participantNames: {
+                arrayValue: {
+                  values: [this.senderName].map((n) => ({ stringValue: n })),
+                },
+              },
+              createdAt: { timestampValue: new Date().toISOString() },
+            },
+          });
           this.loadChatInfo();
         }
-      }
+      },
     });
   }
-  
+
+  loadCurrentUser(): void {
+    this.userSub = this.userService.user$.subscribe(
+      (user: UserProfile | null | undefined) => {
+        if (user) {
+          const prev = this.senderName;
+          this.senderName = user.name || 'Frederik Beck';
+          this.senderAvatar = user.profileImage || '/assets/img/dummy_pic.png';
+          if (this.chatId && prev !== this.senderName) {
+            this.loadChatInfo();
+          }
+        }
+      }
+    );
+  }
+
   loadMessages(): void {
     this.messageSub?.unsubscribe();
 
@@ -300,33 +335,46 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       next: (response: any) => {
         const documents = response?.documents || [];
 
-        this.messages = documents.map((doc: any) => {
-          const fields = doc.fields || {};
-          const id = doc.name.split('/').pop();
-          const tsRaw =
-            fields.timestamp?.timestampValue ||
-            doc.createTime ||
-            doc.updateTime ||
-            null;
+        this.messages = documents
+          .map((doc: any) => {
+            const fields = doc.fields || {};
+            const id = doc.name.split('/').pop();
+            const tsRaw =
+              fields.timestamp?.timestampValue ||
+              doc.createTime ||
+              doc.updateTime ||
+              null;
 
-          const timestamp = tsRaw ? new Date(tsRaw) : new Date(0);
+            const timestamp = tsRaw ? new Date(tsRaw) : new Date(0);
 
-          const senderId = fields.senderId?.stringValue || 'Unbekannt';
-          const text = fields.text?.stringValue || '';
-          const avatar = fields.avatar?.stringValue || this.getAvatarForUser(senderId);
+            const senderId = fields.senderId?.stringValue || 'Unbekannt';
+            const text = fields.text?.stringValue || '';
+            const avatar =
+              fields.avatar?.stringValue || this.getAvatarForUser(senderId);
 
-          const rawReactions = fields.reactions?.arrayValue?.values || [];
-          const reactions = rawReactions.map((r: any): Reaction => {
-            const f = r?.mapValue?.fields || {};
+            const rawReactions = fields.reactions?.arrayValue?.values || [];
+            const reactions = rawReactions.map((r: any): Reaction => {
+              const f = r?.mapValue?.fields || {};
+              return {
+                emoji: f.emoji?.stringValue || '',
+                count: parseInt(f.count?.integerValue || '0', 10),
+                users:
+                  f.users?.arrayValue?.values?.map(
+                    (u: any) => u?.stringValue
+                  ) || [],
+              };
+            });
+
             return {
-              emoji: f.emoji?.stringValue || '',
-              count: parseInt(f.count?.integerValue || '0', 10),
-              users: f.users?.arrayValue?.values?.map((u: any) => u?.stringValue) || []
-            };
-          });
-
-          return { id, senderId, text, timestamp, avatar, reactions } as Message;
-        }).sort(this.compareMessages);
+              id,
+              senderId,
+              text,
+              timestamp,
+              avatar,
+              reactions,
+            } as Message;
+          })
+          .sort(this.compareMessages);
 
         this.groupMessagesByDate();
         this.refreshReactionsDisplay();
@@ -336,7 +384,10 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
         }
       },
       error: (error) =>
-        console.error(`Fehler beim Laden der Nachrichten für Chat ${this.chatId}:`, error)
+        console.error(
+          `Fehler beim Laden der Nachrichten für Chat ${this.chatId}:`,
+          error
+        ),
     });
   }
 
@@ -366,7 +417,11 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       } else if (date.getTime() === yesterday.getTime()) {
         dateLabel = 'Gestern';
       } else {
-        const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        };
         dateLabel = date.toLocaleDateString('de-DE', options);
         dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
       }
@@ -393,7 +448,7 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
       senderId: this.senderName,
       timestamp: new Date(),
       avatar: this.senderAvatar,
-      reactions: []
+      reactions: [],
     };
 
     const messageText = this.newMessageText;
@@ -413,7 +468,9 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
       this.newMessageText = messageText;
-      alert('Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.');
+      alert(
+        'Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.'
+      );
     } finally {
       this.isSending = false;
     }
@@ -440,9 +497,13 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     if (!this.editingMessageText.trim()) return;
 
     try {
-      await this.firestore.updateMessageText(this.chatId, messageId, this.editingMessageText);
+      await this.firestore.updateMessageText(
+        this.chatId,
+        messageId,
+        this.editingMessageText
+      );
 
-      const messageIndex = this.messages.findIndex(m => m.id === messageId);
+      const messageIndex = this.messages.findIndex((m) => m.id === messageId);
       if (messageIndex !== -1) {
         this.messages[messageIndex].text = this.editingMessageText;
         this.groupMessagesByDate();
@@ -467,7 +528,8 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   toggleEmojiPickerForMessage(messageId: string): void {
-    this.showEmojiPickerForMessage = this.showEmojiPickerForMessage === messageId ? null : messageId;
+    this.showEmojiPickerForMessage =
+      this.showEmojiPickerForMessage === messageId ? null : messageId;
     this.showEmojiPickerForReaction = null;
     this.showEmojiPickerForInput = false;
   }
@@ -500,11 +562,13 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     try {
       const emoji = event.emoji.native;
 
-      const messageIndex = this.messages.findIndex(m => m.id === messageId);
+      const messageIndex = this.messages.findIndex((m) => m.id === messageId);
       if (messageIndex === -1) return;
 
       const message = this.messages[messageIndex];
-      const reactionIndex = message.reactions.findIndex(r => r.emoji === emoji);
+      const reactionIndex = message.reactions.findIndex(
+        (r) => r.emoji === emoji
+      );
 
       if (reactionIndex !== -1) {
         const reaction = message.reactions[reactionIndex];
@@ -524,11 +588,15 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
         message.reactions.push({
           emoji,
           count: 1,
-          users: [this.senderName]
+          users: [this.senderName],
         });
       }
 
-      await this.firestore.updateMessageReactions(this.chatId, messageId, message.reactions);
+      await this.firestore.updateMessageReactions(
+        this.chatId,
+        messageId,
+        message.reactions
+      );
       this.showEmojiPickerForReaction = null;
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Reaktion:', error);
@@ -537,8 +605,13 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   getVisibleReactions(message: Message): Reaction[] {
     if (!message.reactions || message.reactions.length === 0) return [];
-    const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
-    if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
+    const maxVisible = this.isMobile
+      ? this.MAX_MOBILE_REACTIONS
+      : this.MAX_DESKTOP_REACTIONS;
+    if (
+      this.expandedReactions[message.id!] ||
+      message.reactions.length <= maxVisible
+    ) {
       return message.reactions;
     }
     return message.reactions.slice(0, maxVisible);
@@ -546,8 +619,13 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
 
   getHiddenReactionsCount(message: Message): number {
     if (!message.reactions || message.reactions.length === 0) return 0;
-    const maxVisible = this.isMobile ? this.MAX_MOBILE_REACTIONS : this.MAX_DESKTOP_REACTIONS;
-    if (this.expandedReactions[message.id!] || message.reactions.length <= maxVisible) {
+    const maxVisible = this.isMobile
+      ? this.MAX_MOBILE_REACTIONS
+      : this.MAX_DESKTOP_REACTIONS;
+    if (
+      this.expandedReactions[message.id!] ||
+      message.reactions.length <= maxVisible
+    ) {
       return 0;
     }
     return message.reactions.length - maxVisible;
@@ -557,17 +635,21 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
     this.expandedReactions[messageId] = !this.expandedReactions[messageId];
   }
 
-  toggleReactionPicker(messageId: string, anchorEl: HTMLElement, evt: MouseEvent) {
+  toggleReactionPicker(
+    messageId: string,
+    anchorEl: HTMLElement,
+    evt: MouseEvent
+  ) {
     evt.stopPropagation();
-  
+
     if (this.showEmojiPickerForReaction === messageId) {
       this.showEmojiPickerForReaction = null;
       return;
     }
-  
+
     this.showEmojiPickerForMessage = null;
     this.showEmojiPickerForInput = false;
-  
+
     this.pickerAnchors[messageId] = anchorEl;
     this.positionReactionPicker(messageId);
     this.showEmojiPickerForReaction = messageId;
@@ -583,24 +665,27 @@ export class DirectMessageComponent implements OnInit, OnDestroy, AfterViewCheck
   private positionReactionPicker(messageId: string) {
     const anchorEl = this.pickerAnchors[messageId];
     if (!anchorEl) return;
-  
+
     const a = anchorEl.getBoundingClientRect();
     const pickerW = 320;
     const pickerH = 320;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const GAP = 8;
-  
-    let left = a.left + (a.width / 2) - (pickerW / 2);
+
+    let left = a.left + a.width / 2 - pickerW / 2;
     left = Math.max(GAP, Math.min(left, vw - pickerW - GAP));
-  
+
     let top = a.top - pickerH - GAP;
-    if (top < GAP && (vh - a.bottom) > (pickerH + GAP)) {
+    if (top < GAP && vh - a.bottom > pickerH + GAP) {
       top = a.bottom + GAP;
     }
-  
-    this.reactionPickerPos[messageId] = { left: Math.round(left), top: Math.round(top) };
-    this.cdr.detectChanges(); 
+
+    this.reactionPickerPos[messageId] = {
+      left: Math.round(left),
+      top: Math.round(top),
+    };
+    this.cdr.detectChanges();
   }
 
   openProfileView(userName: string, avatarUrl: string): void {
