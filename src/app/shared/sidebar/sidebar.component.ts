@@ -1,4 +1,3 @@
-
 import { Component, ViewChild, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -14,11 +13,10 @@ import { AvatarService } from '../../services/avatar.service';
 import { UserDataService, UserProfile } from '../../services/user_data.service';
 import { ChatNavigationService } from '../../services/chat-navigation.service';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { AddChannelComponent } from "../../add-channel/add-channel.component";
+import { AddChannelComponent } from '../../add-channel/add-channel.component';
 import { collection } from 'firebase/firestore';
 import { collectionData } from '@angular/fire/firestore';
 import { ChatPartnerService } from '../../services/chat-partner.service';
-
 
 @Component({
   selector: 'app-sidebar',
@@ -60,7 +58,7 @@ export class SidebarComponent implements OnInit {
     private chatNavigationService: ChatNavigationService,
     private chatPartnerService: ChatPartnerService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.loadCurrentUser();
@@ -73,21 +71,28 @@ export class SidebarComponent implements OnInit {
   }
 
   loadCurrentUser() {
-    this.subscription = this.userService.user$.subscribe((user: UserProfile | null | undefined) => {
-      if (user) {
-        this.currentUserEmail = user.email || '';
-        this.currentUserName = user.name || 'Unbekannt';
-        this.currentUserImage = user.profileImage || '/assets/img/dummy_pic.png';
-        this.cdr.detectChanges();
+    this.subscription = this.userService.user$.subscribe(
+      (user: UserProfile | null | undefined) => {
+        if (user) {
+          this.currentUserEmail = user.email || '';
+          this.currentUserName = user.name || 'Unbekannt';
+          this.currentUserImage =
+            user.profileImage || '/assets/img/dummy_pic.png';
+          this.cdr.detectChanges();
+        }
       }
-    });
+    );
   }
 
   loadUsersInSidebar() {
-    this.firestore.getAllUsers().subscribe(users => {
+    this.firestore.getAllUsers().subscribe((users) => {
       this.users = users.documents.map((doc: any, index: number) => {
         const name = doc.fields.name?.stringValue || 'Unbekannt';
-        const avatar = doc.fields.avatar?.stringValue || this.avatarService.profileArray[index % this.avatarService.profileArray.length];
+        const avatar =
+          doc.fields.avatar?.stringValue ||
+          this.avatarService.profileArray[
+            index % this.avatarService.profileArray.length
+          ];
         const email = doc.fields.email?.stringValue || 'unbekannt@email.com';
 
         return { name, avatar, email };
@@ -108,9 +113,7 @@ export class SidebarComponent implements OnInit {
   }
 
   generateChatId(email1: string, email2: string): string {
-
     return [email1, email2].sort().join('_');
-
   }
 
   toggleChannels() {
@@ -128,17 +131,26 @@ export class SidebarComponent implements OnInit {
   }
 
   onChannelAdded(newChannelName: string) {
-
-    this.firestore.createChannel(newChannelName).then(() => {
-      this.channels.push(newChannelName);
-    }).catch((error) => { });
+    this.firestore
+      .createChannel(newChannelName)
+      .then(() => {
+        this.channels.push(newChannelName);
+      })
+      .catch((error) => {});
   }
 
-  async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
+  async openChatWithUser(
+    otherEmail: string,
+    otherName: string,
+    otherAvatar: string
+  ) {
     const currentUser = await firstValueFrom(this.userService.user$);
     const currentUserName = currentUser?.name || 'Unbekannt';
 
-    const chatId = this.firestore.generateChatId(this.currentUserEmail, otherEmail);
+    const chatId = this.firestore.generateChatId(
+      this.currentUserEmail,
+      otherEmail
+    );
 
     this.chatPartnerService.setChatPartner(chatId, otherName, otherAvatar);
 
@@ -157,14 +169,18 @@ export class SidebarComponent implements OnInit {
           );
           this.navigateToChat(chatId);
         } catch (createError) {
-          alert('Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.');
+          alert(
+            'Es konnte kein Chat erstellt werden. Bitte versuche es später erneut.'
+          );
         }
       } else {
-        alert('Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.');
+        alert(
+          'Es gab einen Fehler beim Abrufen des Chats. Bitte versuche es später erneut.'
+        );
       }
     }
   }
-  
+
   private navigateToChat(chatId: string) {
     this.router.navigate(['/directMessage', chatId]);
   }
