@@ -28,7 +28,7 @@ import { FirestoreService } from '../../services/firestore.service';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -39,8 +39,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userImage: string = '/assets/img/dummy_pic.png';
   isGuestUser: boolean = true;
   channels: any[] = [];
-searchTerm: string = '';
-filteredChannels: any[] = [];
+  searchTerm: string = '';
+  filteredChannels: any[] = [];
 
   private subscription: Subscription = new Subscription();
 
@@ -50,20 +50,17 @@ filteredChannels: any[] = [];
     private loginService: LoginService,
     private userDataService: UserDataService,
     private cdr: ChangeDetectorRef,
-    private firestoreService: FirestoreService,
-  ) {
-  }
+    private firestoreService: FirestoreService
+  ) {}
 
   ngOnInit() {
-this.firestoreService.getAllChannels().subscribe(data => {
-  this.channels = data.map((doc: any) => doc.name);
-  this.filteredChannels = this.channels;
-  console.log('Channels loaded:', this.channels);
-});
+    this.firestoreService.getAllChats().subscribe((docs) => {
+      this.channels = docs.map((doc) => doc.name);
+      this.filteredChannels = this.channels;
+      console.log('Channels loaded:', this.channels);
+    });
 
-
-
-    this.subscription = this.userDataService.user$.subscribe(user => {
+    this.subscription = this.userDataService.user$.subscribe((user) => {
       setTimeout(() => {
         this.updateUserData(user);
         this.cdr.detectChanges();
@@ -71,23 +68,23 @@ this.firestoreService.getAllChannels().subscribe(data => {
     });
   }
 
-onSearchChange() {
-  if (!this.searchTerm.trim()) {
-    // wenn leer → nichts anzeigen
-    this.filteredChannels = [];
-    return;
-  }
+  onSearchChange() {
+    if (!this.searchTerm.trim()) {
+      // wenn leer → nichts anzeigen
+      this.filteredChannels = [];
+      return;
+    }
 
-  this.filteredChannels = this.channels.filter(channel =>
-    channel.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
-    console.log(this.filteredChannels)
-    
-  );
-}
+    this.filteredChannels = this.channels.filter(
+      (channel) =>
+        channel.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
+      console.log(this.filteredChannels)
+    );
+  }
 
   private initializeUserData() {
     this.isGuestUser = localStorage.getItem('guest_token') !== null;
-    
+
     if (this.isGuestUser) {
       this.userName = localStorage.getItem('guest_name') || 'Frederik Beck';
       this.userEmail = 'frederik.beck@example.com';
@@ -106,7 +103,7 @@ onSearchChange() {
     } else {
       this.initializeUserData();
     }
-    
+
     this.cdr.detectChanges();
   }
 
@@ -116,7 +113,7 @@ onSearchChange() {
 
   openProfileDialog() {
     const currentlyGuest = localStorage.getItem('guest_token') !== null;
-    
+
     const dialogRef = this.dialog.open(ProfileComponent, {
       width: '500px',
       panelClass: 'profile-dialog-container',
@@ -124,11 +121,11 @@ onSearchChange() {
         name: this.userName,
         email: this.userEmail,
         profileImage: this.userImage,
-        isGuest: currentlyGuest
-      }
+        isGuest: currentlyGuest,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
       }
     });
