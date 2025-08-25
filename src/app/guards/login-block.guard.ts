@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class LoginBlockGuard implements CanActivate {
-  constructor(private user: UserDataService, private router: Router) {}
+  constructor(private user: UserDataService, private router: Router) { }
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.user.user$.pipe(
@@ -14,7 +14,9 @@ export class LoginBlockGuard implements CanActivate {
       take(1),
       map(u => {
         if (u) {
-          return this.router.parseUrl(this.router.url || '/channelChat/test_channel');
+          const targetUrl = this.router.url && this.router.url !== '/' ?
+            this.router.url : '/channelChat/test_channel';
+          return this.router.parseUrl(targetUrl);
         }
         return true;
       })

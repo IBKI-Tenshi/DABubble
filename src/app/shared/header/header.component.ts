@@ -56,14 +56,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.firestoreService.getAllChats().subscribe((docs) => {
       this.channels = docs.map((doc) => doc.name);
-      this.filteredChannels = this.channels;
+      this.filteredChannels = [];
     });
-
     this.subscription = this.userDataService.user$.subscribe((user) => {
-      setTimeout(() => {
-        this.updateUserData(user);
-        this.cdr.detectChanges();
-      }, 0);
+      this.updateUserData(user);
     });
   }
 
@@ -74,11 +70,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.filteredChannels = this.channels.filter(
-      (channel) =>
-        channel.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
-      console.log(this.filteredChannels)
-    );
+  this.filteredChannels = this.channels.filter(channel =>
+    channel.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+
+  );
   }
 
   private initializeUserData() {
@@ -102,8 +97,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     } else {
       this.initializeUserData();
     }
-
-    this.cdr.detectChanges();
   }
 
   ngOnDestroy() {

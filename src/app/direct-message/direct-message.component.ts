@@ -105,6 +105,8 @@ export class DirectMessageComponent
   >;
 
   private pickerAnchors: Record<string, HTMLElement> = {};
+  private _resizeTimeout: any;
+  private _scrollTimeout: any;
   private needsToScroll = false;
   public reactionPickerPos: Record<string, { left: number; top: number }> = {};
   private routeSub!: Subscription;
@@ -121,7 +123,6 @@ export class DirectMessageComponent
     private userService: UserDataService,
     private chatPartnerService: ChatPartnerService,
     private cdr: ChangeDetectorRef,
-    private chatNav: ChatNavigationService
   ) {}
 
   @HostListener('touchstart', ['$event'])
@@ -141,17 +142,23 @@ export class DirectMessageComponent
 
   @HostListener('window:resize')
   onResizeReposition() {
-    if (this.showEmojiPickerForReaction) {
-      this.positionReactionPicker(this.showEmojiPickerForReaction);
-    }
-    this.checkScreenSize();
+    if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+    this._resizeTimeout = setTimeout(() => {
+      if (this.showEmojiPickerForReaction) {
+        this.positionReactionPicker(this.showEmojiPickerForReaction);
+      }
+      this.checkScreenSize();
+    }, 100);
   }
 
   @HostListener('window:scroll')
   onScrollReposition() {
-    if (this.showEmojiPickerForReaction) {
-      this.positionReactionPicker(this.showEmojiPickerForReaction);
-    }
+    if (this._scrollTimeout) clearTimeout(this._scrollTimeout);
+    this._scrollTimeout = setTimeout(() => {
+      if (this.showEmojiPickerForReaction) {
+        this.positionReactionPicker(this.showEmojiPickerForReaction);
+      }
+    }, 100);
   }
 
   ngOnInit(): void {
@@ -655,9 +662,12 @@ export class DirectMessageComponent
     this.showEmojiPickerForReaction = messageId;
   }
 
-  @HostListener('document:click')
-  closePickersOnOutsideClickDoc() {
-    if (this.showEmojiPickerForReaction) {
+  @HostListener('document:click', ['$event'])
+  closePickersOnOutsideClickDoc(event: MouseEvent) {
+    const clickTarget = event.target as HTMLElement;
+    if (this.showEmojiPickerForReaction &&
+        !clickTarget.closest('.emoji-picker-container') &&
+        !clickTarget.closest('.add-reaction-button')) {
       this.showEmojiPickerForReaction = null;
     }
   }

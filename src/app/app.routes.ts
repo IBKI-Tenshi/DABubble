@@ -23,5 +23,5 @@ export const routes: Routes = [
   { path: 'impressum', component: ImprintComponent },
   { path: 'password', component: PasswordEmailComponent },
   { path: 'passwordReset', component: PasswordResetComponent },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'directMessage/general' }
 ];
