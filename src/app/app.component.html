@@ -3,18 +3,29 @@
 <div class="windowSetup" *ngIf="isLoggedIn$ | async">
   <app-header></app-header>
 
+  <!-- button ausgeblendet im Portrait-modus -->
   <button class="toggle-sidebar-button dFlex_ac_jc" (click)="toggleSidebar()">
     {{ showSidebar ? "Workspace-Menü schließen" : "Workspace-Menü öffnen" }}
-    <img [src]="showSidebar ? '/assets/icons/close-sidebar.svg' : '/assets/icons/open-sidebar.svg'" alt="" />
+    <img
+      [src]="
+        showSidebar
+          ? '/assets/icons/close-sidebar.svg'
+          : '/assets/icons/open-sidebar.svg'
+      "
+      alt=""
+    />
   </button>
 
   <div class="main-layout">
-    <div *ngIf="showSidebar" class="sidebar-container">
+    <ng-container *ngIf="showSidebar" class="sidebar-container">
       <app-sidebar @fadeSlideSidebar></app-sidebar>
-    </div>
+    </ng-container>
 
-    <div class="router-container" [class.hidden]="isMobilePortrait && showSidebar">
-      <router-outlet></router-outlet>
-    </div>
+    <!-- Router-Outlet nur anzeigen, wenn Sidebar im Portrait-Modus -->
+    <router-outlet *ngIf="!isMobilePortrait || !showSidebar"></router-outlet>
   </div>
+</div>
+
+<div *ngIf="!(isLoggedIn$ | async)">
+  <router-outlet></router-outlet>
 </div>
