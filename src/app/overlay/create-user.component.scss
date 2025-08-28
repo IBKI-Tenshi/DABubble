@@ -1,35 +1,68 @@
+/* ========= Tokens ========= */
+$primary: #444df2;
+$white: #fff;
+$overlay-bg: rgba(0, 0, 0, 0.333);
+
+$radius-lg: 30px;
+$space-md: 24px;
+$space-xl: 50px;
+
+/* ========= Overlay ========= */
 .overlay {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 100%;
+  inset: 0; /* top/right/bottom/left: 0 */
+  z-index: 1000;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.333);
-  z-index: 1000;
-}
 
-.profile {
-  background-color: #444df2;
-  padding: 50px;
-  border: 0 solid transparent;
-  border-radius: 30px 30px 0px 30px;
-  h2 {
-    font-size: 36px;
-    font-weight: 700;
-    color: white;
-    margin: 0;
+  background-color: $overlay-bg;
+  /* Optional subtle blur; safely ignored where unsupported */
+  backdrop-filter: blur(2px);
+
+  /* Improve keyboard focus visibility inside overlay */
+  :focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
   }
 }
 
+/* ========= Profile Card ========= */
+.profile {
+  background-color: $primary;
+  color: $white;
+  padding: $space-xl;
+  border-radius: $radius-lg $radius-lg 0 $radius-lg; /* 30px 30px 0 30px */
+
+  /* Optional max-width to prevent over-stretch on wide screens */
+  max-width: 90vw;
+
+  h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+}
+
+/* ========= Header Row ========= */
 .header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: $space-md;
+
   img {
     width: 56px;
     height: 56px;
+    object-fit: cover; /* keeps icons/avatars tidy */
+  }
+}
+
+/* Prefer reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    backdrop-filter: none;
   }
 }
