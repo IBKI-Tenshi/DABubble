@@ -49,6 +49,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isOnline = true;
 
   activeChat = '';
+  activeChannel = '';
 
   private sub = new Subscription();
 
@@ -60,7 +61,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private chatNavigationService: ChatNavigationService,
     private chatPartnerService: ChatPartnerService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.loadChannelsInSidebar();
@@ -80,7 +81,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
             this.avatarService.profileArray[idx % this.avatarService.profileArray.length];
           return { name, email, avatar };
         });
-        this.users = allUsers.filter((u: { email: string; }) => u.email && u.email !== this.currentUserEmail);
+        this.users = allUsers.filter((u: { email: string }) => u.email && u.email !== this.currentUserEmail);
 
         this.cdr.detectChanges();
       },
@@ -88,6 +89,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
 
     this.sub.add(s);
+
+    this.router.events.subscribe(event => {
+      if (event.constructor.name === 'NavigationEnd') {
+        const url = this.router.url;
+        if (url.includes('/directMessage/')) {
+          const parts = url.split('/');
+          this.activeChat = parts[parts.length - 1];
+          this.activeChannel = '';
+        } else if (url.includes('/channelChat/')) {
+          const parts = url.split('/');
+          this.activeChannel = parts[parts.length - 1];
+          this.activeChat = '';
+        }
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -117,24 +133,35 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onChannelAdded(newChannelName: string) {
-    this.firestore.createChannel(newChannelName)
+    this.firestore
+      .createChannel(newChannelName)
       .then(() => this.channels.push(newChannelName))
-      .catch(() => { });
+      .catch(() => {});
   }
 
   generateChatId(email1: string, email2: string): string {
-    return [email1.toLowerCase(), email2.toLowerCase()].sort().join('_');
+    const sortedEmails = [email1.toLowerCase(), email2.toLowerCase()].sort();
+    const chatId = sortedEmails.join('_');
+    return chatId;
+  }
+
+  isActiveChannel(channelName: string): boolean {
+    return this.activeChannel === channelName;
   }
 
   async openChatWithUser(otherEmail: string, otherName: string, otherAvatar: string) {
     const me = await firstValueFrom(this.userService.user$);
     const myName = me?.name || 'Unbekannt';
     const myEmail = (me?.email || '').toLowerCase();
-
-    const chatId = this.firestore.generateChatId(myEmail, otherEmail.toLowerCase());
-
+  
+    const chatId = this.generateChatId(myEmail, otherEmail.toLowerCase());
+    this.activeChat = chatId;
+    this.activeChannel = ''; 
+    
+    this.cdr.detectChanges();
+    
     this.chatPartnerService.setChatPartner(chatId, otherName, otherAvatar);
-
+    
     try {
       await firstValueFrom(this.firestore.getChatById(chatId));
       this.navigateToChat(chatId);
@@ -152,11 +179,22 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  async openSelfChat() {
+    const me = await firstValueFrom(this.userService.user$);
+    if (!me?.email) return;
+    const email  = me.email.toLowerCase();
+    const name   = me.name || 'Unbekannt';
+    const avatar = me.profileImage || '/assets/img/dummy_pic.png';
+    await this.openChatWithUser(email, name, avatar);
+  }
+
   private navigateToChat(chatId: string) {
     this.router.navigate(['/directMessage', chatId]);
   }
 
-  openChannelChat(channelId: string) {
-    this.router.navigate(['/channelChat', channelId]);
+  openChannelChat(channelName: string) {
+    this.activeChannel = channelName;
+    this.activeChat = '';
+    this.router.navigate(['/channelChat', channelName]);
   }
 }
