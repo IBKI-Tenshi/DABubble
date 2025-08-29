@@ -124,7 +124,7 @@ export class FirestoreService {
     return this.http.get<Message[]>(url);
   }
 
-  async addMessageToChat(chatId: string, message: Message): Promise<any> {
+  async addMessageToChat(chatId: string, message: any): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages`;
   
@@ -132,11 +132,9 @@ export class FirestoreService {
       fields: {
         text: { stringValue: message.text },
         senderId: { stringValue: message.senderId },
-        senderName: { stringValue: message.senderId },
+        originalSenderId: { stringValue: message.senderId },
         timestamp: { timestampValue: message.timestamp.toISOString() },
-        avatar: message.avatar 
-          ? { stringValue: message.avatar } 
-          : { nullValue: null },
+        avatar: message.avatar ? { stringValue: message.avatar } : { nullValue: null },
       },
     };
   
@@ -424,5 +422,38 @@ export class FirestoreService {
     const url = `${this.urlService.BASE_URL}/chats?documentId=${encoded}`;
     const payload = { fields: body.fields ?? {} };
     await firstValueFrom(this.http.post(url, payload));
+  }
+
+  async updateMessageReactionsAndSender(
+    chatId: string,
+    messageId: string,
+    reactions: any[],
+    originalSender: string
+  ): Promise<any> {
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}?updateMask.fieldPaths=reactions&updateMask.fieldPaths=originalSenderId`;
+  
+    const reactionsArray = reactions.map((r) => ({
+      mapValue: {
+        fields: {
+          emoji: { stringValue: r.emoji },
+          count: { integerValue: String(r.count) },
+          users: {
+            arrayValue: {
+              values: r.users.map((u: string) => ({ stringValue: u })),
+            },
+          },
+        },
+      },
+    }));
+  
+    const updateData = {
+      fields: {
+        reactions: { arrayValue: { values: reactionsArray } },
+        originalSenderId: { stringValue: originalSender },
+      },
+    };
+  
+    return firstValueFrom(this.http.patch(url, updateData));
   }
 }

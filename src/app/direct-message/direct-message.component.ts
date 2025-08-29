@@ -343,23 +343,11 @@ export class DirectMessageComponent
   
             const timestamp = tsRaw ? new Date(tsRaw) : new Date(0);
   
-            let senderId = fields.senderName?.stringValue || fields.senderId?.stringValue || 'Unbekannt';
+            const originalSenderId = fields.originalSenderId?.stringValue || fields.senderId?.stringValue || '';
             
-            const isMyMessage = senderId === this.senderName || 
-                               (fields.reactions?.arrayValue?.values || []).some((r: any) => {
-                                 const users = r?.mapValue?.fields?.users?.arrayValue?.values || [];
-                                 return users.some((u: any) => u?.stringValue === this.senderName);
-                               });
-            
-        
-            if (senderId === 'Unbekannt' && isMyMessage) {
-              senderId = this.senderName;
-            }
-  
             const text = fields.text?.stringValue || '';
-            const avatar =
-              fields.avatar?.stringValue || this.getAvatarForUser(senderId);
-  
+            const avatar = fields.avatar?.stringValue || this.getAvatarForUser(originalSenderId);
+
             const rawReactions = fields.reactions?.arrayValue?.values || [];
             const reactions = rawReactions.map((r: any): Reaction => {
               const f = r?.mapValue?.fields || {};
@@ -375,7 +363,7 @@ export class DirectMessageComponent
   
             return {
               id,
-              senderId,
+              senderId: originalSenderId,
               text,
               timestamp,
               avatar,
@@ -450,7 +438,7 @@ export class DirectMessageComponent
     if (this.isSending || !this.newMessageText.trim()) return;
   
     this.isSending = true;
-
+  
     const newMessage: Message = {
       text: this.newMessageText,
       senderId: this.senderName,
@@ -471,8 +459,11 @@ export class DirectMessageComponent
       this.groupMessagesByDate();
   
       this.needsToScroll = true;
-
-      await this.firestore.addMessageToChat(this.chatId, newMessage);
+  
+      await this.firestore.addMessageToChat(this.chatId, {
+        ...newMessage,
+        originalSenderId: this.senderName
+      });
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
       this.newMessageText = messageText;
@@ -572,16 +563,14 @@ export class DirectMessageComponent
 
       const messageIndex = this.messages.findIndex((m) => m.id === messageId);
       if (messageIndex === -1) return;
-
       const message = this.messages[messageIndex];
       const reactionIndex = message.reactions.findIndex(
         (r) => r.emoji === emoji
       );
-
       if (reactionIndex !== -1) {
         const reaction = message.reactions[reactionIndex];
         const userIndex = reaction.users.indexOf(this.senderName);
-
+  
         if (userIndex !== -1) {
           reaction.users.splice(userIndex, 1);
           reaction.count--;
@@ -599,12 +588,14 @@ export class DirectMessageComponent
           users: [this.senderName],
         });
       }
-
-      await this.firestore.updateMessageReactions(
+  
+      await this.firestore.updateMessageReactionsAndSender(
         this.chatId,
         messageId,
-        message.reactions
+        message.reactions,
+        message.senderId 
       );
+      
       this.showEmojiPickerForReaction = null;
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Reaktion:', error);

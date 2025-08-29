@@ -78,6 +78,7 @@
               [isOwn]="isOwnMessage(message)"
               [messageId]="message.id!"
               [messageText]="message.text"
+              [senderId]="message.senderId"
               (onEdit)="startEditing(message.id!, message.text)"
               (onReaction)="addReaction(message.id!, $event)"
               (onDm)="goToDM(message.senderId)"

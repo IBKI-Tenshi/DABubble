@@ -6,6 +6,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
+import { ChatNavigationService } from '../services/chat-navigation.service';
+import { Router } from '@angular/router';
+import { UserDataService } from '../services/user_data.service';
+import { firstValueFrom } from 'rxjs'; 
 
 @Component({
   selector: 'app-reaction-tools',
@@ -18,10 +22,11 @@ export class ReactionToolsComponent implements AfterViewInit {
   @Input() isOwn = false;
   @Input() messageId = '';
   @Input() messageText = '';
+  @Input() senderId = '';
 
   @Output() onEdit = new EventEmitter<{ messageId: string; messageText: string }>();
   @Output() onReaction = new EventEmitter<any>();
-  @Output() onDm = new EventEmitter<void>();  
+  @Output() onDm = new EventEmitter<void>();
   @ViewChild('emojiPicker') emojiPickerRef?: ElementRef;
 
   showPicker = false;
@@ -32,15 +37,47 @@ export class ReactionToolsComponent implements AfterViewInit {
     'people', 'nature', 'foods', 'activity', 'objects', 'symbols', 'places', 'flags'
   ];
 
-  constructor(private renderer: Renderer2, private elementRef: ElementRef) {}
+  constructor(
+    private renderer: Renderer2,
+    private elementRef: ElementRef,
+    private chatNavigationService: ChatNavigationService,
+    private router: Router,
+    private userDataService: UserDataService
+  ) { }
 
   ngAfterViewInit() {
     setTimeout(() => this.fixEmojiPicker(), 100);
   }
 
-  openDm() {                  
-    this.onDm.emit();
+  async openDm() {
+    if (!this.messageId || !this.senderId) {
+      console.error('Kann DM nicht öffnen: Keine Message-ID oder Sender-ID');
+      return;
+    }
+    const currentUser = await firstValueFrom(this.userDataService.user$);
+    const currentUserName = currentUser?.name || '';
+
+    const isSelfChat = this.senderId === currentUserName ||
+      this.senderId.endsWith('(Du)');
+
+    if (isSelfChat) {
+      this.navigateToSelfChat(currentUserName);
+    } else {
+      this.chatNavigationService.openDirectMessageWith(this.senderId);
+    }
+
     this.showMenu = false;
+  }
+
+  private async navigateToSelfChat(userName: string) {
+    try {
+      const email = (await firstValueFrom(this.userDataService.user$))?.email?.toLowerCase() || '';
+      const chatId = [email, email].sort().join('_');
+      this.router.navigate(['/directMessage', chatId]);
+    } catch (error) {
+      console.error('Fehler beim Öffnen des Self-Chat:', error);
+      this.chatNavigationService.openDirectMessageWith(userName);
+    }
   }
 
   togglePicker(evt: MouseEvent) {
@@ -55,13 +92,13 @@ export class ReactionToolsComponent implements AfterViewInit {
     }
   }
 
-  toggleMenu(evt: MouseEvent) { 
+  toggleMenu(evt: MouseEvent) {
     evt.stopPropagation();
     this.showMenu = !this.showMenu;
     this.showPicker = false;
   }
 
-  triggerEdit() {             
+  triggerEdit() {
     this.onEdit.emit({ messageId: this.messageId, messageText: this.messageText });
     this.showMenu = false;
   }
