@@ -27,6 +27,7 @@ import { ReactionBubbleComponent } from '../reaction-bubble/reaction-bubble.comp
 interface Message {
   id?: string;
   senderId: string;
+  senderName?: string;
   text: string;
   timestamp: Date;
   avatar?: string;
@@ -259,36 +260,25 @@ export class DirectMessageComponent
         const f = chatData?.fields;
         if (!f) return;
 
-        // Namen aus dem Dokument lesen
         const names: string[] =
           f.participantNames?.arrayValue?.values
             ?.map((v: any) => v?.stringValue)
             .filter(Boolean) || [];
-
-        // Partner bestimmen:
-        // - normal: der, der nicht ich bin
-        // - Self-DM: dann bin ich selbst der "Partner"
         let partner = names.find((n) => (n === this.senderName ? false : true));
         if (!partner) partner = this.senderName;
 
-        // Niemals "Unbekannt" anzeigen
         if (!partner || partner === 'Unbekannt') partner = this.senderName;
 
         this.partnerName = partner;
 
-        // Avatar bevorzugt aus Cache, sonst sinnvolle Defaults
         const cached = this.chatPartnerService.getChatPartner(this.chatId);
         if (cached?.avatar) {
           this.partnerAvatarUrl = cached.avatar;
         } else if (partner === this.senderName) {
-          // Self-DM → eigenes Bild
           this.partnerAvatarUrl = this.senderAvatar;
         } else {
-          // Fallback – bleibt bis Sidebar/QueryParam später ein Avatar setzt
           this.partnerAvatarUrl ||= '/assets/img/dummy_pic.png';
         }
-
-        // Merken, damit beim nächsten Öffnen nichts flackert
         this.chatPartnerService.setChatPartner(
           this.chatId,
           this.partnerName,
@@ -298,7 +288,6 @@ export class DirectMessageComponent
       error: async (error) => {
         console.error('Fehler beim Laden der Chat-Informationen:', error);
         if (error?.status === 404) {
-          // Create a minimal doc and retry
           await this.firestore.ensureChatDoc(this.chatId, {
             fields: {
               participantNames: {
@@ -332,16 +321,16 @@ export class DirectMessageComponent
 
   loadMessages(): void {
     this.messageSub?.unsubscribe();
-
+  
     if (!this.chatId) {
       console.error('Keine Chat-ID vorhanden!');
       return;
     }
-
+  
     this.messageSub = this.firestore.getChatMessages(this.chatId).subscribe({
       next: (response: any) => {
         const documents = response?.documents || [];
-
+  
         this.messages = documents
           .map((doc: any) => {
             const fields = doc.fields || {};
@@ -351,14 +340,26 @@ export class DirectMessageComponent
               doc.createTime ||
               doc.updateTime ||
               null;
-
+  
             const timestamp = tsRaw ? new Date(tsRaw) : new Date(0);
-
-            const senderId = fields.senderId?.stringValue || 'Unbekannt';
+  
+            let senderId = fields.senderName?.stringValue || fields.senderId?.stringValue || 'Unbekannt';
+            
+            const isMyMessage = senderId === this.senderName || 
+                               (fields.reactions?.arrayValue?.values || []).some((r: any) => {
+                                 const users = r?.mapValue?.fields?.users?.arrayValue?.values || [];
+                                 return users.some((u: any) => u?.stringValue === this.senderName);
+                               });
+            
+        
+            if (senderId === 'Unbekannt' && isMyMessage) {
+              senderId = this.senderName;
+            }
+  
             const text = fields.text?.stringValue || '';
             const avatar =
               fields.avatar?.stringValue || this.getAvatarForUser(senderId);
-
+  
             const rawReactions = fields.reactions?.arrayValue?.values || [];
             const reactions = rawReactions.map((r: any): Reaction => {
               const f = r?.mapValue?.fields || {};
@@ -371,7 +372,7 @@ export class DirectMessageComponent
                   ) || [],
               };
             });
-
+  
             return {
               id,
               senderId,
@@ -382,10 +383,10 @@ export class DirectMessageComponent
             } as Message;
           })
           .sort(this.compareMessages);
-
+  
         this.groupMessagesByDate();
         this.refreshReactionsDisplay();
-
+  
         if (documents.length > 0) {
           this.needsToScroll = true;
         }
@@ -447,7 +448,7 @@ export class DirectMessageComponent
 
   async sendMessage(): Promise<void> {
     if (this.isSending || !this.newMessageText.trim()) return;
-
+  
     this.isSending = true;
 
     const newMessage: Message = {
@@ -457,18 +458,18 @@ export class DirectMessageComponent
       avatar: this.senderAvatar,
       reactions: [],
     };
-
+  
     const messageText = this.newMessageText;
     this.newMessageText = '';
-
+  
     try {
       const tempId = Date.now().toString();
       const tempMessage = { ...newMessage, id: tempId };
-
+  
       this.messages.push(tempMessage);
       this.messages.sort(this.compareMessages);
       this.groupMessagesByDate();
-
+  
       this.needsToScroll = true;
 
       await this.firestore.addMessageToChat(this.chatId, newMessage);

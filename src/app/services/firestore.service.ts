@@ -127,15 +127,19 @@ export class FirestoreService {
   async addMessageToChat(chatId: string, message: Message): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages`;
-
+  
     const firestoreFormattedMessage = {
       fields: {
         text: { stringValue: message.text },
         senderId: { stringValue: message.senderId },
+        senderName: { stringValue: message.senderId },
         timestamp: { timestampValue: message.timestamp.toISOString() },
+        avatar: message.avatar 
+          ? { stringValue: message.avatar } 
+          : { nullValue: null },
       },
     };
-
+  
     return firstValueFrom(this.http.post(url, firestoreFormattedMessage));
   }
 
@@ -171,6 +175,31 @@ export class FirestoreService {
       throw error;
     }
   }
+
+  async updateSingleMessageField(chatId: string, messageId: string, fieldName: string, value: any): Promise<any> {
+    const encodedChatId = encodeURIComponent(chatId);
+    const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}?updateMask.fieldPaths=${fieldName}`;
+  
+    let fieldValue;
+    if (typeof value === 'string') {
+      fieldValue = { stringValue: value };
+    } else if (typeof value === 'number') {
+      fieldValue = { integerValue: String(value) };
+    } else if (value === null) {
+      fieldValue = { nullValue: null };
+    } else {
+      fieldValue = value; 
+    }
+  
+    const updateData = {
+      fields: {
+        [fieldName]: fieldValue
+      },
+    };
+  
+    return firstValueFrom(this.http.patch(url, updateData));
+  }
+  
 
   async updateThreadRepliesCount(messageId: string): Promise<any> {
     const threadResponse = await firstValueFrom(
@@ -214,7 +243,7 @@ export class FirestoreService {
   ): Promise<any> {
     const encodedChatId = encodeURIComponent(chatId);
     const url = `${this.urlService.BASE_URL}/chats/${encodedChatId}/messages/${messageId}?updateMask.fieldPaths=reactions`;
-
+  
     const reactionsArray = reactions.map((r) => ({
       mapValue: {
         fields: {
@@ -234,7 +263,6 @@ export class FirestoreService {
         reactions: { arrayValue: { values: reactionsArray } },
       },
     };
-
     return firstValueFrom(this.http.patch(url, updateData));
   }
 
