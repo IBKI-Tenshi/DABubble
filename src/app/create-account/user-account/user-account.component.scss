@@ -1,82 +1,199 @@
-.accountCreationWindow {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 606px;
-  padding: 40px;
-  background-color: white;
-  border-radius: 30px;
-  position: relative;
+// =======================
+// Tokens
+// =======================
+$ff: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+$clr-surface: #fff;
+$clr-primary: #444df2;
+$clr-primary-weak: #eceefe;
+$clr-link: #797ef3;
+
+$clr-text: #000;
+$clr-text-mid: #686868;
+$clr-text-muted: #666;
+
+$clr-error: #ed1e79;
+$clr-error-bg: rgb(255, 205, 205);
+$clr-error-mid: rgb(255, 115, 115);
+
+$radius-lg: 30px;
+$radius-pill: 100px;
+$radius-round: 50%;
+$radius-4: 4px;
+
+$gap-1: 6px;
+$gap-2: 8px;
+$gap-3: 16px;
+$gap-4: 24px;
+
+$pad-lg: 40px;
+$pad-header: 56px;
+
+$w-window: 606px;
+$w-logo: 80px;
+$w-arrow: 40px;
+
+$bp-800: 800px;
+$bp-500: 500px;
+
+// =======================
+// Mixins
+// =======================
+@mixin focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(68, 77, 242, 0.15);
 }
 
-.accountCreationContent {
+@mixin flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  border-radius: 25px;
+  font: 700 18px/1 $ff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease,
+    box-shadow 0.2s ease;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+  &:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+  }
+}
+
+// expects *quoted* strings
+@mixin icon-input($base, $focus, $invalid) {
+  background-image: url($base);
+  background-repeat: no-repeat;
+  background-position: 8px 50%;
+  background-size: 24px 24px;
+
+  &:focus {
+    background-image: url($focus);
+  }
+  &.invalid {
+    background-image: url($invalid) !important;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// =======================
+// Layout
+// =======================
+.accountCreationWindow {
+  display: flex;
+  flex-direction: column;
+  gap: $gap-4;
+  width: $w-window;
+  padding: $pad-lg;
+  background-color: $clr-surface;
+  border-radius: $radius-lg;
+  position: relative;
+  font-family: $ff;
+  color: $clr-text;
+}
+
+.accountCreationContent {
+  @include flex-center;
 }
 
 .login-header {
   max-width: 1920px;
   width: 100%;
   box-sizing: border-box;
-  justify-content: space-between;
-  padding: 56px;
+  margin: auto;
+  padding: $pad-header;
   display: flex;
   align-items: flex-start;
-  margin: auto;
+  justify-content: space-between;
 }
 
+// =======================
+// Hints
+// =======================
 .input-hint {
   font-size: 0.9em;
-  color: #666;
+  color: $clr-text-muted;
   margin-top: 4px;
   display: none;
 }
-
 .input-group:focus-within .input-hint {
   display: block;
 }
 
+// =======================
+// Branding
+// =======================
 .logo-container {
-  gap: 16px;
+  display: flex;
+  gap: $gap-3;
 
   > img {
-    width: 80px;
-    height: 80px;
-    //opacity: 0;
-    //animation: fadeInLogo 0.5s ease-in-out 0.4s forwards;
+    width: $w-logo;
+    height: $w-logo;
   }
 
   > span {
     font-weight: 700;
     font-size: 32px;
-    //opacity: 0;
-    //animation: fadeInText 0.5s ease-in-out 0.5s forwards;
   }
 }
 
 .arrowBack {
   position: absolute;
-  height: 40px;
-  width: 40px;
   top: 45px;
   left: 32px;
-  border-radius: 100%;
-  background-image: url(../../../assets/icons/creation_screens/arrow_back_black.svg);
+  width: $w-arrow;
+  height: $w-arrow;
+  border-radius: $radius-round;
+
+  background-image: url("../../../assets/icons/creation_screens/arrow_back_black.svg");
   background-repeat: no-repeat;
   background-position: center center;
+  background-size: contain;
+
   cursor: pointer;
+  transition: background-color 0.2s ease, background-image 0.2s ease;
+
   &:hover {
-    background-color: #eceefe;
-    background-image: url(../../../assets/icons/creation_screens/arrow_back_violet.svg);
+    background-color: $clr-primary-weak;
+    background-image: url("../../../assets/icons/creation_screens/arrow_back_violet.svg");
+  }
+
+  &:focus-visible {
+    @include focus-ring;
   }
 }
 
+// =======================
+// Typography blocks
+// =======================
 h1 {
   text-align: center;
   font-weight: 700;
   font-size: 46px;
-  color: #444df2;
+  color: $clr-primary;
   margin: 0;
 }
 
@@ -86,145 +203,132 @@ h1 {
   margin: 0;
 }
 
+// =======================
+// Inputs
+// =======================
 .accountCreationInput {
   display: flex;
   flex-direction: column;
+
   input {
     padding: 18px 32px 18px 64px;
-    border-radius: 100px;
-    background-color: #eceefe;
-    border: 2px solid transparent !important;
-    color: #686868;
+    border-radius: $radius-pill;
+    background-color: $clr-primary-weak;
+    border: 2px solid transparent;
+    color: $clr-text-mid;
     font-size: 18px;
     outline: none;
+    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
     &:hover {
-      border: 2px solid #686868 !important;
+      border-color: $clr-text-mid;
     }
     &:focus {
-      border: 2px solid #444df2 !important;
-      color: black;
+      border-color: $clr-primary;
+      color: $clr-text;
     }
     &:focus::placeholder {
       color: transparent;
     }
+    &:focus-visible {
+      @include focus-ring;
+    }
   }
 
+  // WebKit autofill error styling uses the shadow hack
   input.invalid:-webkit-autofill {
-    box-shadow: 0 0 0px 1000px rgb(255, 205, 205) inset !important;
-    color: #ed1e79 !important;
+    box-shadow: 0 0 0 1000px $clr-error-bg inset !important;
+    color: $clr-error !important;
   }
 
   input.invalid {
-    background-color: rgb(255, 205, 205) !important;
-    color: #ed1e79 !important;
+    background-color: $clr-error-bg;
+    color: $clr-error;
 
     &:hover {
-      border: 2px solid rgb(255, 115, 115) !important;
+      border-color: $clr-error-mid;
     }
     &:focus {
-      border: 2px solid red !important;
+      border-color: red;
     }
   }
+
   input.invalid::placeholder {
     color: rgb(253, 99, 99);
   }
 
   span {
-    color: #ed1e79;
+    color: $clr-error;
     height: 28px;
     font-size: 14px;
   }
 }
 
 .validError {
-  color: #ed1e79;
+  color: $clr-error;
   height: 28px;
   font-size: 14px;
 }
 
+// Iconed inputs via mixin (paths must be quoted)
 input[type="text"] {
-  background-image: url(../../../assets/icons/create_user/person_grey.svg);
-  background-repeat: no-repeat;
-  background-position: 8px 50%;
-  background-size: 24px 24px;
-  &:focus {
-    background-image: url(../../../assets/icons/create_user/person_black.svg);
-  }
-}
-
-input[type="text"].invalid {
-  background-image: url(../../../assets/icons/create_user/person_red.svg);
+  @include icon-input(
+    "../../../assets/icons/create_user/person_grey.svg",
+    "../../../assets/icons/create_user/person_black.svg",
+    "../../../assets/icons/create_user/person_red.svg"
+  );
 }
 
 input[type="email"] {
-  background-image: url(../../../assets/icons/create_user/letter_grey.svg) !important;
-  background-repeat: no-repeat;
-  background-position: 8px 50%;
-  background-size: 24px 24px;
-  &:focus {
-    background-image: url(../../../assets/icons/create_user/letter_black.svg) !important;
-  }
-}
-
-input[type="email"].invalid {
-  background-image: url(../../../assets/icons/create_user/letter_red.svg) !important;
+  @include icon-input(
+    "../../../assets/icons/create_user/letter_grey.svg",
+    "../../../assets/icons/create_user/letter_black.svg",
+    "../../../assets/icons/create_user/letter_red.svg"
+  );
 }
 
 input[type="password"] {
-  background-image: url(../../../assets/icons/create_user/lock_grey.svg);
-  background-repeat: no-repeat;
-  background-position: 8px 50%;
-  background-size: 24px 24px;
-  &:focus {
-    background-image: url(../../../assets/icons/create_user/lock_black.svg);
+  @include icon-input(
+    "../../../assets/icons/create_user/lock_grey.svg",
+    "../../../assets/icons/create_user/lock_black.svg",
+    "../../../assets/icons/create_user/lock_red.svg"
+  );
+
+  &.invalid {
+    background-color: $clr-error-bg;
+    color: $clr-error;
   }
 }
 
-input[type="password"].invalid {
-  background-image: url(../../../assets/icons/create_user/lock_red.svg) !important;
-  background-color: rgb(255, 205, 205);
-  color: #ed1e79;
-}
-
+// =======================
+// Privacy + Checkbox
+// =======================
 .accountCreationPrivacy {
   display: flex;
-  gap: 6px;
+  gap: $gap-1;
   align-items: center;
+
   p {
-    margin-bottom: 0;
+    margin: 0;
     color: #42526e;
   }
+
   a {
-    color: #797ef3;
+    color: $clr-link;
     text-decoration: none;
+    transition: background-color 0.15s ease;
     &:hover {
-      background-color: #eceefe;
+      background-color: $clr-primary-weak;
+    }
+    &:focus-visible {
+      @include focus-ring;
     }
   }
-}
 
-.accountCreationPrivacy.invalid {
-  p {
-    color: #ed1e79 !important;
+  &.invalid p {
+    color: $clr-error;
     font-weight: 700;
     font-size: 14px;
-  }
-}
-
-.continueButton {
-  display: flex;
-  justify-content: flex-end;
-  button {
-    border-radius: 25px;
-    padding: 25px;
-    background-color: #444df2;
-    color: white;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  button.disabled {
-    background-color: gray;
   }
 }
 
@@ -240,7 +344,6 @@ input[type="password"].invalid {
   input {
     position: absolute;
     opacity: 0;
-    cursor: pointer;
     height: 0;
     width: 0;
   }
@@ -252,9 +355,11 @@ input[type="password"].invalid {
     transform: translateY(-50%);
     height: 20px;
     width: 20px;
-    background-color: white;
-    border: 2px solid #797ef3;
-    border-radius: 4px;
+    background-color: $clr-surface;
+    border: 2px solid $clr-link;
+    border-radius: $radius-4;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
     &::after {
       content: "";
       position: absolute;
@@ -263,15 +368,15 @@ input[type="password"].invalid {
       top: 2px;
       width: 5px;
       height: 10px;
-      border: solid white;
+      border: solid $clr-surface;
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
   }
 
   input:checked ~ .checkmark {
-    background-color: #797ef3; /* Violet fill */
-    border-color: #797ef3;
+    background-color: $clr-link;
+    border-color: $clr-link;
 
     &::after {
       display: block;
@@ -279,11 +384,42 @@ input[type="password"].invalid {
   }
 
   &:hover .checkmark {
-    border-color: #5e47d2;
+    border-color: darken($clr-link, 10%);
+  }
+
+  input:focus-visible ~ .checkmark {
+    @include focus-ring;
   }
 }
 
-@media (max-width: 800px) {
+// =======================
+// Buttons
+// =======================
+.continueButton {
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    @include btn-base;
+    background-color: $clr-primary;
+    color: #fff;
+    border: none;
+
+    &:hover {
+      background-color: darken($clr-primary, 5%);
+    }
+  }
+
+  // keep legacy class support
+  button.disabled {
+    background-color: gray;
+  }
+}
+
+// =======================
+// Responsive
+// =======================
+@media (max-width: $bp-800) {
   h1 {
     font-size: 32px;
   }
@@ -298,6 +434,7 @@ input[type="password"].invalid {
 
   .accountCreationWindow {
     padding: 32px 16px;
+    width: 100%;
   }
 
   .accountCreationContent {
@@ -307,19 +444,18 @@ input[type="password"].invalid {
 
   .login-buttons-div {
     gap: 20px;
+
     button {
       padding: 12px;
     }
   }
 
-  .accountCreationInput {
-    input {
-      padding: 18px 18px 18px 32px;
-    }
+  .accountCreationInput input {
+    padding: 18px 18px 18px 32px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: $bp-500) {
   .arrowBack {
     top: 32px;
     left: 24px;

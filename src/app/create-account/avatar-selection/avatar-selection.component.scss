@@ -1,37 +1,114 @@
-.accountCreationWindow {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 606px;
-  padding: 40px;
-  background-color: white;
-  border-radius: 30px;
-  position: relative;
-}
+// =======================
+// Tokens
+// =======================
+$ff: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-.accountCreationContent {
+$clr-surface: #fff;
+$clr-primary: #444df2;
+$clr-primary-weak: #eceefe;
+$clr-border: #e6e6e6;
+$clr-text: #000;
+$clr-muted: gray;
+
+$radius-lg: 30px;
+$radius-pill: 25px;
+$radius-round: 50%;
+
+$gap-1: 8px;
+$gap-2: 16px;
+$gap-3: 24px;
+
+$pad-4: 40px;
+$pad-7: 56px;
+
+$w-window: 606px;
+$w-logo: 80px;
+$w-arrow: 40px;
+
+$avatar: 64px;
+$avatar-selected: 168px;
+
+$bp-800: 800px;
+$bp-500: 500px;
+
+// =======================
+// Helpers
+// =======================
+%flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+%btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  border-radius: $radius-pill;
+  font: 700 18px/1 $ff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease,
+    box-shadow 0.2s ease;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(68, 77, 242, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// =======================
+// Components
+// =======================
+.accountCreationWindow {
+  display: flex;
+  flex-direction: column;
+  gap: $gap-3;
+  width: $w-window;
+  padding: $pad-4;
+  background-color: $clr-surface;
+  border-radius: $radius-lg;
+  position: relative;
+  font-family: $ff;
+  color: $clr-text;
+}
+
+.accountCreationContent {
+  @extend %flex-center;
 }
 
 .login-header {
   max-width: 1920px;
   width: 100%;
   box-sizing: border-box;
-  justify-content: space-between;
-  padding: 56px;
+  margin: auto;
+  padding: $pad-7;
   display: flex;
   align-items: flex-start;
-  margin: auto;
+  justify-content: space-between;
 }
 
 .logo-container {
-  gap: 16px;
+  display: flex;
+  gap: $gap-2;
 
   > img {
-    width: 80px;
-    height: 80px;
+    width: $w-logo;
+    height: $w-logo;
   }
 
   > span {
@@ -42,18 +119,24 @@
 
 .arrowBack {
   position: absolute;
-  height: 40px;
-  width: 40px;
   top: 45px;
   left: 32px;
-  border-radius: 100%;
-  background-image: url(../../../assets/icons/creation_screens/arrow_back_black.svg);
-  background-repeat: no-repeat;
-  background-position: center center;
+  width: $w-arrow;
+  height: $w-arrow;
+  border-radius: $radius-round;
+  background: center/contain no-repeat
+    url(../../../assets/icons/creation_screens/arrow_back_black.svg);
   cursor: pointer;
+  transition: background-color 0.2s ease, background-image 0.2s ease;
+
   &:hover {
-    background-color: #eceefe;
+    background-color: $clr-primary-weak;
     background-image: url(../../../assets/icons/creation_screens/arrow_back_violet.svg);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(68, 77, 242, 0.15);
   }
 }
 
@@ -61,74 +144,89 @@ h1 {
   text-align: center;
   font-weight: 700;
   font-size: 46px;
-  color: #444df2;
+  color: $clr-primary;
+  margin: 0;
+  font-family: $ff;
 }
 
 .avatarSelectionFields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $gap-2;
+
   p {
-    font-weight: 400;
-    font-size: 20px;
+    font: 400 20px/1.4 $ff;
+    margin: 0;
   }
+
   h2 {
     text-align: center;
     font-weight: 700;
     font-size: 32px;
+    margin: 0;
   }
 }
 
 .avatarPictures {
   display: flex;
-  gap: 8px;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: $gap-1;
+
   img {
-    width: 64px;
-    height: 64px;
-    border-radius: 100%;
+    width: $avatar;
+    height: $avatar;
+    border-radius: $radius-round;
     border: 4px solid transparent;
     cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
     &:hover {
-      border: 4px solid #e6e6e6;
+      border-color: $clr-border;
     }
     &:active {
-      border: 4px solid #eceefe;
+      border-color: $clr-primary-weak;
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(68, 77, 242, 0.15);
     }
   }
+}
+
+.profilePicture {
+  @extend %flex-center;
+}
+
+.selectedAvatar {
+  width: $avatar-selected;
+  height: $avatar-selected;
+  border-radius: $radius-round;
 }
 
 .continueButton {
   display: flex;
   justify-content: flex-end;
+
   button {
-    border-radius: 25px;
-    padding: 25px;
-    background-color: #444df2;
-    color: white;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
+    @extend %btn-base;
+    background-color: $clr-primary;
+    color: #fff;
+    border: none;
+
+    &:hover {
+      background-color: darken($clr-primary, 5%);
+    }
+    &:disabled {
+      background-color: $clr-muted;
+    }
   }
-  button.disabled {
-    background-color: gray;
-  }
 }
 
-.selectedAvatar {
-  width: 168px;
-  height: 168px;
-  border-radius: 100%;
-}
-
-.profilePicture {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-@media (max-width: 800px) {
+// =======================
+// Responsive
+// =======================
+@media (max-width: $bp-800) {
   h1 {
     font-size: 32px;
   }
@@ -143,6 +241,7 @@ h1 {
 
   .accountCreationWindow {
     padding: 32px 16px;
+    width: 100%;
   }
 
   .accountCreationContent {
@@ -152,19 +251,18 @@ h1 {
 
   .login-buttons-div {
     gap: 20px;
+
     button {
       padding: 12px;
     }
   }
 
-  .accountCreationInput {
-    input {
-      padding: 18px 18px 18px 32px;
-    }
+  .accountCreationInput input {
+    padding: 18px 18px 18px 32px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: $bp-500) {
   .arrowBack {
     top: 32px;
     left: 24px;
